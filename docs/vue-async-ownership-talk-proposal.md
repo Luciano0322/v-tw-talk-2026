@@ -1299,6 +1299,7 @@ Transition: What changes when the problem is specifically server state?
 
 ### P1：內容骨架
 
+- 詳細 task、acceptance 與實作紀錄使用 [`presentation_workflow.md`](./presentation_workflow.md) 追蹤。
 - 清除 Slidev starter pages。
 - 建立 7 個 main section files。
 - 先只放標題、核心句、speaker notes。
