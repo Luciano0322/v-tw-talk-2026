@@ -307,47 +307,92 @@ Cut: 可刪除 external work 說明，保留 source、policy、runtime、Vue con
 -->
 
 ---
-layout: center
+layout: default
+clicks: 2
 ---
 
 # State 放在哪裡
 
-## 不等於 lifecycle 由誰維持
+## 不等於 async lifecycle 由誰維持
 
-<div class="mt-8 grid grid-cols-3 gap-4 text-center">
-  <div class="rounded-xl border p-4">
-    <div class="text-lg font-semibold">1. State location</div>
-    <div class="mt-2">snapshot 放在哪裡？</div>
-    <div class="mt-3 text-sm opacity-70">component · store<br>cache · graph</div>
+<div class="relative mt-5 h-[390px]">
+  <div v-click.hide="1" class="absolute inset-0 flex flex-col items-center justify-center">
+    <div class="text-xl font-semibold">Async state 會跨時間改變</div>
+    <div class="mt-5 flex items-center gap-3 font-mono text-lg">
+      <span class="rounded-lg border px-4 py-2">pending</span>
+      <span class="opacity-45">→</span>
+      <span class="rounded-lg border px-4 py-2">success(data A)</span>
+      <span class="opacity-45">→</span>
+      <span class="rounded-lg border px-4 py-2">refreshing(data A)</span>
+    </div>
+    <div class="mt-6 text-sm font-semibold opacity-60">UI 在某一刻讀取 ↓</div>
+    <div class="mt-3 rounded-xl bg-gray-100 px-8 py-4 text-center dark:bg-gray-800">
+      <div class="font-mono text-lg">snapshot = { status, data, error }</div>
+      <div class="mt-2 font-semibold">
+        Snapshot 不是另一套 state；它是 UI 此刻讀到的 async state。
+      </div>
+    </div>
   </div>
-  <div class="rounded-xl border p-4">
-    <div class="text-lg font-semibold">2. Policy declaration</div>
-    <div class="mt-2">規則在哪裡被宣告？</div>
-    <div class="mt-3 text-sm opacity-70">trigger · refresh<br>error · invalidation</div>
-  </div>
-  <div class="rounded-xl border p-4">
-    <div class="text-lg font-semibold">3. Lifecycle enforcement</div>
-    <div class="mt-2">誰持續維持正確性？</div>
-    <div class="mt-3 text-sm opacity-70">currentness · status<br>stale · cleanup</div>
-  </div>
-</div>
 
-<div class="mt-8 rounded-xl bg-gray-100 p-4 text-center dark:bg-gray-800">
-  <div><code>users</code>：component ref → Pinia store</div>
-  <div class="mt-2 font-semibold">
-    只證明 location 改變；lifecycle owner 是否改變，仍要看 action 與 runtime 的承諾。
+  <div v-click="[1, 2]" class="absolute inset-0">
+    <div class="grid grid-cols-2 gap-5">
+      <div class="rounded-xl border p-5 text-center">
+        <div class="text-lg font-semibold">Vue lifecycle</div>
+        <div class="mt-3 font-mono">mount → update → unmount</div>
+        <div class="mt-3 text-sm opacity-70">consumer 何時存在</div>
+      </div>
+      <div class="rounded-xl border p-5 text-center">
+        <div class="text-lg font-semibold">Async lifecycle</div>
+        <div class="mt-3 font-mono">trigger → active → settle</div>
+        <div class="mt-1 font-mono text-sm">refresh · dispose</div>
+        <div class="mt-3 text-sm opacity-70">work / resource 如何跨時間保持正確</div>
+      </div>
+    </div>
+    <div class="mx-auto mt-5 max-w-3xl rounded-xl bg-gray-100 p-4 text-center dark:bg-gray-800">
+      <div class="font-mono text-sm">unmount → cancel request · unsubscribe stream · detach consumer</div>
+      <div class="mt-2 text-lg font-semibold">兩條 lifecycle 會交會，但不是同一條。</div>
+    </div>
+  </div>
+
+  <div v-click="2" class="absolute inset-0">
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div class="rounded-xl border p-4">
+        <div class="text-lg font-semibold">1. Snapshot location</div>
+        <div class="mt-2 text-sm">UI 此刻讀到的值放在哪裡？</div>
+        <div class="mt-3 text-sm opacity-70">component · store<br>cache · graph</div>
+      </div>
+      <div class="rounded-xl border p-4">
+        <div class="text-lg font-semibold">2. Async policy</div>
+        <div class="mt-2 text-sm">規則在哪裡被宣告？</div>
+        <div class="mt-3 text-sm opacity-70">trigger · refresh<br>error · invalidation</div>
+      </div>
+      <div class="rounded-xl border p-4">
+        <div class="text-lg font-semibold">3. Async lifecycle owner</div>
+        <div class="mt-2 text-sm">誰持續維持正確性？</div>
+        <div class="mt-3 text-sm opacity-70">currentness · status<br>stale · cleanup</div>
+      </div>
+    </div>
+    <div class="mt-5 rounded-xl bg-gray-100 p-4 text-center dark:bg-gray-800">
+      <div><code>users snapshot</code>：component ref → Pinia store</div>
+      <div class="mt-2 font-semibold">
+        只證明讀取位置改變；async lifecycle owner 是否改變，仍要看 action 與 runtime 的承諾。
+      </div>
+    </div>
   </div>
 </div>
 
 <!--
-Core: State location、policy declaration 與 lifecycle enforcement 是三個不同問題。
-Time: 45 秒。
+Core: Snapshot 是 UI 某一刻讀到的 async state；Vue lifecycle 與 async lifecycle 會交會，但不是同一條；location、policy 與 owner 也是三個不同問題。
+Time: 85 秒。
 Talk track:
-假設我們把 users 從 component ref 搬進 Pinia store，可以確定的是 state location 改變了，也可能建立 shared workflow boundary。
+第一步先釐清 state 和 snapshot。Async state 會隨時間從 pending 走到 success，也可能帶著舊資料進入 refreshing；snapshot 不是另一套 state，而是 UI 在某一刻讀到的 status、data 與 error。
+第二步把兩條 lifecycle 分開。Vue lifecycle 描述 component consumer 何時 mount、update、unmount；async lifecycle 描述 request 或 stream 何時 trigger、active、settle、refresh、dispose。
+兩條線會在 unmount 時交會，例如 cancel request、unsubscribe stream 或 detach consumer，但 Vue lifecycle 本身不等於 async lifecycle。
+第三步才回到 ownership。假設把 users snapshot 從 component ref 搬進 Pinia store，可以確定的是讀取位置改變了，也可能建立 shared workflow boundary。
 但 stale response 怎麼判斷、refresh 何時發生、consumer 離開後誰 cleanup，不會因為換了容器就自動得到答案。
-因此後面我會分開看三件事：snapshot 放在哪裡、policy 在哪裡宣告，以及哪個 mechanism 持續維持 lifecycle correctness。
+因此後面會分開看三件事：snapshot 放在哪裡、async policy 在哪裡宣告，以及誰持續維持 async lifecycle correctness。
 Transition: 為了避免每一章臨時更換標準，接下來先固定六個 ownership questions。
-Cut: 只保留「location、policy、enforcement 是三件事」。
+Cut: 快速點到最後一幕，只保留「location、policy、owner 是三件事」。
 -->
 
 ---

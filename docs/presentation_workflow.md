@@ -1,6 +1,6 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 進行中（P1.1–P1.2 完成；下一項為 P1.3）
+> 狀態：P1 進行中（P1.1–P1.3 完成；下一項為 P1.4）
 >
 > 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
 >
@@ -104,7 +104,7 @@ Cut:
 
 - [x] P1.1 建立 Slidev 基礎骨架
 - [x] P1.2 建立 Act 0：共同 async lifecycle model
-- [ ] P1.3 建立 Act 1：共同 Demo 與觀察範圍
+- [x] P1.3 建立 Act 1：共同 Demo 與觀察範圍
 - [ ] P1.4 建立 Act 2：Pure Vue
 - [ ] P1.5 建立 Act 3：Pinia Action
 - [ ] P1.6 建立 Act 4：TanStack Query
@@ -180,7 +180,7 @@ Audience outcome：
 - Slide 3：Promise 結束後仍持續存在的 responsibility。
 - Slide 4：request-like 與 stream-like lifecycle。
 - Slide 5：Vue 環境中的 responsibility distribution。
-- Slide 6：State location 與 lifecycle ownership 的差異。
+- Slide 6：Snapshot location 與 async lifecycle ownership 的差異。
 - Slide 7：共同 ownership checklist 與 case-study disclaimer。
 
 Acceptance：
@@ -192,6 +192,7 @@ Acceptance：
 - [x] 共同模型沒有使用 query key、revision、observe 或 graph 定義 async work。
 - [x] Request 與 Stream 沒有被描述成相同 state machine。
 - [x] Slide 5 分開 source、Vue scope、application policy、runtime、external work 與 consumer。
+- [x] Slide 6 以 clicks 依序定義 snapshot、區分 Vue／async lifecycle，再導入 location／policy／owner。
 - [x] Slide 7 顯示 `trigger / status / stale / invalidate / dispose / render`。
 - [x] Slide 7 明確標示 case study 不是 benchmark 或完整工具選型。
 - [x] Slide 1–7 都有 `Core / Time / Transition / Cut` notes。
@@ -202,8 +203,16 @@ Acceptance：
 ```text
 Red evidence: 00-intro.md 只有一張 P1.2 placeholder；封面 notes 也只有欄位示意，無法完整試講。
 Green implementation: 建立 Slide 1–7，加入共同 lifecycle、request/stream 差異、responsibility distribution、state location 與 ownership checklist；每張均加入完整 Talk track。
-Verification: pnpm run build 成功；production bundle 已包含 Presenter noteHTML；Slide 1–7 notes time budget 合計 290 秒。
-Notes: Slide 2 暫時使用 public/assets/speakers/avatar.png 完整講者卡，P2 再決定原始人像或裁切方式。Review 時將 Slide 3–4 的文字流程改為 Mermaid；1280×720 實際渲染後壓縮節點層級，避免雙欄圖底部裁切，正式 node styling 留到 P2。Slide 3 後續加入三次 click reveal：先從 Promise 的 pending／fulfilled／rejected 三態開始，再切換到完整 async lifecycle，最後揭露 ownership takeaway；production preview 的 clicks 0–3 均產生獨立畫面。Slide 4 也加入三次 click reveal：common framework boundary → request-like → stream-like → final comparison；以 control-flow handoff 與 lifecycle ownership 分離為主軸，production preview clicks 0–3 均產生獨立且完整的 1280×720 畫面。後續 review 重新開啟 P1.2，移除全域 frontmatter 後的空白首頁，讓 cover 回到 Slide 1；Slide 6 改為 location／policy／enforcement 三層問題，Slide 7 只保留六個 ownership questions，Demo 情境留給 P1.3。以 production preview 驗證 `/1`、`/6`、`/7`、`/8`，其中 `/8` 仍為 P1.3 placeholder。
+Verification: pnpm run build 成功；production bundle 已包含 Presenter noteHTML；Slide 1–7 notes time budget 合計 330 秒。
+Notes: Slide 2 暫時使用 public/assets/speakers/avatar.png 完整講者卡，P2 再決定原始人像或裁切方式。Review 時將 Slide 3–4 的文字流程改為 Mermaid；1280×720 實際渲染後壓縮節點層級，避免雙欄圖底部裁切，正式 node styling 留到 P2。Slide 3 後續加入三次 click reveal：先從 Promise 的 pending／fulfilled／rejected 三態開始，再切換到完整 async lifecycle，最後揭露 ownership takeaway；production preview 的 clicks 0–3 均產生獨立畫面。Slide 4 也加入三次 click reveal：common framework boundary → request-like → stream-like → final comparison；以 control-flow handoff 與 lifecycle ownership 分離為主軸，production preview clicks 0–3 均產生獨立且完整的 1280×720 畫面。後續 review 重新開啟 P1.2，移除全域 frontmatter 後的空白首頁，讓 cover 回到 Slide 1；Slide 6 改為 location／policy／owner 三層問題，Slide 7 只保留六個 ownership questions，Demo 情境留給 P1.3。以 production preview 驗證 `/1`、`/6`、`/7`、`/8`，其中 `/8` 仍為 P1.3 placeholder。Slide 6 後續再加入兩次 click 過渡：先定義 async state 與 snapshot，再區分 Vue lifecycle 和 async lifecycle，最後才揭露 snapshot location／async policy／async lifecycle owner；用語同步記錄於根目錄 `CONTEXT.md`。
+```
+
+Slide 6 過渡調整：
+
+```text
+Red evidence: 修改前 production `/6?clicks=0` 與 `/6?clicks=1` 的 1280×720 截圖 SHA-256 相同，證明沒有可觀察的 click 過渡。
+Green implementation: 不增加 slide，以兩次 click 依序呈現 state → snapshot、Vue lifecycle vs async lifecycle、location／policy／owner。
+Verification: pnpm run build 成功；production `/6?clicks=0..2` 產生三個不同的截圖 SHA-256，逐張確認標題、內容與底部均未裁切。
 ```
 
 ### P1.3：建立 Act 1 — 共同 Demo 與觀察範圍
@@ -223,21 +232,21 @@ Audience outcome：
 
 Acceptance：
 
-- [ ] Slide 8 區分 request-like resource、mutation/invalidation 與 stream-like resource。
-- [ ] Slide 8 說明 route 提供 `keyword` 與 `userId` source。
-- [ ] Slide 9 列出四條正式 Demo routes。
-- [ ] Slide 9 說明共同 contract 控制 selected outcomes，不控制 maturity、ecosystem 或 application glue。
-- [ ] Live Demo 暫時只使用 route／screenshot placeholder。
-- [ ] Slide 8–9 都有 `Core / Time / Transition / Cut` notes。
-- [ ] `pnpm run build` 成功。
+- [x] Slide 8 區分 request-like resource、mutation/invalidation 與 stream-like resource。
+- [x] Slide 8 說明 route 提供 `keyword` 與 `userId` source。
+- [x] Slide 9 列出四條正式 Demo routes。
+- [x] Slide 9 說明共同 contract 控制 selected outcomes，不控制 maturity、ecosystem 或 application glue。
+- [x] Live Demo 暫時只使用 route／screenshot placeholder。
+- [x] Slide 8–9 都有 `Core / Time / Transition / Cut` notes。
+- [x] `pnpm run build` 成功。
 
 實作紀錄：
 
 ```text
-Red evidence:
-Green implementation:
-Verification:
-Notes:
+Red evidence: production `/8` 仍只有 P1.3 placeholder，`/9` 已進入 P1.4 placeholder；Search／Update／Activity、keyword／userId、四條 routes 與 comparison boundary 均未出現在公開 Slide DOM。
+Green implementation: Slide 8 建立 request-like Search、mutation + invalidation Update、stream-like Activity 三欄觀察面，並固定 keyword／userId route source；Slide 9 建立四條正式 Demo routes、共同 selected outcomes、刻意不控制的 maturity／ecosystem／application glue，以及 route + fallback screenshot placeholder。兩張均補齊完整 presenter talk track。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，625 modules transformed）；production Slide 8 與 Slide 9 DOM 分別通過 7 項與 9 項公開內容 assertions；1280×720 production screenshots 均無裁切。
+Notes: Slide 8–9 notes time budget 合計 125 秒。Slide 9 第一次視覺驗證發現巢狀 HTML 因四格縮排被當成 code block；DOM 文字雖存在，但觀眾看到的是原始標記。修正 Markdown 渲染結構後重新 build 與截圖 Green。Live Demo 目前只承諾 route navigation 與 fallback screenshot，公開 repo QR 留到 P4。
 ```
 
 ### P1.4：建立 Act 2 — Pure Vue

@@ -409,26 +409,49 @@ flowchart LR
 
 這張使用「責任分散」而不是「ownership 被瓜分」，避免暗示所有 layer 在競爭同一份權力。
 
-#### Slide 6 — State 放在哪裡，不等於 lifecycle 由誰維持
+#### Slide 6 — State 放在哪裡，不等於 async lifecycle 由誰維持
 
-畫面將問題拆成三層：
+這張不新增投影片，而是用兩次 click 建立概念過渡，避免觀眾一開始就同時處理 snapshot、兩種 lifecycle 與 ownership。
 
-| State location | Policy declaration | Lifecycle enforcement |
+**Click 0 — 先從 state 走到 snapshot**
+
+```text
+pending → success(data A) → refreshing(data A)
+                         ↓ UI 在某一刻讀取
+snapshot = { status, data, error }
+```
+
+口說先固定定義：
+
+> Async state 會跨時間改變；snapshot 不是另一套 state，而是 UI 在某一刻讀到的 async state。
+
+**Click 1 — 拆開兩條 lifecycle**
+
+| Vue lifecycle | Async lifecycle |
+| --- | --- |
+| mount → update → unmount | trigger → active → settle / refresh / dispose |
+| consumer 何時存在 | work / resource 如何跨時間保持正確 |
+
+兩條 lifecycle 會在 `unmount → cancel request / unsubscribe stream / detach consumer` 這類情境交會，但不能視為同一條 lifecycle。Vue lifecycle 可以觸發 async policy，卻不會自動維持 async work 的 currentness、stale 與 cleanup。
+
+**Click 2 — 再回到 ownership 三層**
+
+| Snapshot location | Async policy | Async lifecycle owner |
 | --- | --- | --- |
-| snapshot 放在哪裡？ | 規則在哪裡被宣告？ | 誰持續維持正確性？ |
+| UI 此刻讀到的值放在哪裡？ | 規則在哪裡被宣告？ | 誰持續維持正確性？ |
 | component、store、cache、graph | trigger、refresh、error、invalidation | currentness、status、stale、cleanup |
 
 再用同一個具體例子收斂：
 
 ```text
-users：component ref → Pinia store
-只證明 location 改變；
-lifecycle owner 是否改變，仍要看 action 與 runtime 的承諾。
+users snapshot：component ref → Pinia store
+只證明讀取位置改變；
+async lifecycle owner 是否改變，仍要看 action 與 runtime 的承諾。
 ```
 
 口說重點：
 
-> 把 ref 搬進 store 會改變 state location，也可能改變 workflow boundary；但 stale、refresh 與 cleanup 由誰負責，仍取決於 policy declaration 和 lifecycle enforcement。
+> 把 ref 搬進 store 會改變 snapshot location，也可能改變 workflow boundary；但 stale、refresh 與 cleanup 由誰負責，仍取決於 async policy 和 lifecycle owner。
 
 #### Slide 7 — 接下來，固定問六個 Ownership questions
 
