@@ -1,6 +1,6 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 尚未開始
+> 狀態：P1 進行中（P1.1–P1.2 完成；下一項為 P1.3）
 >
 > 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
 >
@@ -102,8 +102,8 @@ Cut:
 
 ## 4. P1 Task List
 
-- [ ] P1.1 建立 Slidev 基礎骨架
-- [ ] P1.2 建立 Act 0：共同 async lifecycle model
+- [x] P1.1 建立 Slidev 基礎骨架
+- [x] P1.2 建立 Act 0：共同 async lifecycle model
 - [ ] P1.3 建立 Act 1：共同 Demo 與觀察範圍
 - [ ] P1.4 建立 Act 2：Pure Vue
 - [ ] P1.5 建立 Act 3：Pinia Action
@@ -147,20 +147,20 @@ pages/
 
 Acceptance：
 
-- [ ] `lang` 設為 `zh-TW`。
-- [ ] `duration` 設為 `40min`。
-- [ ] Title 使用活動定版標題。
-- [ ] 7 個 main section files 均存在並被引入。
-- [ ] Slidev starter pages 已完全移除。
-- [ ] `pnpm run build` 成功。
+- [x] `lang` 設為 `zh-TW`。
+- [x] `duration` 設為 `40min`。
+- [x] Title 使用活動定版標題。
+- [x] 7 個 main section files 均存在並被引入。
+- [x] Slidev starter pages 已完全移除。
+- [x] `pnpm run build` 成功。
 
 實作紀錄：
 
 ```text
-Red evidence:
-Green implementation:
-Verification:
-Notes:
+Red evidence: slides.md 仍為 Welcome to Slidev、duration 35min；只有 imported-slides.md 與 Counter.vue starter assets。
+Green implementation: 建立活動定版 frontmatter、封面、7 個 section imports 與各 Act placeholder；移除 starter files。
+Verification: pnpm run build 成功（Slidev 52.18.0，theme-default）。
+Notes: P1.2 前 deck 為封面加 7 個 section placeholders；完整 35 張由後續 tasks 逐步替換。
 ```
 
 ### P1.2：建立 Act 0 — 共同 async lifecycle model
@@ -185,25 +185,25 @@ Audience outcome：
 
 Acceptance：
 
-- [ ] Slide 1 使用活動定版標題、活動名稱、場次、講者與日期。
-- [ ] 開場 notes 明確說明「從……到……」不是工具升級路線。
-- [ ] Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`。
-- [ ] 講者照片可以使用明確 placeholder，不阻擋 P1。
-- [ ] 共同模型沒有使用 query key、revision、observe 或 graph 定義 async work。
-- [ ] Request 與 Stream 沒有被描述成相同 state machine。
-- [ ] Slide 5 分開 source、Vue scope、application policy、runtime、external work 與 consumer。
-- [ ] Slide 7 顯示 `trigger / status / stale / invalidate / dispose / render`。
-- [ ] Slide 7 明確標示 case study 不是 benchmark 或完整工具選型。
-- [ ] Slide 1–7 都有 `Core / Time / Transition / Cut` notes。
-- [ ] `pnpm run build` 成功。
+- [x] Slide 1 使用活動定版標題、活動名稱、場次、講者與日期。
+- [x] 開場 notes 明確說明「從……到……」不是工具升級路線。
+- [x] Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`。
+- [x] 講者照片可以使用明確 placeholder，不阻擋 P1。
+- [x] 共同模型沒有使用 query key、revision、observe 或 graph 定義 async work。
+- [x] Request 與 Stream 沒有被描述成相同 state machine。
+- [x] Slide 5 分開 source、Vue scope、application policy、runtime、external work 與 consumer。
+- [x] Slide 7 顯示 `trigger / status / stale / invalidate / dispose / render`。
+- [x] Slide 7 明確標示 case study 不是 benchmark 或完整工具選型。
+- [x] Slide 1–7 都有 `Core / Time / Transition / Cut` notes。
+- [x] `pnpm run build` 成功。
 
 實作紀錄：
 
 ```text
-Red evidence:
-Green implementation:
-Verification:
-Notes:
+Red evidence: 00-intro.md 只有一張 P1.2 placeholder；封面 notes 也只有欄位示意，無法完整試講。
+Green implementation: 建立 Slide 1–7，加入共同 lifecycle、request/stream 差異、responsibility distribution、state location 與 ownership checklist；每張均加入完整 Talk track。
+Verification: pnpm run build 成功；production bundle 已包含 Presenter noteHTML；Slide 1–7 notes time budget 合計 290 秒。
+Notes: Slide 2 暫時使用 public/assets/speakers/avatar.png 完整講者卡，P2 再決定原始人像或裁切方式。Review 時將 Slide 3–4 的文字流程改為 Mermaid；1280×720 實際渲染後壓縮節點層級，避免雙欄圖底部裁切，正式 node styling 留到 P2。Slide 3 後續加入三次 click reveal：先從 Promise 的 pending／fulfilled／rejected 三態開始，再切換到完整 async lifecycle，最後揭露 ownership takeaway；production preview 的 clicks 0–3 均產生獨立畫面。Slide 4 也加入三次 click reveal：common framework boundary → request-like → stream-like → final comparison；以 control-flow handoff 與 lifecycle ownership 分離為主軸，production preview clicks 0–3 均產生獨立且完整的 1280×720 畫面。後續 review 重新開啟 P1.2，移除全域 frontmatter 後的空白首頁，讓 cover 回到 Slide 1；Slide 6 改為 location／policy／enforcement 三層問題，Slide 7 只保留六個 ownership questions，Demo 情境留給 P1.3。以 production preview 驗證 `/1`、`/6`、`/7`、`/8`，其中 `/8` 仍為 P1.3 placeholder。
 ```
 
 ### P1.3：建立 Act 1 — 共同 Demo 與觀察範圍

@@ -313,18 +313,22 @@ github.com/Luciano0322
 
 口說控制在 40–50 秒。signal-kernel 只揭露作者身份與研究背景，不在此頁解釋 graph、resource、revision 或 adapter。Slide 2 不放 QR code；照片若使用目前完整講者卡，需避免重複姓名與職稱，優先取得同張照片的原始人像。
 
-#### Slide 3 — Promise 結束了，非同步責任還沒結束
+#### Slide 3 — 從 Promise 三態，過渡到完整 async lifecycle
 
 建議依序 reveal：
 
 ```text
-source / identity
-→ trigger / start
-→ pending or active
-→ success / error / emission
-→ invalidate / refresh / source switch
-→ dispose
+click 0: pending
+click 1: fulfilled / rejected
+         兩者都屬於 settled，結果不再回到 pending
+click 2: source / identity
+         → trigger / active / snapshot
+         → invalidate / refresh / source switch
+         → dispose
+click 3: Promise settled 了；非同步責任還沒結束
 ```
+
+這張先用 Promise 三態降低進入門檻，再指出三態只描述一次工作的 outcome。UI correctness 還需要處理 current source、refresh、source switch 與 disposal，因此後續使用較完整的 async lifecycle vocabulary。
 
 畫面收尾：
 
@@ -334,14 +338,33 @@ source / identity
 
 #### Slide 4 — Request 與 Stream 不必共用同一條 state machine
 
-左右兩條簡化 lifecycle：
+建議用三次 click 建立從 framework integration 到 lifecycle comparison 的過渡：
 
 ```text
+click 0:
+Vue source / component scope
+→ external async work
+→ Vue projection
+
+Control flow 會跨 layer 接力；
+lifecycle ownership 不會因此自動轉移。
+
+click 1 — Request-like:
+Vue source → trigger → pending → success / error → snapshot / render
+source change：currentness / stale response 由誰負責？
+mutation：invalidate / refresh 由誰負責？
+
+click 2 — Stream-like:
+Vue source → subscribe → active → emission* → snapshot / render
+source switch / unmount：unsubscribe 由誰負責？
+stream error：reconnect 或停止由誰決定？
+
+click 3 — comparison:
 Request-like
-trigger → pending → success / error → stale → refresh
+trigger → pending → settled；settled 後可 refresh
 
 Stream-like
-subscribe → active → emission* → source switch / error → unsubscribe
+subscribe → active；active 期間反覆 emit，最後 dispose
 ```
 
 共同問題：
@@ -353,7 +376,7 @@ Who keeps the snapshot correct?
 Who disposes it?
 ```
 
-避免為了統一 vocabulary 而假裝 request 與 stream 完全相同；本場只要求兩者能用同一組 ownership questions 討論。
+避免為了統一 vocabulary 而假裝 request 與 stream 完全相同；本場只要求兩者能用同一組 ownership questions 討論。這張只描述 control-flow handoff 與不同 lifecycle shape；責任實際分布在哪些 layer，留到 Slide 5 展開。
 
 #### Slide 5 — 一段 async work，責任通常分散在哪裡？
 
@@ -386,44 +409,45 @@ flowchart LR
 
 這張使用「責任分散」而不是「ownership 被瓜分」，避免暗示所有 layer 在競爭同一份權力。
 
-#### Slide 6 — 資料放在哪裡，不代表誰在負責
+#### Slide 6 — State 放在哪裡，不等於 lifecycle 由誰維持
 
-| State location | Lifecycle ownership |
-| --- | --- |
-| 資料放在哪裡？ | 哪一層維持跨時間的 invariants？ |
-| component、store、cache、graph | trigger、status、stale、invalidate、dispose、render |
+畫面將問題拆成三層：
 
-再補上兩層問題：
+| State location | Policy declaration | Lifecycle enforcement |
+| --- | --- | --- |
+| snapshot 放在哪裡？ | 規則在哪裡被宣告？ | 誰持續維持正確性？ |
+| component、store、cache、graph | trigger、refresh、error、invalidation | currentness、status、stale、cleanup |
+
+再用同一個具體例子收斂：
 
 ```text
-Policy declared by?
-Lifecycle enforced by?
+users：component ref → Pinia store
+只證明 location 改變；
+lifecycle owner 是否改變，仍要看 action 與 runtime 的承諾。
 ```
 
 口說重點：
 
-> 把 ref 搬進 store 會改變 state 與 workflow boundary；是否也改變 lifecycle policy，要看 action 實際宣告什麼，以及哪個 mechanism 維持這些規則。
+> 把 ref 搬進 store 會改變 state location，也可能改變 workflow boundary；但 stale、refresh 與 cleanup 由誰負責，仍取決於 policy declaration 和 lifecycle enforcement。
 
-#### Slide 7 — 同一個情境，同一份 Ownership checklist
+#### Slide 7 — 接下來，固定問六個 Ownership questions
 
-畫面文案：
-
-```text
-Same Dashboard · Same Users API · Same route state
-Same selected outcomes · Different responsibility map
-```
-
-六個 badge：
+六個 badge 各自帶一個中文問題：
 
 ```text
-trigger · status · stale · invalidate · dispose · render
+trigger    誰開始工作？
+status     誰維持進度？
+stale      誰判斷資料已過期？
+invalidate 誰宣告需要更新？
+dispose    誰停止觀察或工作？
+render     誰把 snapshot 投影成 UI？
 ```
 
 畫面下方直接揭露：
 
-> Architecture case study — not a benchmark, controlled experiment, or complete tool evaluation.
+> Architecture case study：比較 responsibility map，不做工具排名。
 
-後面每個 model 都回答同一份 checklist，不臨時更換標準，也不用程式碼行數、測試數量或 feature 數量推導優劣。
+後面每個 model 都回答同一份 checklist，不臨時更換標準。Dashboard、Users API、route state 與 selected outcomes 留到 Act 1 建立，避免 Slide 7 同時承擔比較標準與 Demo 情境兩個認知任務。
 
 ### Act 1：固定共同 Demo 與觀察範圍
 
