@@ -471,9 +471,9 @@ layout: default
 clicks: 2
 ---
 
-# 完整的 server state，分散的關係圖
+# Server state 與 Vue reactivity 是兩個模型
 
-## Query + Vue 已完整；但 cross-resource tracing 還沒有共同模型
+## 分開管理，是 TanStack Query 的設計選擇
 
 <div class="mt-2 min-h-[170px]">
   <div v-if="$clicks === 0" class="grid grid-cols-2 gap-4 text-sm">
@@ -487,79 +487,77 @@ clicks: 2
       </div>
     </div>
     <div class="rounded-2xl border border-blue-300 p-2 dark:border-blue-700">
-      <div class="font-semibold text-blue-600 dark:text-blue-300">VUE STREAM COMPOSABLE</div>
+      <div class="font-semibold text-blue-600 dark:text-blue-300">VUE REACTIVITY + ADAPTER</div>
       <div class="mt-2 grid grid-cols-2 gap-2">
-        <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">callback subscription</div>
-        <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">event accumulation</div>
-        <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">source-switch cleanup</div>
-        <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">error projection</div>
+        <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">route refs / computed input</div>
+        <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">reactive query result refs</div>
+        <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">view projection / render</div>
+        <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">stream watch / composable</div>
       </div>
     </div>
   </div>
   <div v-else-if="$clicks === 1" class="grid grid-cols-2 gap-3 text-sm">
-    <div class="rounded-xl border p-2"><b>Route → Query</b><br><span class="opacity-65">source 與 query keys 在 page / options 銜接</span></div>
-    <div class="rounded-xl border p-2"><b>Mutation → Queries</b><br><span class="opacity-65">受影響 targets 寫在 onSuccess</span></div>
-    <div class="rounded-xl border p-2"><b>Selected user → Detail + Stream</b><br><span class="opacity-65">同一 source 連到 query 與另一個 composable</span></div>
-    <div class="rounded-xl border p-2"><b>Stream → Vue scope</b><br><span class="opacity-65">source switch 與 cleanup 由 watch / scope 維持</span></div>
+    <div class="rounded-xl border p-2"><b>Route ref → Query options</b><br><span class="opacity-65"><code>computed(queryKey / enabled)</code> 適配 reactive input</span></div>
+    <div class="rounded-xl border p-2"><b>Query runtime → Vue refs</b><br><span class="opacity-65">Vue Query adapter 暴露可追蹤 snapshot</span></div>
+    <div class="rounded-xl border p-2"><b>Vue refs → UI projection</b><br><span class="opacity-65"><code>computed(data / status)</code> 整理畫面需要的形狀</span></div>
+    <div class="rounded-xl border p-2"><b>userId → Stream composable</b><br><span class="opacity-65"><code>watch</code> 維持 Query cache 之外的 callback stream</span></div>
     <div class="col-span-2 rounded-xl bg-amber-50 p-2 text-center text-base font-semibold dark:bg-amber-950">
-      每一段都正確；但 tracing 必須跨 page、query options 與 stream composable。
+      computed / watch 是模型之間的 adaptation；response currentness 仍由 Query runtime 維持。
     </div>
   </div>
   <div v-else class="grid grid-cols-2 gap-3 text-[13px] leading-tight">
     <div class="rounded-xl border border-cyan-300 p-2 dark:border-cyan-700">
-      <div class="font-semibold text-cyan-600 dark:text-cyan-300">TANSTACK QUERY 的完整範圍</div>
-      <div class="mt-1 text-base font-semibold">Server-state lifecycle</div>
+      <div class="font-semibold text-cyan-600 dark:text-cyan-300">SERVER-STATE MODEL</div>
+      <div class="mt-1 text-base font-semibold">TanStack Query runtime</div>
       <div class="mt-1 opacity-70">identity · cache · mutation · invalidation · refetch</div>
-      <div class="mt-1 rounded-lg bg-cyan-50 p-1 text-center text-xs dark:bg-cyan-950">成熟且專門；signal-kernel 不取代這項優勢</div>
+      <div class="mt-1 rounded-lg bg-cyan-50 p-1 text-center text-xs dark:bg-cyan-950">維持 async lifecycle，並透過 observer 發布 snapshot</div>
     </div>
     <div class="rounded-xl border border-emerald-300 p-2 dark:border-emerald-700">
-      <div class="font-semibold text-emerald-600 dark:text-emerald-300">SIGNAL-KERNEL 補的範圍</div>
-      <div class="mt-1 text-base font-semibold">Cross-resource relationship model</div>
-      <div class="mt-1 opacity-70">route source · request · mutation · stream · derived snapshot</div>
-      <div class="mt-1 rounded-lg bg-emerald-50 p-1 text-center text-xs dark:bg-emerald-950">在進入 Vue 前，先成為同一張可追蹤的 graph</div>
+      <div class="font-semibold text-emerald-600 dark:text-emerald-300">VUE REACTIVITY MODEL</div>
+      <div class="mt-1 text-base font-semibold">Vue adapter + consumer</div>
+      <div class="mt-1 opacity-70">route input · result refs · projection · render</div>
+      <div class="mt-1 rounded-lg bg-emerald-50 p-1 text-center text-xs dark:bg-emerald-950">接收 Query snapshot，不接手 cache lifecycle</div>
     </div>
   </div>
 </div>
 
 <div v-if="$clicks === 0" class="mt-2 grid grid-cols-6 gap-2 text-[9px] leading-3">
-  <div class="rounded-lg border px-2 py-2"><b>問題範圍</b><br>server state + stream</div>
-  <div class="rounded-lg border px-2 py-2"><b>Policy</b><br>options + composable</div>
-  <div class="rounded-lg border px-2 py-2"><b>Lifecycle owner</b><br>Query runtime + Vue</div>
-  <div class="rounded-lg border px-2 py-2"><b>Vue 仍負責</b><br>source + projection + render</div>
-  <div class="rounded-lg border px-2 py-2"><b>Application glue</b><br>fn + invalidation + bridge</div>
-  <div class="rounded-lg border px-2 py-2"><b>成本 / 非目標</b><br>query/cache model</div>
+  <div class="rounded-lg border px-2 py-2"><b>問題範圍</b><br>server-state lifecycle</div>
+  <div class="rounded-lg border px-2 py-2"><b>Policy</b><br>query options + keys</div>
+  <div class="rounded-lg border px-2 py-2"><b>Lifecycle owner</b><br>Query cache / observer</div>
+  <div class="rounded-lg border px-2 py-2"><b>Vue 仍負責</b><br>input + projection + render</div>
+  <div class="rounded-lg border px-2 py-2"><b>Application glue</b><br>queryFn + adapter composition</div>
+  <div class="rounded-lg border px-2 py-2"><b>成本 / 非目標</b><br>兩個模型間的邊界</div>
 </div>
 <div v-else-if="$clicks === 1" class="mt-2 grid grid-cols-3 gap-2 text-xs">
-  <div class="rounded-lg border px-3 py-2"><b>Location</b><br>page · options · composable</div>
-  <div class="rounded-lg border px-3 py-2"><b>Policy</b><br>每個 boundary 各自正確</div>
-  <div class="rounded-lg border px-3 py-2"><b>Tracing cost</b><br>跨檔案重建完整關係</div>
+  <div class="rounded-lg border px-3 py-2"><b>Input adaptation</b><br>computed queryKey / enabled</div>
+  <div class="rounded-lg border px-3 py-2"><b>Output adaptation</b><br>reactive result refs / computed view</div>
+  <div class="rounded-lg border px-3 py-2"><b>Outside Query</b><br>watch + stream composable</div>
 </div>
 <div v-else class="mt-1 grid grid-cols-3 gap-2 text-[10px] leading-3">
-  <div class="rounded-lg border px-3 py-1"><b>Server-state maturity</b> · TanStack Query</div>
-  <div class="rounded-lg border px-3 py-1"><b>Relationship visibility</b> · signal-kernel graph</div>
-  <div class="rounded-lg border px-3 py-1"><b>Graph cost</b> · vocabulary · runtime · adapter</div>
+  <div class="rounded-lg border px-3 py-1"><b>Async lifecycle</b> · Query runtime</div>
+  <div class="rounded-lg border px-3 py-1"><b>UI reactivity</b> · Vue runtime</div>
+  <div class="rounded-lg border px-3 py-1"><b>Connection</b> · adapter + composition glue</div>
 </div>
 
 <div v-if="$clicks === 0" class="mt-2 rounded-xl bg-emerald-50 p-2 text-center text-lg font-semibold dark:bg-emerald-950">
-  Query + Vue composable，是這份 Demo 完整且有效的 architecture。
+  Server state 不必搬進 component state；Query runtime 與 Vue 各自維持自己的模型。
 </div>
 <div v-else-if="$clicks === 1" class="mt-2 rounded-xl bg-amber-50 p-2 text-center text-lg font-semibold dark:bg-amber-950">
-  尚未解決的不是 cache；是 cross-resource relationships 沒有一等表示。
+  Adapter 讓 snapshot 可追蹤；它沒有把 server-state lifecycle 變成 Vue lifecycle。
 </div>
 <div v-else class="mt-1 rounded-xl bg-emerald-50 p-1 text-center text-base font-semibold dark:bg-emerald-950">
-  signal-kernel 比較完整的是 relationship model；不是全面的 server-state capability。
+  下一個問題：async state 能不能先成為 reactive graph 的節點，再交給 Vue 消費？
 </div>
 
 <!--
-Core: Query + Vue composable 已完整處理 Demo 的 server state 與 callback stream；仍然隱含的是跨 page、query options 與 stream composable 的 cross-resource relationships。signal-kernel 比較完整的是 relationship model，不是全面的 server-state capability。
+Core: TanStack Query 刻意把 server-state lifecycle 與 Vue reactivity 分開；Vue Query adapter 把 query snapshot 暴露成 reactive refs，而 computed/watch 負責 input adaptation、view projection 與 Query cache 之外的 stream composition，不是手動維持 response currentness。
 Time: 100 秒。
 Talk track:
-第一幕先把結論說完整：Query runtime 維持 request、cache、mutation 與 invalidation；Vue stream composable 維持 callback subscription、event accumulation、source switch 與 cleanup。兩個 owner 協作，已是這份 Demo 完整且有效的 architecture。
-第一個 click 再問「那還缺什麼」。Route 到 query keys、mutation 到 invalidation targets、selected user 同時連到 detail 和 stream、stream cleanup 連到 Vue scope；每段都正確，但 relationships 分散在 page、query options 與 stream composable。要理解一次 source change 的完整影響，tracing 仍要跨多個 boundary。
-所以尚未解決的不是 cache，也不是 TanStack Query 不會處理 async；而是 cross-resource relationships 沒有一個一等、共同的表示方式。
-第二個 click 才比較兩個 scope。TanStack Query 在 server-state lifecycle 上成熟且專門，signal-kernel 不取代 identity、cache、mutation、invalidation 與 refetch 的生態優勢。signal-kernel 的提案是：把 route source、request、mutation、stream 與 derived snapshot 的關係，在進入 Vue consumer 前先放進同一張 graph。
-因此我可以說 signal-kernel 的 relationship model 對這個 problem scope 比較完整；不能說它全面比 TanStack Query 完整。代價仍是 graph vocabulary、runtime、adapter、debugging 與 maturity。
-初始畫面保留六個 responsibility fields；後兩幕只留下與 tracing、scope 對比直接相關的欄位，避免結論被 footer 稀釋。
-Transition: 下一幕先不看 API；先看 cross-resource relationship 這個新 problem scope 長什麼樣。
-Cut: 若時間不足，保留第一幕的完整方案與第二個 click 的兩欄 scope 對比；第一個 click 的四條 tracing 可口頭濃縮成一句。
+初始畫面先把兩個模型並排。Query runtime 維持 query identity、cache、status、mutation、invalidation 與 refetch；Vue 維持 route input、component lifecycle、view projection 與 rendering。這種分離不是缺陷，而是 TanStack Query 的核心設計選擇。
+第一個 click 再看連接方式。computed queryKey 和 enabled 把 route refs 適配成 query options；Vue Query adapter 把 QueryObserver 的 snapshot 暴露為 reactive refs；page computed 再整理 users、selectedUser 與 status。Callback stream 不屬於這份 query cache，所以 Demo 仍用 watch 和 composable 維持它。
+這裡不要說 watch 在追蹤 response。Query result 更新本來就會透過 adapter 進入 Vue reactivity；computed/watch 是模型之間的 input、projection 與 composition glue，response currentness 仍由 Query runtime 維持。
+第二個 click 把 boundary 定型：async lifecycle 在 Query runtime，UI reactivity 在 Vue runtime，中間由 adapter 和 query options 銜接。下一章不是宣稱這樣不完整，而是提出另一種 ownership：如果 source、async resource、invalidation 與 derived state 在進入 Vue 前就先成為 reactive graph，Vue 能不能更接近單純 consumer？
+Transition: 下一幕把 async state 從「經 adapter 送進 Vue 的 snapshot」，改看成「reactive graph 裡的一個節點」。
+Cut: 若時間不足，保留初始兩欄與最後問題；第一個 click 只說 computed 是 input/projection、watch 是 Query 外的 stream。
 -->

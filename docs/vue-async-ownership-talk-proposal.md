@@ -38,14 +38,15 @@
 
 這場演講不是完全中立的工具導覽，而是提出一個有適用條件的架構判斷：
 
-> 當 async correctness 同時依賴 query、mutation、stream 與 framework consumer 之間的 relationships 時，把這些 relationships 顯式建模成 graph，會比讓它們分散在 watch、action、cache 與 composable 中更容易理解。
+> 當 async state 需要同時參與 reactive source、invalidation 與 derived state，先在 framework 之外把它建模成 reactive graph node，會比讓 async lifecycle 與 Vue reactivity 只透過多段 adapter/composition glue 連接更容易指出 ownership。
 
-本場將「更容易理解」限定在 relationship clarity：
+本場將「更容易理解」限定在 ownership 與 relationship clarity：
 
 - dependency 是否能被直接看見。
 - invalidation 是否是 explicit relation，而不是藏在 imperative call sequence。
 - query、mutation 與 stream 是否能使用一致的 lifecycle vocabulary。
 - framework consumer 與 resource lifecycle 的邊界是否能被直接指出。
+- async lifecycle、snapshot 與 reactive dependency 在進入 framework 前是否已有共同表示。
 - 理解流程時，需要追蹤多少個 watch、action、callback 與 composable。
 
 這不是對程式碼行數、執行效能、生態成熟度或開發速度的主張。
@@ -57,32 +58,32 @@ Pure Vue、Pinia Action、TanStack Query 與 signal-kernel 是四種不同的 re
 - Pure Vue：Vue 擁有 reactive tracking 與 component-bound scope；application code 在 composable 中宣告並維持 request、status 與 stale-data policy。
 - Pinia Action：store 擁有 shared state 與 workflow boundary；application-defined actions 維持 async policy，Pinia 不預先規定 server-state semantics。
 - TanStack Query：query、mutation 與 cache runtime 維持 server-state lifecycle；這份 Demo 的 callback-style activity subscription 由獨立 Vue composable 擁有。
-- signal-kernel：application 在 framework-independent graph factory 中宣告 cross-resource relationships；runtime 維持 resource dependency、metadata、invalidation 與 stale-result policy，Vue 保留 route adaptation、interaction、view projection 與 rendering。
+- signal-kernel：application 在 framework-independent graph factory 中把 source、async resource、revision 與 derived state 建成 reactive relationships；runtime 維持 resource lifecycle 與 snapshot propagation，Vue 主要作為 input adapter 與 UI consumer。
 
 本場的偏好與限制可以同時成立：
 
 1. Local lifecycle 很清楚時，Pure Vue 通常是最低成本的選擇。
 2. 問題是 shared client workflow 時，Pinia 能提供清楚的 application boundary。
 3. 問題是 server state 時，TanStack Query 提供成熟的專門 lifecycle model。
-4. 問題變成 cross-resource relationships 時，graph-first 能提高 relationship visibility，但必須支付新的 vocabulary、runtime、adapter、debugging 與 maturity cost。
+4. 問題需要讓 async dependency 本身先於 framework 被 reactive 表達時，graph-first 能提高 ownership visibility，但必須支付新的 vocabulary、runtime、adapter、debugging 與 maturity cost。
 
 決策條件不是「哪個工具擁有最多」，而是：
 
-> 當追蹤隱含 relationships 的成本，大於建立與維護 graph 的成本時，graph-first 才開始有價值。
+> 當維持 async state 與 framework reactivity 之間的隱含 adaptation，已經比建立與維護 graph、adapter 更難理解時，graph-first 才開始有價值。
 
 ### 2.4 signal-kernel 的演講定位
 
 本場將 signal-kernel 定位為：
 
-> 一個已可運行的 framework-agnostic library，同時也是用來驗證 graph-first relationship clarity 假設的 architecture experiment。
+> 一個已可運行的 framework-agnostic library，同時也是用來驗證「async state 作為 reactive graph primitive」假設的 architecture experiment。
 
 演講不主張它是 Vue、Pinia 或 TanStack Query 的直接替代品：
 
 - Pure Vue、Pinia 與 TanStack Query 分別處理不同 scope 的問題。
-- signal-kernel 不是「比 Query Cache 更完整的下一層」，而是另一種顯式描述 cross-resource relationships 的設計。
+- signal-kernel 不是「比 Query Cache 更完整的下一層」，而是另一種讓 async lifecycle、snapshot 與 dependencies 在進入 Vue 前具有 reactive representation 的設計。
 - Demo 用相同的 selected outcomes 控制外部需求；它不證明 graph 較好，也不構成 benchmark 或完整選型。
 - 由於 signal-kernel 是講者自己的設計，進入該章節時必須同時揭露 experimental maturity、abstraction、vocabulary、adapter、debugging 與 adoption cost。
-- 目前 Demo 的 graph 在 Vue page setup 中建立，能證明 factory 不依賴 Vue、relationships 在 first render 前形成；不能宣稱 graph lifetime 已獨立於 component。
+- 目前 Demo 的 graph 在 Vue page setup 中建立，但 Vue adapter 採 borrowed-consumer contract；component unmount 只停止 downstream observation，不自動成為 graph dispose signal。Graph instance 的真正 owner 仍應由 application boundary 明確宣告。
 - 目前 stream resource 由 runtime 維持 source tracking、metadata、stale emission 與 accumulation，但 callback API 的 subscribe/unsubscribe bridge 仍由 application code 實作。
 
 ## 3. 目標觀眾
@@ -105,6 +106,7 @@ Pure Vue、Pinia Action、TanStack Query 與 signal-kernel 是四種不同的 re
 - 程式碼、型別、API、package 名稱與 route 保留英文，避免為翻譯而扭曲實際開發語境。
 - `ownership`、`lifecycle`、`server state`、`invalidation` 等核心詞彙第一次出現時，用中文句子解釋；後續可直接保留英文。
 - 不要求每個英文名詞都有逐字中文對照，重點是讓觀眾理解它在責任邊界中的角色。
+- 可見文案優先使用「非同步狀態、響應式圖、轉接層、消費端、執行層、狀態快照、依賴關係、擁有者、清理規則」；`Ownership`、`Graph` 與 `source / resource / revision / computed / observe` 可保留，因為它們分別是全場主題、模型名稱與實際 API vocabulary。
 - Slidev 全域語言設定使用 `zh-TW`，PDF 匯出前確認繁中字型、標點與 Mermaid 中文節點不會缺字。
 
 這樣可維持 Vue 開發者熟悉的技術語境，同時避免主要論點因大量英文段落而增加理解負擔。
@@ -141,7 +143,7 @@ Request-like resource 與 stream-like resource 不必共用完全相同的 state
 - 新工作進行時，舊資料是否保留？
 - 舊 response 或 emission 晚到時，誰判斷它已經過期？
 - mutation 完成後，誰宣告哪些資料失效？
-- source switch 或 consumer 離開時，誰停止舊工作？
+- source switch 或 async owner 結束時，誰停止舊工作？
 - 哪一層把 lifecycle snapshot 投影成 UI？
 
 這個最小模型刻意不使用 query key、revision、resource graph 等特定工具 vocabulary。它是四個 model 的共同觀察基準，避免先用任何一個實作的抽象定義問題。
@@ -161,12 +163,12 @@ Request-like resource 與 stream-like resource 不必共用完全相同的 state
 2. 誰保存 pending、refreshing、success 與 error？
 3. 誰保留 stale data，並阻止舊 response 覆蓋新結果？
 4. update 成功後，誰決定哪些資料需要重新載入？
-5. userId 改變或 component unmount 時，誰停止舊 stream？
+5. userId 改變或 async owner dispose 時，誰停止舊 stream？Consumer detach 是否只解除觀察？
 6. Vue 在這一版擁有哪些 route adaptation、interaction、view projection 與 rendering responsibility？
 
 這六個問題比「用了幾個 `watch`」或「少寫幾行 code」更能準確描述差異。Manual policy 仍然可以有明確 owner；library automation 也不代表 application 不再負責宣告 domain meaning。
 
-第 5 題必須允許誠實答案是「目前尚未完整處理」。這份 Demo 的 signal-kernel stream 已驗證 source switch 時停止舊 subscription，但尚未由共同 contract 證明 component unmount teardown；簡報應把它列為 current integration limitation，而不是用抽象模型掩蓋。
+第 5 題必須分開 consumer lifetime 與 graph lifetime。signal-kernel Vue adapter 已驗證 Vue scope dispose 會停止 downstream kernel effect，並刻意不呼叫 resource `cancel()`；這是 framework-neutral borrowed-consumer contract。Source-switch 時停止舊 activity subscription 則由 graph resource 驗證。Graph 最終何時 dispose、如何清除 external effect，應由 graph owner 的 application contract 決定，不應由 component unmount 隱式推導。
 
 ## 6. 敘事原則
 
@@ -198,8 +200,8 @@ Request-like resource 與 stream-like resource 不必共用完全相同的 state
 
 - Pinia 解決 shared client state 與組織問題，不等於自動接管 server-state lifecycle。
 - TanStack Query 擅長 server state，不代表它應該擁有所有 arbitrary async process。
-- signal-kernel 展示 graph-first relationship model，但也帶來 experimental maturity、abstraction、vocabulary、adapter、debugging 與 adoption cost。
-- TanStack Query → signal-kernel 不是成熟度升級，而是問題 scope 從 server state 轉向跨 resource relationship。
+- signal-kernel 展示 async-state-as-reactive-graph model，但也帶來 experimental maturity、abstraction、vocabulary、adapter、debugging 與 adoption cost。
+- TanStack Query → signal-kernel 不是成熟度升級，而是 ownership 從「Query runtime 發布 snapshot 給 Vue」轉成「async state 先進入 reactive graph，再由 Vue adapter 消費」。
 - 小而局部的需求，Pure Vue 可能就是最合適的 ownership boundary。
 - 更多 runtime automation 不會自動帶來更好的架構；維持 invariants 的機制必須與實際 lifecycle 相符。
 - `Query + Vue composable` 是完整而合理的 architecture，不是等待 graph 補完的中間狀態。
@@ -229,9 +231,9 @@ Application glue omitted:
 
 這個標題已對外發布，不再修改。開場必須主動說明「從……到……」描述的是觀察範圍的展開，不是工具升級、遷移路線或成熟度排名：
 
-> 我們會從 Vue 開發者熟悉的 action 與 composable 出發，把觀察尺度從一次 async workflow，逐步拉到 shared workflow、server-state lifecycle，以及 Query、Mutation、Stream 與 UI consumer 之間的 relationships。
+> 我們會從 Vue 開發者熟悉的 action 與 composable 出發，把 ownership 從一次 async workflow，逐步拉到 shared workflow、server-state lifecycle，再問 async state 能不能先成為 reactive graph，最後交給 Vue 消費。
 
-`Async Resource` 在本場先作為 implementation-neutral concept：一段具有 source、status、result、error、refresh/invalidation 與 disposal lifecycle 的非同步工作。它不等於 signal-kernel package，也不預設必須由 graph runtime 實作。signal-kernel 是後半場用來驗證 explicit graph relationship clarity 的 architecture experiment。
+`Async Resource` 在本場先作為 implementation-neutral concept：一段具有 source、status、result、error、refresh/invalidation 與 disposal lifecycle 的非同步工作。它不等於 signal-kernel package，也不預設必須由 graph runtime 實作。signal-kernel 是後半場用來驗證「async state 作為 reactive graph primitive」是否能讓 ownership 更明確的 architecture experiment。
 
 「誰擁有這段非同步？」保留為開場問題與簡報內部主線，不取代活動定版標題。
 
@@ -246,8 +248,8 @@ Application glue omitted:
 | Pure Vue baseline | 5 | 5 分鐘 | 13 | 先看清 Vue scope responsibility 與 application async policy |
 | Pinia Action | 4 | 5 分鐘 | 18 | 展示 store-owned shared workflow 與 lifecycle mismatch |
 | TanStack Query | 5 | 7 分鐘 | 25 | 展示專門的 server-state lifecycle model 與有效的 stream boundary |
-| signal-kernel | 6 | 7 分鐘 | 32 | 先教必要 vocabulary，再展示 explicit cross-resource relationships 與交換成本 |
-| 四版本對照、選擇原則與結論 | 5 | 6 分鐘 | 38 | 用同一套 teaching contract 收斂 clarity 主張、限制與選擇條件 |
+| signal-kernel | 6 | 8 分鐘 | 33 | 先教必要 vocabulary，再展示 async state 成為 reactive graph node 的 ownership 與交換成本 |
+| 四版本對照、選擇原則與結論 | 5 | 5 分鐘 | 38 | 用同一套 teaching contract 收斂 clarity 主張、限制與選擇條件 |
 | 現場節奏緩衝 | — | 2 分鐘 | 40 | 保留換頁、停頓與 Demo 切換空間，不作為 Q&A |
 
 規劃共 35 張，其中 Slide 35 的 Q&A／QR code 在正式內容結束後顯示。張數增加的目的不是增加論點，而是讓每張只處理一個認知任務；平均時間不能用張數均分，章節頁、diagram reveal 與 takeaway 可以在 20–40 秒內完成。
@@ -290,7 +292,7 @@ Luciano Lee · 2026.08.15
 
 開場第一分鐘必須明確校正 framing：
 
-> 標題裡的「從……到……」不是工具升級或遷移路線，而是把觀察尺度從一次 action 裡的 async workflow，逐步拉到 shared workflow、server-state lifecycle，以及 cross-resource relationships。
+> 標題裡的「從……到……」不是工具升級或遷移路線，而是把 ownership 從 component workflow、shared workflow、server-state lifecycle，一路問到 async state 能否在 framework 之外先成為 reactive graph。
 
 #### Slide 2 — 講者資訊
 
@@ -895,80 +897,80 @@ const updateMutation = useMutation({
 
 不要把 `invalidateQueries()` 描述成完全移除 application responsibility；application 仍需知道 mutation 影響哪些 server state。
 
-#### Slide 23 — 完整的 server state，分散的關係圖
+#### Slide 23 — Server state 與 Vue reactivity 是兩個模型
 
-這張用兩個 clicks 把結論拆成三幕，避免直接從 TanStack Query 跳到 signal-kernel：
+這張用兩個 clicks 把 TanStack Query 的核心設計與下一章切入點拆成三幕：
 
-1. 初始畫面先承認 Query runtime 與 Vue stream composable 已完整處理 Demo。
-   - Query runtime：request lifecycle、cache identity、mutation status、invalidation / refetch。
-   - Vue stream composable：callback subscription、event accumulation、source-switch cleanup、error projection。
-   - 結論：`Query + Vue composable` 是完整且有效的 architecture。
-2. 第一個 click 揭露仍然分散的關係。
-   - Route → Query。
-   - Mutation → Queries。
-   - Selected user → Detail + Stream。
-   - Stream → Vue scope。
-   - 每段 boundary 都正確，但完整 tracing 必須跨 page、query options 與 stream composable。
-3. 第二個 click 才比較兩種工具各自較完整的範圍。
-   - TanStack Query：成熟且專門的 server-state lifecycle；signal-kernel 不取代 identity、cache、mutation、invalidation、refetch 的優勢。
-   - signal-kernel：把 route source、request、mutation、stream、derived snapshot 在進入 Vue 前建成同一張可追蹤的 graph。
-   - 同頁保留 graph 的 vocabulary、runtime、adapter 成本。
+1. 初始畫面先承認「分開管理」是設計選擇。
+   - Query runtime：query identity、cache、request / mutation status、invalidation、refetch 與 observer snapshot。
+   - Vue reactivity：route refs、component lifecycle、view projection 與 rendering。
+   - Vue Query adapter：把 QueryObserver snapshot 暴露成 Vue 可追蹤的 refs。
+2. 第一個 click 解釋 Demo 裡的 `computed/watch`。
+   - `computed(queryKey / enabled)`：將 Vue route input 適配成 query options。
+   - `computed(data / status)`：把 query result refs 投影成 UI 需要的 shape。
+   - `watch(userId)`：維持 Query cache 之外的 callback-style stream composable。
+   - 不要說 watch 在追蹤 response；response currentness 仍由 Query runtime 維持。
+3. 第二個 click 固定 ownership boundary。
+   - Async lifecycle 在 Query runtime。
+   - UI reactivity 在 Vue runtime。
+   - Adapter 與 composition glue 連接兩個模型，但不把 async lifecycle 變成 Vue lifecycle。
 
-這張的限制性結論必須明確說成：
+進入下一章前提出問題：
 
-> signal-kernel 比較完整的是 relationship model；不是全面的 server-state capability。
-
-尚未解決的問題也要具體說清楚：
-
-> 尚未解決的不是 cache；是 cross-resource relationships 沒有一等、共同的表示方式。
+> 如果 source、async resource、invalidation 與 derived state 在進入 Vue 前就先成為 reactive graph，Vue 能不能更接近單純的 consumer？
 
 避免宣稱 TanStack Query 原則上不能處理 stream。官方另有 experimental [`streamedQuery`](https://tanstack.com/query/latest/docs/reference/streamedQuery) 處理 AsyncIterable，但它不等同這份 Demo 的 callback-style persistent subscription。
 
-進入下一章前：
+### Act 5：signal-kernel — 非同步狀態成為響應式 Graph
 
-> 接下來不是補足 Query，而是換一個 problem scope：如果 correctness 必須跨 Query、Mutation、Stream、Derived State 與 framework consumer 追蹤，顯式 graph 能否降低 relationship tracing cost？
+術語界線：TanStack Query 專門管理的是 server state；Act 5 使用較廣義的 async state，因為 signal-kernel graph 同時表示 request、mutation、stream 及其 lifecycle metadata。兩者不能在所有情境下視為同義詞。
 
-### Act 5：signal-kernel — explicit cross-resource relationships
+#### Slide 24 — 讓非同步狀態成為響應式圖的節點
 
-#### Slide 24 — Problem scope 再次改變
-
-畫面主句：
-
-> Query 已經完整處理 server state；如果 correctness 還橫跨 Mutation、Stream、Derived State 與 Vue consumer 呢？
-
-這張只描述問題，不出現 signal-kernel API。用一張簡化 relationship map 顯示：
+初始畫面先延續 TanStack Query：
 
 ```text
-route source → query-like work
-mutation → invalidation
-selected user → detail + stream
-resources → derived snapshot → Vue consumer
+Vue route refs / computed options
+  → Query runtime / cache / observer
+  → Vue Query adapter
+  → reactive result refs / Vue consumer
 ```
 
-轉場：
+第一個 click 才切到 signal-kernel：
 
-> 這不是補足 TanStack Query，而是把觀察範圍從 server state 改成 cross-resource relationships。
+```text
+Vue route adapter
+  → graph source
+  → async resource + revision
+  → derived graph state
+  → Vue adapter
+  → Vue consumer
+```
+
+限制句：
+
+> 不是「TanStack 不具響應性、signal-kernel 才有」；差異是非同步依賴模型在 Query／快取邊界後透過轉接層進入 Vue，或先在框架之外成為響應式圖。
 
 #### Slide 25 — signal-kernel 是什麼？
 
 一句話定義：
 
-> signal-kernel 是一個 framework-agnostic、graph-first reactive runtime，用來描述 source、async resource、mutation、stream 與 invalidation relationships。
+> signal-kernel 是框架中立的響應式執行層，把非同步 resource 視為同時具有生命週期、狀態快照與 graph 依賴的節點。
 
-必要 vocabulary 只保留：
+必要 vocabulary：
 
 ```text
-source    — reactive input / identity
-resource  — async lifecycle + snapshot
-revision  — invalidation signal
-observe   — declared relationship
+source             — 響應式輸入 / resource 識別
+resource           — 非同步生命週期 + 響應式快照
+revision           — 響應式失效訊號
+computed / observe — 衍生狀態 / 宣告依賴
 ```
 
 定位揭露：
 
-> 它是我建立的可運行 library，也是驗證 graph-first relationship clarity 的 architecture experiment；不是 Vue store 或 TanStack Query 的直接替代品。
+> 它是我建立的可運行 library，也是驗證「非同步狀態作為響應式基本單位」的架構實驗；不是 Vue store 或 TanStack Query 的直接替代品。
 
-畫面小字使用 Demo 的實際套件版本：
+畫面使用 Demo 的實際版本：
 
 ```text
 @signal-kernel/core 0.1.4
@@ -977,33 +979,24 @@ observe   — declared relationship
 Maturity: experimental · pre-1.0 · author-maintained
 ```
 
-這頁控制在 60–75 秒，只教後面看圖所需 vocabulary。
-
-#### Slide 26 — Graph makes relationships visible
+#### Slide 26 — Graph 先描述非同步響應關係，再交給 Vue
 
 ```mermaid
 flowchart LR
-  Keyword[keyword source] --> Users[users resource]
-  UserId[userId source] --> Detail[detail resource]
-  UserId --> Stream[activity stream resource]
-  UsersRevision[users revision] --> Users
-  UserRevision[user revision] --> Detail
-  Mutation[update mutation] --> UsersRevision
-  Mutation --> UserRevision
-  Stream --> StreamAdapter[application stream adapter]
-  Users --> Vue[Vue adapter]
-  Detail --> Vue
-  Stream --> Vue
+  Sources[keyword / userId sources] --> Resources[users / detail / activity resources]
+  Mutation[update mutation] --> Revisions[users / user revisions]
+  Revisions --> Resources
+  Resources --> Derived[computed status / graph snapshot]
+  Derived --> Adapter[Vue adapter]
+  Adapter --> Vue[Vue consumer]
 ```
 
-視覺重點不是 node 數量，也不是宣稱 runtime 執行所有 integration work；而是 dependency、invalidation、stream 與 consumer boundary 能在同一張 responsibility map 被看見。
+Graph factory 沒有 Vue import；Vue adapter 才把 kernel snapshot 轉成 Vue refs。這份 Demo 的 graph instance 雖在 page setup 中建立，adapter 仍只借用 graph。Graph 可以跨 Vue consumer 存活；是否要在 page 結束時 dispose，必須由真正的 graph owner 明確決定，不能由 adapter 猜測。
 
-Graph factory 沒有 Vue dependency；這份 Demo 的 graph instance 則在 page setup 中建立。它證明 relationships 在 first render 前形成，不證明 instance lifetime 已獨立於 component。
-
-#### Slide 27 — Resource 在 graph 中宣告 dependency
+#### Slide 27 — 依賴關係直接寫進響應式 Resource
 
 ```ts
-const usersResource = createResource({
+const users = createResource({
   input: keyword.get,
   observe: usersRevision.get,
   run: (currentKeyword, context) =>
@@ -1014,76 +1007,69 @@ const usersResource = createResource({
 })
 ```
 
-標示：
+- `input` 讓 source change 成為 resource dependency。
+- `observe` 讓 mutation revision 成為 invalidation dependency。
+- 執行層維持 pending、error、取消、過期結果與快照發布。
+- Application 仍提供 API operation 與 domain invalidation meaning。
 
-- `input` 提供 source identity。
-- `observe` 宣告 revision relationship。
-- Runtime 維持 pending/error/cancellation 與 stale-result policy。
-- Application 仍提供 API operation 與 invalidation meaning。
+使用三個 clicks 依序聚焦 `input`、`observe`、`run`。口說必須明確指出：Vue 不需要監聽回應；resource 快照更新會沿 graph 傳播，再透過 Vue 轉接層 refs 通知元件。
 
-只 highlight `input`、`observe`、`run`；不要在此頁展開 adapter 或 stream teardown。
+#### Slide 28 — Vue 解除消費關係，不接管 Graph 生命週期
 
-#### Slide 28 — Vue 與 application glue 沒有消失
-
-建議三層責任：
+初始 pipeline：
 
 ```text
-Application declares
-domain input · API operations · revisions
-external stream subscribe/unsubscribe bridge
-
-Runtime maintains
-dependency tracking · resource metadata
-invalidation · cancellation · stale-emission suppression
-
-Vue owns
-route-to-source adaptation · interaction
-view projection · component composition · rendering
+輸入轉接層                 Signal-kernel graph             輸出轉接層
+route computed / watch  →  source / resource / computed  → useResource / useKernelValue
 ```
 
-建議口說：
+第一個 click 顯示 Demo 真實 glue：
 
-> Vue 的 watch 仍存在，但這份 Demo 中只把 route state 同步進 graph source，不直接編排 fetch 或 invalidation。Vue 消費 resource snapshot；route adaptation、interaction、projection、composition 與 rendering 仍由 Vue 擁有。
+- `watch(keyword / userId)`：Vue route reactivity → graph sources。
+- `useResource / useKernelValue`：graph 快照 → Vue refs。
+- 外層 `computed`：只整理 template 需要的 view shape，不維持 response lifecycle。
 
-Callback-style Activity API 的底層 subscribe/unsubscribe bridge 仍由 application code 實作；runtime 維持 source tracking、metadata、event accumulation 與 stale emission policy。共同 contract 已驗證 source-switch teardown，尚未證明 component-unmount teardown。
+第二個 click 結算責任與兩種 teardown：
 
-#### Slide 29 — Clarity is not free
+- Graph 執行層：依賴追蹤、非同步生命週期、快照傳播與 source 切換。
+- Vue 轉接層＋消費端：route 轉接、下游觀察、畫面投影與渲染。
+- Graph 擁有者：實例生命週期、resource 清理規則、外部 stream 清理與應用邊界。
 
-左右對照：
+Vue adapter tests 已證明兩個刻意並存的行為：Vue scope dispose 會停止 adapter observer；`useResource()`／`useStreamResource()` 不會因此呼叫 resource `cancel()`。這不是 teardown 缺口，而是 borrowed-consumer contract。畫面主句固定為：
+
+> 解除 Vue 消費關係 ≠ 銷毀 Graph；框架中立的 Graph 可以跨元件存活。Graph 是否終止，由 Graph 擁有者決定。
+
+#### Slide 29 — 響應式 Graph 的清晰度不是免費的
 
 ```text
-Graph buys
-✓ visible dependencies
-✓ explicit invalidation relations
-✓ shared resource vocabulary
-✓ less imperative relationship tracing
+採用 Graph 得到
+✓ 非同步狀態成為 graph 節點
+✓ source / revision 成為響應式依賴
+✓ 衍生狀態先於 Vue 消費端形成
+✓ Vue 更接近輸入邊界與 UI 消費端
 
-Graph costs
-• new abstraction and vocabulary
-• runtime and adapter integration
-• a different debugging model
-• experimental maturity and smaller ecosystem
-• external teardown integration
+採用 Graph 付出
+• kernel 與 Vue 仍是兩套響應式執行層
+• 輸入與輸出轉接層
+• 新語彙與除錯模型
+• 實驗階段成熟度
+• 明確的 Graph 擁有者與外部清理規則
 ```
 
 固定 footer：
 
 ```text
-Problem scope: explicit cross-resource relationships
-Policy declared by: graph factory + integration adapters
-Lifecycle enforced by: resource runtime + application stream bridge
-Vue still owns: route adaptation, interaction, projection, composition, render
-Application glue: API operations, Vue adapter, external subscription bridge
-Cost / non-goal: experimental runtime; not a universal server-state replacement
+問題範圍：非同步狀態成為響應式 Graph
+規則宣告：graph factory + resource 宣告
+生命週期擁有者：resource 執行層 + Graph 擁有者
+Vue 仍負責：route 轉接、互動、畫面投影、渲染
+應用銜接：API 操作、轉接層、外部訂閱橋接
+成本／非目標：實驗性執行層；不是通用的伺服器狀態替代品
 ```
 
 畫面下方：
 
-> Use a graph when the cost of tracing implicit relationships exceeds the cost of maintaining the graph.
-
-建議口說：
-
-> Graph 沒有消除複雜度，而是把原本分散在執行流程中的 relationships 顯式化。就這份 Demo 而言，我認為它更容易看見 dependency、invalidation、stream 與 consumer boundary；但這份 clarity 不是免費的，也不代表每個專案都值得支付它的成本。
+> 當你需要「async dependency 本身」先於 framework 被 reactive graph 表達，且這份 clarity 高於維護 graph 與 adapters 的成本時，這個模型才值得。
 
 ### Act 6：收斂與選擇
 
@@ -1100,8 +1086,8 @@ Cost / non-goal: experimental runtime; not a universal server-state replacement
 | Update refresh | manual reload | action orchestration | invalidation | revision relation |
 | Stream | Vue composable cleanup | store action + page cleanup | separate Vue composable — valid boundary | stream resource + application unsubscribe adapter |
 | Vue role | presentation + local integration | presentation + workflow coordinator | presentation + query/stream consumer | presentation + route-to-graph adapter + snapshot consumer |
-| Scope demonstrated | local feature | shared client workflow | server state | explicit cross-resource relationships |
-| Cost visible here | manual async policy | store orchestration | query/cache model + separate stream boundary | experimental runtime, vocabulary, adapter, debugging and teardown integration |
+| Scope demonstrated | local feature | shared client workflow | server state | async state as reactive graph |
+| Cost visible here | manual async policy | store orchestration | query/cache model + separate stream boundary | second reactive runtime, vocabulary, adapters, debugging and teardown integration |
 
 表格下方大字：
 
@@ -1136,7 +1122,7 @@ Cost / non-goal: experimental runtime; not a universal server-state replacement
 - Lifecycle 局部且容易追蹤：Pure Vue 通常是最低成本選擇。
 - 需要 shared client state 與 application workflow：Pinia 提供清楚 store boundary。
 - 需要 server-state identity、cache、freshness 與 mutation：TanStack Query 提供專門 lifecycle model。
-- Correctness 開始依賴多種 resource relationships：可以評估 explicit graph 是否值得它的成本。
+- 需要讓 async lifecycle、snapshot 與 dependencies 在 framework 之外先具有 reactive representation：可以評估 explicit graph 是否值得它的成本。
 
 此頁先停在 problem-solution fit，不立即把四種方案組合起來。必須補充：本場沒有評估 SSR、Devtools、bundle/performance、ecosystem、team familiarity 與長期維護成熟度，因此 `Scope demonstrated` 不是完整選型結論。
 
@@ -1148,7 +1134,7 @@ Cost / non-goal: experimental runtime; not a universal server-state replacement
 Vue             presentation + component scope
 Pinia           shared client workflow
 TanStack Query  server-state lifecycle
-Explicit graph  selected cross-resource relationships
+Explicit graph  async state dependency model before framework consumption
 ```
 
 大字：
@@ -1157,7 +1143,7 @@ Explicit graph  selected cross-resource relationships
 
 建議口說：
 
-> 這四種 model 不是只能選一個。實際專案完全可能讓 Vue 管 presentation、Pinia 管 client workflow、TanStack Query 管 server state，再只把需要統一 relationship model 的部分交給 graph。是否值得採用 graph，取決於追蹤隱含 relationships 的成本，是否已經高過 graph vocabulary、runtime、adapter 與 debugging 的成本。
+> 這四種 model 不是只能選一個。實際專案完全可能讓 Vue 管 presentation、Pinia 管 client workflow、TanStack Query 管 server state，再只把需要在 framework 之外先建立 reactive dependency model 的 async resources 交給 graph。是否值得採用，取決於 ownership clarity 是否高過第二套 runtime、vocabulary、adapter 與 debugging 的成本。
 
 不要用由左到右或由下到上的箭頭，避免重新製造升級路線。
 
@@ -1173,11 +1159,11 @@ Explicit graph  selected cross-resource relationships
 
 講者立場：
 
-> 在這份 cross-resource case study 中，我認為 graph 讓 dependency、invalidation、stream 與 consumer relationships 更容易被看見；但 clarity 不是免費的，也不代表每個專案都值得支付它的成本。
+> 在這份 case study 中，我認為把 async state 建成 reactive graph node，能讓 source、lifecycle、invalidation、snapshot 與 consumer ownership 更容易被看見；但 clarity 不是免費的，也不代表每個專案都值得支付它的成本。
 
 最後留給觀眾的問題：
 
-> 在你的系統裡，追蹤隱含 relationships 的成本，已經高過建立 explicit graph 的成本了嗎？
+> 在你的系統裡，async state 與 framework reactivity 之間的 adaptation，已經複雜到值得建立 explicit graph 了嗎？
 
 #### Slide 35 — Q&A 與 Demo repository
 
@@ -1429,7 +1415,7 @@ Transition: What changes when the problem is specifically server state?
 - architecture case study 與「不是 benchmark／控制實驗」的限制。
 - Pure Vue、Pinia、TanStack Query、signal-kernel 都完整回答同一套 teaching contract。
 - TanStack Query＋Vue composable 是有效完整 boundary。
-- graph-first relationship clarity、Vue presentation boundary 與 signal-kernel integration cost。
+- async-state-as-reactive-graph 的 ownership clarity、Vue input/consumer boundary 與 signal-kernel integration cost。
 - 四種 responsibility configuration 比較表。
 - 40 次 contract execution 作為 selected-outcome control，不作為 ownership 或優劣證明。
 - graph clarity 的條件式選擇原則與結論。
@@ -1443,8 +1429,8 @@ Transition: What changes when the problem is specifically server state?
 - Router query preservation。
 - TDD Phase 0–9 清單。
 - signal-kernel stream API ergonomics。
-- graph factory 與 component instance lifetime 的差異。
-- signal-kernel current stream unsubscribe bridge 與 unmount disposal limitation。
+- graph factory、graph owner 與 component consumer lifetime 的差異。
+- signal-kernel borrowed Vue adapter contract、source-switch cleanup 與 graph-owner disposal policy。
 
 ### 直接刪除
 
@@ -1463,8 +1449,8 @@ Transition: What changes when the problem is specifically server state?
 - Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel / github.com/Luciano0322`。
 - 確認講者照片使用原始人像，或決定如何處理目前已含舊活動文字的完整講者卡。
 - 先建立 implementation-neutral async lifecycle model，再進入四個 model。
-- 使用已確認定位：signal-kernel 是可運行的 framework-agnostic architecture experiment，用來驗證 explicit graph 是否提高 cross-resource relationship clarity；不是 Vue、Pinia 或 TanStack Query 的直接替代品。
-- 固定判斷條件：只有當 implicit relationship tracing cost 高於 graph cost 時，才值得評估 graph-first。
+- 使用已確認定位：signal-kernel 是可運行的 framework-agnostic architecture experiment，用來驗證 async state 作為 reactive graph primitive 是否讓 ownership 更明確；不是 Vue、Pinia 或 TanStack Query 的直接替代品。
+- 固定判斷條件：只有當 async state 與 framework reactivity 之間的 adaptation cost 高於 graph 與 adapter cost 時，才值得評估 graph-first。
 
 ### P1：內容骨架
 
@@ -1514,10 +1500,11 @@ Transition: What changes when the problem is specifically server state?
 - [ ] TanStack Query 的 stream 說法限定在這份 callback-style Demo implementation，不宣稱 universal inability。
 - [ ] signal-kernel 被明確描述成講者建立的可運行 architecture experiment，而不是所有專案的必選方案。
 - [ ] graph clarity 的收益與 experimental maturity、runtime、vocabulary、adapter、debugging、teardown cost 同頁呈現。
-- [ ] signal-kernel 只宣稱 graph factory framework-independent、instance 在 first render 前建立，不宣稱 Demo 已證明 component-independent lifetime。
+- [ ] signal-kernel Vue adapter 被描述成 borrowed consumer：scope dispose 停止 observer，但不預設 cancel resource 或 dispose graph。
+- [ ] graph instance lifetime 由 graph owner 決定，不把 component unmount 當成 framework-neutral graph 的隱含 dispose signal。
 - [ ] stream resource 的 runtime responsibility 與 application subscribe/unsubscribe bridge 被分開描述。
-- [ ] TanStack Query → signal-kernel 的轉場被描述成 scope change，而不是能力升級。
-- [ ] Vue 被描述成 route adaptation、interaction、view projection、component composition 與 rendering 的 owner，而不是被動 renderer。
+- [ ] TanStack Query → signal-kernel 的轉場被描述成 async ownership representation 的改變，而不是能力升級。
+- [ ] Vue 在 signal-kernel 版本被描述成 input adapter 與 UI consumer，仍擁有 route adaptation、interaction、view projection、component composition 與 rendering，而不是完全消失。
 - [ ] 全稿不使用「四次轉移」、「停在哪一層」或 `component → store → cache → graph` 表達升級路線。
 - [ ] Slide 7 明確標示 case study 不是 benchmark、控制實驗或完整工具選型。
 - [ ] Slide 31 將 40 cases 說明為 8 個 async behaviors＋1 個 surface check＋1 個 explanation check，再乘以四個 model。
@@ -1542,7 +1529,7 @@ Transition: What changes when the problem is specifically server state?
 - 活動定版標題為 `從 Pinia Action 到 Async Resource：重新思考 Vue 應用中的非同步 Ownership`，不再修改；開場用 speaker notes 說明順序代表 problem scope 展開，不是工具升級。
 - Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel / github.com/Luciano0322`；畫面以 `Reactivity / Async Lifecycle / Framework-independent Data Flow` 為主，React 背景只在口說中作為研究起點，不成為框架身份主標籤。
 - 四個 model 前先建立 implementation-neutral async lifecycle model；`Async Resource` 不等於 signal-kernel package。
-- 演講採取明確但有條件的立場：cross-resource correctness 出現時，explicit graph 能提高 relationship visibility；這項 clarity 必須與 runtime、vocabulary、adapter、debugging、teardown 與 maturity cost 一起評估。
+- 演講採取明確但有條件的立場：當 async state 需要先於 framework 成為 reactive dependency model 時，explicit graph 能提高 ownership visibility；這項 clarity 必須與第二套 runtime、vocabulary、adapter、debugging、teardown 與 maturity cost 一起評估。
 - 四個 model 是不同 responsibility configuration，不是成熟度或抽象層級的升級路線。
 - signal-kernel 是講者將 explicit ownership 立場做成可運行系統的嘗試，不是演講要求觀眾採用的結論。
 - Demo 使用 `@signal-kernel/core 0.1.4`、`@signal-kernel/async-runtime 0.3.1`、`@signal-kernel/vue 0.2.1`；簡報標示 `experimental · pre-1.0 · author-maintained`。

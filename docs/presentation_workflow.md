@@ -1,6 +1,6 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 進行中（P1.1–P1.6 完成；下一項為 P1.7）
+> 狀態：P1 進行中（P1.1–P1.7 完成；下一項為 P1.8）
 >
 > 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
 >
@@ -123,7 +123,7 @@ Notes: 使用 CSS variables 同時支援 html.dark 與 prefers-color-scheme: dar
 - [x] P1.4 建立 Act 2：Pure Vue
 - [x] P1.5 建立 Act 3：Pinia Action
 - [x] P1.6 建立 Act 4：TanStack Query
-- [ ] P1.7 建立 Act 5：signal-kernel
+- [x] P1.7 建立 Act 5：signal-kernel
 - [ ] P1.8 建立 Act 6：比較、結論與 Q&A
 - [ ] P1.9 完成 P1 全體驗收
 
@@ -402,8 +402,8 @@ Acceptance：
 - [x] Application 仍負責 query function 與 invalidation 的 domain meaning。
 - [x] Callback-style stream 位於 Query boundary 外，但沒有被描述成 TanStack Query 的缺陷。
 - [x] 明確說出 `Query + Vue composable` 已是完整有效的 architecture。
-- [x] 轉場說明 TanStack Query → signal-kernel 是 problem-scope change，不是能力升級。
-- [x] Slide 23 明確區分 server-state completeness 與 cross-resource relationship-model completeness。
+- [x] 轉場說明 TanStack Query → signal-kernel 是 async ownership representation 的改變，不是能力升級。
+- [x] Slide 23 明確區分 Query server-state lifecycle 與 Vue reactivity，並說明 Vue Query adapter 的連接角色。
 - [x] Responsibility footer 包含六個 teaching-contract fields。
 - [x] Slide 19–23 都有 `Core / Time / Transition / Cut` notes。
 - [x] `pnpm run build` 成功。
@@ -412,9 +412,9 @@ Acceptance：
 
 ```text
 Red evidence: production `/19` 仍包含 `P1.6 placeholder`，`/20` 已進入 `P1.7 placeholder`；server-state problem scope、Query ownership map、query-key identity、invalidation relationship 與 Query＋Vue stream boundary 尚未存在。
-Green implementation: Slide 19 用三個 clicks 依序建立 identity、freshness、relationship；Slide 20 補上 Query runtime / application / Vue stream composable responsibility map；Slide 21 以 Demo 真實 `useUsersQueryDemo.ts` 片段與三個 code-focus clicks 說明 queryKey、queryFn、placeholderData；Slide 22 對齊 mutation invalidation 實作；Slide 23 先承認 Query＋Vue 的完整性，再揭露分散的 cross-resource relationships，最後限制性地比較 server-state lifecycle 與 relationship model 的完整範圍。
+Green implementation: Slide 19 用三個 clicks 依序建立 identity、freshness、relationship；Slide 20 補上 Query runtime / application / Vue stream composable responsibility map；Slide 21 以 Demo 真實 `useUsersQueryDemo.ts` 片段與三個 code-focus clicks 說明 queryKey、queryFn、placeholderData；Slide 22 對齊 mutation invalidation 實作；Slide 23 將 Query server-state runtime 與 Vue reactivity 並列，說明 Vue Query adapter、computed input/projection 與 Query 外 stream watch 的責任。
 Verification: `pnpm run build` 成功（Slidev 52.18.0，678 modules transformed）；production `/19?clicks=0..3`、`/20`、`/21?clicks=0..3`、`/22?clicks=0..4`、`/23?clicks=0..2` 皆以 1280×720 截圖驗證，Mermaid、Dark+ code、line focus、responsibility footer 與轉場均無裁切或 raw HTML。
-Notes: Slide 19–23 分別配置 70、90、100、100、100 秒，共 460 秒；每張都有 Core / Time / Talk track / Transition / Cut。Callback stream 被描述為這份 Demo 的刻意 boundary，而不是 TanStack Query 缺陷；`Query + Vue composable` 被明確定位成完整方案，而 signal-kernel 的完整性主張只限定在 relationship model。
+Notes: Slide 19–23 分別配置 70、90、100、100、100 秒，共 460 秒；每張都有 Core / Time / Talk track / Transition / Cut。Callback stream 被描述為這份 Demo 的刻意 boundary，而不是 TanStack Query 缺陷；computed/watch 被描述成 input、projection 與 stream composition glue，不被誤稱為手動追蹤 response currentness。
 ```
 
 Slide 22 漸進講解補強：
@@ -426,13 +426,13 @@ Verification: `pnpm run build` 成功（Slidev 52.18.0，678 modules transformed
 Notes: Slide 22 時間由 80 秒調整為 100 秒，P1.6 notes time budget 由 420 秒調整為 440 秒。若現場需壓縮，Cut 會略過初始四角色與 Promise.all，只保留 mutationFn、兩個 query keys 與 application/runtime 分工。
 ```
 
-Slide 23 結論與問題邊界補強：
+Slide 23 server-state / Vue reactivity 邊界重整：
 
 ```text
-Red evidence: production `/23?clicks=0..2` 的三張 1280×720 screenshots 具有相同的 SHA-256；畫面只有 Query＋Vue 完整 architecture，沒有逐步揭露仍分散的 relationships，也沒有清楚限定 signal-kernel 的優勢範圍。
-Green implementation: Slide 23 增加兩個 clicks。初始承認 Query runtime＋Vue stream composable 已完整；第一個 click 顯示 Route→Query、Mutation→Queries、Selected user→Detail＋Stream、Stream→Vue scope 的 tracing 分散；第二個 click 並列 TanStack Query 的 server-state maturity 與 signal-kernel 的 relationship visibility，同時保留 graph vocabulary、runtime、adapter 成本。
-Verification: `pnpm run build` 成功（Slidev 52.18.0，678 modules transformed）；production `/23?clicks=0..2` 產生三張不同的 1280×720 screenshots。首次驗證發現最終狀態垂直溢出；壓縮比較卡、成本列與 takeaway 後，三個狀態的 title、內容與結論均完整，沒有裁切或 layout overflow。
-Notes: Slide 23 時間由 80 秒調整為 100 秒，P1.6 notes time budget 由 440 秒調整為 460 秒。結論限定為「signal-kernel 比較完整的是 relationship model；不是全面的 server-state capability」，避免形成工具排名。
+Red evidence: 現有 `/23` 仍以 cross-resource tracing 作為下一章切入點，且 deck 中找不到「server-state lifecycle 與 Vue reactivity」、「async state 成為 reactive graph」等教學主句，沒有呈現使用者預期的 model transition。
+Green implementation: Slide 23 保留兩個 clicks。初始並列 Query runtime 與 Vue reactivity；第一個 click 說明 computed query options、reactive query result refs、computed view projection 與 Query 外 stream watch；第二個 click 固定 async lifecycle、UI reactivity、adapter/composition glue 三個 boundary，最後提問 async state 能否先成為 graph node。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，701 modules transformed）；`/23` 的三個 click branches 均通過 Vue template compilation，預期主句可由 public deck source 搜尋到。
+Notes: Slide 23 維持 100 秒。技術界線固定為「Vue Query adapter 已讓 response snapshot 可被 Vue 追蹤」；computed/watch 是 adaptation/composition，不是 TanStack Query 缺少 reactive update 的補救。
 ```
 
 ### P1.7：建立 Act 5 — signal-kernel
@@ -443,38 +443,63 @@ Notes: Slide 23 時間由 80 秒調整為 100 秒，P1.6 notes time budget 由 4
 
 Audience outcome：
 
-> 觀眾先理解 signal-kernel 的必要 vocabulary，再判斷 explicit graph 對 cross-resource relationship clarity 的收益與成本。
+> 觀眾能從 TanStack Query 的伺服器狀態執行層＋Vue 轉接模型，理解 signal-kernel 如何讓非同步狀態先成為響應式 graph 節點，再由 Vue 作為輸入邊界與 UI 消費端。
 
 實作範圍：
 
-- Slide 24：Problem scope 再次改變。
-- Slide 25：signal-kernel 定義、vocabulary、版本與 maturity。
-- Slide 26：Users graph placeholder。
-- Slide 27：Resource dependency excerpt placeholder。
-- Slide 28：Vue responsibility 與 application glue。
-- Slide 29：Graph clarity 與 cost。
+- Slide 24：從 Query 轉接模型轉向「非同步狀態成為響應式 Graph」。
+- Slide 25：signal-kernel 定義、必要語彙、版本與成熟度。
+- Slide 26：Users graph、借用式轉接層與明確的 Graph 擁有者。
+- Slide 27：Resource 依賴片段與程式碼聚焦 clicks。
+- Slide 28：解除 Vue 消費關係與 Graph 生命週期 ownership。
+- Slide 29：響應式 Graph 清晰度、第二套執行層與轉接成本。
 
 Acceptance：
 
-- [ ] signal-kernel 只在共同 lifecycle model 建立後才被介紹。
-- [ ] `source / resource / revision / observe` 有最小且一致的定義。
-- [ ] 顯示 Demo 實際使用的三個 package versions。
-- [ ] 顯示 `experimental · pre-1.0 · author-maintained`。
-- [ ] Graph factory framework-independent 與 graph instance lifetime 被分開描述。
-- [ ] Runtime responsibility 與 callback subscribe/unsubscribe bridge 被分開描述。
-- [ ] Source-switch teardown 與尚未證明的 component-unmount teardown 被誠實區分。
-- [ ] Graph clarity 與 vocabulary、runtime、adapter、debugging、maturity、teardown cost 同頁出現。
-- [ ] Responsibility footer 包含六個 teaching-contract fields。
-- [ ] Slide 24–29 都有 `Core / Time / Transition / Cut` notes。
-- [ ] `pnpm run build` 成功。
+- [x] signal-kernel 只在共同 lifecycle model 建立後才被介紹。
+- [x] `server state` 與較廣義的 `async state` 沒有被當成完全同義詞。
+- [x] `source / resource / revision / computed / observe` 有最小且一致的定義。
+- [x] Resource 被描述為同時具有 async lifecycle、snapshot 與 reactive dependencies 的 graph node。
+- [x] Vue Query adapter 與 signal-kernel Vue adapter 的角色被分開描述。
+- [x] computed/watch 被描述為 input、projection 或 stream composition，不被誤稱為手動追蹤 response。
+- [x] 顯示 Demo 實際使用的三個 package versions。
+- [x] 以中文顯示「實驗階段 · 1.0 前版本 · 由作者維護」。
+- [x] 可見標題、卡片標籤與結論句以繁體中文為主，只保留 API、程式識別字與必要技術詞。
+- [x] Graph factory、graph instance owner 與 Vue consumer lifetime 被分開描述。
+- [x] Runtime responsibility 與 callback subscribe/unsubscribe bridge 被分開描述。
+- [x] Vue 被描述成 input boundary 與 UI consumer，而不是完全消失。
+- [x] Vue scope dispose 停止 adapter observer，以及 adapter 不自動 cancel resource，都被描述成已證明的 borrowed-consumer contract。
+- [x] Source-switch resource cleanup 與 graph-owner disposal policy 被分開描述。
+- [x] Graph clarity 與兩個 reactive runtimes、vocabulary、adapter、debugging、maturity、explicit ownership、external teardown policy 同頁出現。
+- [x] Responsibility footer 包含六個 teaching-contract fields。
+- [x] Slide 24–29 都有 `Core / Time / Transition / Cut` notes。
+- [x] `pnpm run build` 成功。
 
 實作紀錄：
 
 ```text
-Red evidence:
-Green implementation:
-Verification:
-Notes:
+Red evidence: P1.7 初版雖已完成六張投影片，但主線是 cross-resource tracing；deck source 找不到「server-state lifecycle 與 Vue reactivity」、「async state 成為 reactive graph」、「Vue 是 input boundary 與 UI consumer」與「兩個 reactive runtime」四個必要 acceptance phrases。
+Green implementation: Slide 24 先並列 Query runtime→Vue adapter 與 graph→Vue consumer；Slide 25 定義 async resource graph node、vocabulary、真實版本與 maturity；Slide 26 用 users graph 顯示 async reactivity 先於 Vue adapter；Slide 27 用 input/observe/run 三個 focus clicks 說明 source、revision、runtime snapshot propagation；Slide 28 用 input adapter、graph、output adapter 建立 Vue borrowed-consumer boundary；Slide 29 同頁結算 graph ownership 收益、兩套 runtime、adapter、explicit graph ownership 與 external teardown policy。
+Verification: 第一次 Green build 因 Slide 28 的 raw pre/code markup 被 Vue parser 判定未閉合而失敗；改成 Vue-safe 的 font-mono blocks 後，`pnpm run build` 成功（Slidev 52.18.0，701 modules transformed）。Public deck source 已包含四個 acceptance phrases，Slide 23–29 的 click branches 全部通過 Slidev/Vue production compilation。
+Notes: Slide 24–29 分別配置 70、75、80、95、100、80 秒，共 500 秒。所有 maturity、adapter、instance lifetime 與 teardown claim 都以 Demo 原始碼和既有 tests 為界；不宣稱 TanStack Query 缺少 Vue reactivity，也不把 component unmount 誤當成 framework-neutral graph 的預設 dispose signal。
+```
+
+Slide 28 graph-owner 語意修正：
+
+```text
+Red evidence: `/28` 最終 click 仍顯示「尚未證明 component unmount 自動 dispose graph」，並把 graph/component lifetime integration 描述成缺口；這與 @signal-kernel/vue 已驗證的 borrowed-consumer contract 不一致。
+Green implementation: Slide 26 將 page-setup placement 改述為「owner 仍應明確宣告」；Slide 28 改為「Vue detach consumer，不接管 graph lifetime」，並列 Vue scope dispose 停止 observer、adapter 不呼叫 resource.cancel、graph owner 決定 instance lifetime 三個 boundary；Slide 29 將成本改成 explicit graph ownership 與 external teardown policy。
+Verification: `@signal-kernel/vue` 的完整 adapter test 9/9 通過；最小化重跑的 observer disposal、resource non-cancellation、stream policy 三項 tests 3/3 通過。Slidev production build 通過後，`/26–29` public routes 作為 deck seam。
+Notes: Framework-neutral 不代表 graph 沒有 lifetime，而是 Vue consumer 無權替 graph owner 決定 lifetime。Source switch cleanup 是 resource behavior；graph 最終 disposal 是 application ownership contract。
+```
+
+P1.7 中文可讀性調整：
+
+```text
+Red evidence: Slide 24–29 的可見內容仍有 18 個英文主標、卡片標籤或結論句，包括 QUERY RUNTIME、INPUT/OUTPUT ADAPTER、GRAPH RUNTIME/OWNER、GRAPH BUYS/COSTS，以及多個 async/reactive/consumer/lifetime 標題。
+Green implementation: 將敘述性 vocabulary 改為繁體中文：非同步狀態、響應式圖、轉接層、消費端、執行層、狀態快照、依賴關係、擁有者與清理規則；保留 signal-kernel、QueryObserver、source/resource/revision/computed/observe、API 與程式碼識別字。Presenter notes 同步改成中文句子承載概念。
+Verification: 英文主標與卡片標籤的靜態檢查由 18 項降為 0；`pnpm run build` 成功（Slidev 52.18.0，701 modules transformed），Slide 24–29 的 Mermaid、click branches 與 Vue template 均通過 production compilation。
+Notes: Ownership 與 Graph 仍保留，因為它們是全場主題與模型名稱；API 名稱不翻譯，以免失去與原始碼對照能力。中文化不改變 server state、async state、consumer lifetime 與 graph ownership 的既有語意。
 ```
 
 ### P1.8：建立 Act 6 — 比較、結論與 Q&A
