@@ -797,15 +797,13 @@ Vue 仍然負責：路由轉接、互動、衍生資料、渲染
 
 #### Slide 19 — 這次問題不是 shared state，而是 server state
 
-依序 reveal：
+用三個 clicks 依序建立：
 
-- 它有遠端 identity。
-- 它可能 stale。
-- 多個 consumer 可能共享同一份結果。
-- source 改變時要取消或忽略舊 request。
-- mutation 後需要讓相依資料失效。
+1. `Identity`：source 改變時，遠端資料的身分也跟著改變。
+2. `Freshness`：cache 可以保留 snapshot，但 runtime 仍要維持 pending、stale、refreshing 與 request currentness。
+3. `Relationship`：mutation 後，users list 與 selected detail 等相依資料需要失效。
 
-先說明 users/detail 是具有 identity 與 freshness policy 的 server state，不只是「放在 component 或 store 裡的資料」。
+先說明 users/detail 是具有 identity、freshness policy 與 relationship 的 server state，不只是「放在 component 或 store 裡的資料」。最後明確說出：「Pinia 沒有做錯；是問題範圍從 shared workflow 移到了 server-state lifecycle。」
 
 #### Slide 20 — TanStack Query responsibility map
 
@@ -841,11 +839,14 @@ flowchart LR
 #### Slide 21 — Query key 成為 server-state identity
 
 ```ts
+const usersQueryKey = computed(
+  () => ['users', keyword.value] as const,
+)
 const usersQuery = useQuery({
-  queryKey: computed(() => ['users', keyword.value]),
-  queryFn: ({ signal }) =>
-    api.fetchUsers({ keyword: keyword.value, signal }),
-  placeholderData: previous => previous,
+  queryKey: usersQueryKey,
+  queryFn: ({ queryKey, signal }) =>
+    api.fetchUsers({ keyword: queryKey[1], signal }),
+  placeholderData: previousData => previousData,
 })
 ```
 
@@ -862,10 +863,19 @@ const usersQuery = useQuery({
 
 ```ts
 const updateMutation = useMutation({
-  mutationFn: api.updateUser,
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['users'] })
-    queryClient.invalidateQueries({ queryKey: ['user', userId.value] })
+  mutationFn: params => api.updateUser(params),
+  onSuccess: async () => {
+    const invalidations = [
+      queryClient.invalidateQueries({ queryKey: ['users'] }),
+    ]
+
+    if (userId.value !== null) {
+      invalidations.push(queryClient.invalidateQueries({
+        queryKey: ['user', userId.value],
+      }))
+    }
+
+    await Promise.all(invalidations)
   },
 })
 ```
@@ -874,44 +884,43 @@ const updateMutation = useMutation({
 
 > Application code 還是描述 domain relationship；Query runtime 維持 matching cache entries 的 stale 與 refetch lifecycle。
 
+為了照顧沒有 TanStack Query 經驗的觀眾，不直接從整段語法開始。先在右側列出四個閱讀角色，再用四個 clicks 聚焦同一份程式碼：
+
+1. `mutationFn`：application 提供實際的 remote work；runtime 維持 mutation status。
+2. `['users']`：prefix key 表達所有 users list variants 都可能過期。
+3. `['user', userId]`：存在 selected user 時，宣告精確的 detail relationship。
+4. `Promise.all(invalidations)`：application 已說明「誰受影響」，runtime 接著 matching、mark stale 與 refetch active queries。
+
+右側解釋卡與 code highlight 必須同步變化，版面維持固定；這張預留約 100 秒。
+
 不要把 `invalidateQueries()` 描述成完全移除 application responsibility；application 仍需知道 mutation 影響哪些 server state。
 
-#### Slide 23 — Query + Vue composable 是完整 boundary
+#### Slide 23 — 完整的 server state，分散的關係圖
 
-畫面左邊：
+這張用兩個 clicks 把結論拆成三幕，避免直接從 TanStack Query 跳到 signal-kernel：
 
-```text
-Query runtime
-✓ users/detail request lifecycle
-✓ cache identity and retained data
-✓ mutation status
-✓ invalidation and active refetch
-```
+1. 初始畫面先承認 Query runtime 與 Vue stream composable 已完整處理 Demo。
+   - Query runtime：request lifecycle、cache identity、mutation status、invalidation / refetch。
+   - Vue stream composable：callback subscription、event accumulation、source-switch cleanup、error projection。
+   - 結論：`Query + Vue composable` 是完整且有效的 architecture。
+2. 第一個 click 揭露仍然分散的關係。
+   - Route → Query。
+   - Mutation → Queries。
+   - Selected user → Detail + Stream。
+   - Stream → Vue scope。
+   - 每段 boundary 都正確，但完整 tracing 必須跨 page、query options 與 stream composable。
+3. 第二個 click 才比較兩種工具各自較完整的範圍。
+   - TanStack Query：成熟且專門的 server-state lifecycle；signal-kernel 不取代 identity、cache、mutation、invalidation、refetch 的優勢。
+   - signal-kernel：把 route source、request、mutation、stream、derived snapshot 在進入 Vue 前建成同一張可追蹤的 graph。
+   - 同頁保留 graph 的 vocabulary、runtime、adapter 成本。
 
-畫面右邊：
+這張的限制性結論必須明確說成：
 
-```text
-Vue stream composable
-✓ callback subscription
-✓ event accumulation
-✓ source switch cleanup
-✓ error projection
-```
+> signal-kernel 比較完整的是 relationship model；不是全面的 server-state capability。
 
-固定 footer：
+尚未解決的問題也要具體說清楚：
 
-```text
-Problem scope: server state + separate callback stream
-Policy declared by: query/mutation options + stream composable
-Lifecycle enforced by: Query runtime + Vue scope/application stream policy
-Vue still owns: route source, interaction, stream integration, projection, render
-Application glue: query functions, invalidation meaning, callback stream bridge
-Cost / non-goal: query/cache model; no claim to own every async process
-```
-
-這張必須先承認：
-
-> Query + Vue composable is already a valid and complete boundary for this demo.
+> 尚未解決的不是 cache；是 cross-resource relationships 沒有一等、共同的表示方式。
 
 避免宣稱 TanStack Query 原則上不能處理 stream。官方另有 experimental [`streamedQuery`](https://tanstack.com/query/latest/docs/reference/streamedQuery) 處理 AsyncIterable，但它不等同這份 Demo 的 callback-style persistent subscription。
 

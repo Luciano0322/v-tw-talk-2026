@@ -1,6 +1,6 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 進行中（P1.1–P1.5 完成；下一項為 P1.6）
+> 狀態：P1 進行中（P1.1–P1.6 完成；下一項為 P1.7）
 >
 > 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
 >
@@ -122,7 +122,7 @@ Notes: 使用 CSS variables 同時支援 html.dark 與 prefers-color-scheme: dar
 - [x] P1.3 建立 Act 1：共同 Demo 與觀察範圍
 - [x] P1.4 建立 Act 2：Pure Vue
 - [x] P1.5 建立 Act 3：Pinia Action
-- [ ] P1.6 建立 Act 4：TanStack Query
+- [x] P1.6 建立 Act 4：TanStack Query
 - [ ] P1.7 建立 Act 5：signal-kernel
 - [ ] P1.8 建立 Act 6：比較、結論與 Q&A
 - [ ] P1.9 完成 P1 全體驗收
@@ -390,30 +390,49 @@ Audience outcome：
 實作範圍：
 
 - Slide 19：Shared state 與 server state 的 problem-scope 差異。
-- Slide 20：TanStack Query responsibility map placeholder。
+- Slide 20：TanStack Query responsibility map。
 - Slide 21：Query key 與 server-state identity。
 - Slide 22：Mutation 與 invalidation relationship。
 - Slide 23：Query＋Vue stream composable boundary。
 
 Acceptance：
 
-- [ ] Query key 被描述成 identity 與 dependency，不只是一個字串。
-- [ ] Query runtime 負責 status、cancellation、stale result 與 cache interaction。
-- [ ] Application 仍負責 query function 與 invalidation 的 domain meaning。
-- [ ] Callback-style stream 位於 Query boundary 外，但沒有被描述成 TanStack Query 的缺陷。
-- [ ] 明確說出 `Query + Vue composable` 已是完整有效的 architecture。
-- [ ] 轉場說明 TanStack Query → signal-kernel 是 problem-scope change，不是能力升級。
-- [ ] Responsibility footer 包含六個 teaching-contract fields。
-- [ ] Slide 19–23 都有 `Core / Time / Transition / Cut` notes。
-- [ ] `pnpm run build` 成功。
+- [x] Query key 被描述成 identity 與 dependency，不只是一個字串。
+- [x] Query runtime 負責 status、cancellation、stale result 與 cache interaction。
+- [x] Application 仍負責 query function 與 invalidation 的 domain meaning。
+- [x] Callback-style stream 位於 Query boundary 外，但沒有被描述成 TanStack Query 的缺陷。
+- [x] 明確說出 `Query + Vue composable` 已是完整有效的 architecture。
+- [x] 轉場說明 TanStack Query → signal-kernel 是 problem-scope change，不是能力升級。
+- [x] Slide 23 明確區分 server-state completeness 與 cross-resource relationship-model completeness。
+- [x] Responsibility footer 包含六個 teaching-contract fields。
+- [x] Slide 19–23 都有 `Core / Time / Transition / Cut` notes。
+- [x] `pnpm run build` 成功。
 
 實作紀錄：
 
 ```text
-Red evidence:
-Green implementation:
-Verification:
-Notes:
+Red evidence: production `/19` 仍包含 `P1.6 placeholder`，`/20` 已進入 `P1.7 placeholder`；server-state problem scope、Query ownership map、query-key identity、invalidation relationship 與 Query＋Vue stream boundary 尚未存在。
+Green implementation: Slide 19 用三個 clicks 依序建立 identity、freshness、relationship；Slide 20 補上 Query runtime / application / Vue stream composable responsibility map；Slide 21 以 Demo 真實 `useUsersQueryDemo.ts` 片段與三個 code-focus clicks 說明 queryKey、queryFn、placeholderData；Slide 22 對齊 mutation invalidation 實作；Slide 23 先承認 Query＋Vue 的完整性，再揭露分散的 cross-resource relationships，最後限制性地比較 server-state lifecycle 與 relationship model 的完整範圍。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，678 modules transformed）；production `/19?clicks=0..3`、`/20`、`/21?clicks=0..3`、`/22?clicks=0..4`、`/23?clicks=0..2` 皆以 1280×720 截圖驗證，Mermaid、Dark+ code、line focus、responsibility footer 與轉場均無裁切或 raw HTML。
+Notes: Slide 19–23 分別配置 70、90、100、100、100 秒，共 460 秒；每張都有 Core / Time / Talk track / Transition / Cut。Callback stream 被描述為這份 Demo 的刻意 boundary，而不是 TanStack Query 缺陷；`Query + Vue composable` 被明確定位成完整方案，而 signal-kernel 的完整性主張只限定在 relationship model。
+```
+
+Slide 22 漸進講解補強：
+
+```text
+Red evidence: production `/22?clicks=0..4` 的五張 1280×720 screenshots 具有完全相同的 SHA-256；mutation work、list/detail invalidation 與 runtime handoff 同時出現，沒有局部閱讀焦點。
+Green implementation: Slide 22 增加四個 clicks；初始先列出 Work / Timing / Relationship / Handoff 四個角色，接著依序 highlight mutationFn、users prefix key、selected detail key 與 Promise.all runtime handoff。右側卡片同步用初學者語言解釋每段責任，最後才收斂 application/runtime 分工。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，678 modules transformed）；production `/22?clicks=0..4` 產生五個不同的 screenshot SHA-256，1280×720 下 Dark+ line focus、右側卡片與底部 takeaway 均無裁切、raw HTML 或 layout overflow。
+Notes: Slide 22 時間由 80 秒調整為 100 秒，P1.6 notes time budget 由 420 秒調整為 440 秒。若現場需壓縮，Cut 會略過初始四角色與 Promise.all，只保留 mutationFn、兩個 query keys 與 application/runtime 分工。
+```
+
+Slide 23 結論與問題邊界補強：
+
+```text
+Red evidence: production `/23?clicks=0..2` 的三張 1280×720 screenshots 具有相同的 SHA-256；畫面只有 Query＋Vue 完整 architecture，沒有逐步揭露仍分散的 relationships，也沒有清楚限定 signal-kernel 的優勢範圍。
+Green implementation: Slide 23 增加兩個 clicks。初始承認 Query runtime＋Vue stream composable 已完整；第一個 click 顯示 Route→Query、Mutation→Queries、Selected user→Detail＋Stream、Stream→Vue scope 的 tracing 分散；第二個 click 並列 TanStack Query 的 server-state maturity 與 signal-kernel 的 relationship visibility，同時保留 graph vocabulary、runtime、adapter 成本。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，678 modules transformed）；production `/23?clicks=0..2` 產生三張不同的 1280×720 screenshots。首次驗證發現最終狀態垂直溢出；壓縮比較卡、成本列與 takeaway 後，三個狀態的 title、內容與結論均完整，沒有裁切或 layout overflow。
+Notes: Slide 23 時間由 80 秒調整為 100 秒，P1.6 notes time budget 由 440 秒調整為 460 秒。結論限定為「signal-kernel 比較完整的是 relationship model；不是全面的 server-state capability」，避免形成工具排名。
 ```
 
 ### P1.7：建立 Act 5 — signal-kernel
