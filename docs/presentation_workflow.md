@@ -1,6 +1,6 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 進行中（P1.1–P1.3 完成；下一項為 P1.4）
+> 狀態：P1 進行中（P1.1–P1.4 完成；下一項為 P1.5）
 >
 > 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
 >
@@ -105,7 +105,7 @@ Cut:
 - [x] P1.1 建立 Slidev 基礎骨架
 - [x] P1.2 建立 Act 0：共同 async lifecycle model
 - [x] P1.3 建立 Act 1：共同 Demo 與觀察範圍
-- [ ] P1.4 建立 Act 2：Pure Vue
+- [x] P1.4 建立 Act 2：Pure Vue
 - [ ] P1.5 建立 Act 3：Pinia Action
 - [ ] P1.6 建立 Act 4：TanStack Query
 - [ ] P1.7 建立 Act 5：signal-kernel
@@ -269,22 +269,51 @@ Audience outcome：
 
 Acceptance：
 
-- [ ] Vue reactive tracking、watch scheduling、scope cleanup、projection 與 rendering 沒有被抹去。
-- [ ] Manual policy 沒有被描述成沒有 owner。
-- [ ] Composable 被描述成 organization／reuse boundary，不被自動等同 ownership transfer。
-- [ ] Responsibility footer 包含六個 teaching-contract fields。
-- [ ] Takeaway 說明 Pure Vue 對 local feature 是完整且合理的選擇。
-- [ ] Code 只使用 placeholder 或 8–16 行 curated excerpt。
-- [ ] Slide 10–14 都有 `Core / Time / Transition / Cut` notes。
-- [ ] `pnpm run build` 成功。
+- [x] Vue reactive tracking、watch scheduling、scope cleanup、projection 與 rendering 沒有被抹去。
+- [x] Manual policy 沒有被描述成沒有 owner。
+- [x] Slide 11 以 clicks 從 composable boundary、watch happy path 與 request race 推導 generation guard。
+- [x] Code 使用 VS Code Dark+ 語法色彩，並以獨立 clicks 聚焦 generation 發號與 commit guard。
+- [x] Composable 被描述成 organization／reuse boundary，不被自動等同 ownership transfer。
+- [x] Responsibility footer 包含六個 teaching-contract fields。
+- [x] Takeaway 說明 Pure Vue 對 local feature 是完整且合理的選擇。
+- [x] Code 只使用 placeholder 或 8–16 行 curated excerpt。
+- [x] Slide 10–14 都有 `Core / Time / Transition / Cut` notes。
+- [x] `pnpm run build` 成功。
 
 實作紀錄：
 
 ```text
-Red evidence:
-Green implementation:
-Verification:
-Notes:
+Red evidence: production `/10` 只有 P1.4 placeholder，且 Vue scope、manual policy、composable boundary、六欄 responsibility footer 與 local-feature takeaway 均未出現在公開輸出；`/11` 已直接進入 P1.5 placeholder。
+Green implementation: Slide 10 明確列出 Vue 維持的 reactive consumer responsibilities；Slide 11 先以 13 行 curated excerpt 標示 immediate、pending/refreshing、generation 與 success/error policy；Slide 12 區分 organization/reuse boundary 與 ownership transfer；Slide 13 建立 Mermaid responsibility map 與六欄 teaching contract；Slide 14 將 Pure Vue 收斂為完整且合理的 local boundary。五張均加入完整 presenter talk track。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，642 modules transformed）；production chunks 通過 14 項公開內容／notes assertions，且不再包含 P1.4 placeholder；production Slide 10–14 產生五個不同的 1280×720 screenshots。
+Notes: Slide 10–14 初版 notes time budget 合計 300 秒。第一次視覺驗證發現 Slide 11 的 `Policy declared by` footer 下緣被裁切；縮小右欄 cards、gap 與 footer spacing 後重新 build，第二次 screenshot 已完整顯示。其餘四張無裁切；P2 再處理 Mermaid node typography 與全域視覺 polish。
+```
+
+Slide 11 教學順序調整：
+
+```text
+Red evidence: 修改前 production `/11?clicks=0` 與 `/11?clicks=1` 的 1280×720 screenshot SHA-256 相同，只有完整 snippet，沒有從 composable 建立到 generation guard 的可觀察過渡。
+Green implementation: 保留單一 slide，以三次 click 依序呈現 useVueUsersDemo scaffold、watch happy path、a → b request race、實際命名的 generation guard；講稿明確區分 generation 與 Vue reactivity。
+Verification: Slide 11 template 通過 Markdown-to-Vue compiler 檢查；`pnpm run build` 成功（643 modules transformed）；production `/11?clicks=0..3` 產生四個不同的 screenshot SHA-256，逐幕以 1280×720 確認標題、程式碼、race timeline 與 footer 均完整。
+Notes: Slide 11 時間由 75 秒調整為 100 秒，P1.4 notes time budget 合計由 300 秒調整為 325 秒。第一次 Green build 揭露巢狀 HTML 在 code panel 後因四格縮排被 Markdown 視為 code block；移除結構標籤縮排並加入 template compiler preflight 後通過。
+```
+
+Slide 11 程式碼主題與 generation guard 聚焦：
+
+```text
+Red evidence: Slide 11 原本使用未經 Shiki tokenization 的 raw pre/code，production seam 只有 clicks 0–3；完整 implementation 畫面沒有分開聚焦 generation 發號與 commit guard。
+Green implementation: 新增 setup/shiki.ts，將簡報 code block 統一為 Shiki dark-plus；Slide 11 增加 clicks 4–5，先聚焦 ++latestRequestGeneration，再聚焦 success/error 的 currentness guard。講稿明確說明 guard 不阻止 request 並行，只阻止 stale request 進入 commit 區段。
+Verification: Markdown-to-Vue compiler preflight 通過；pnpm run build 成功（Slidev 52.18.0，643 modules transformed）；production /11?clicks=0、3、4、5 產生四個不同的 1280×720 screenshot SHA-256，Dark+ token 色彩、藍色 generation highlight、綠色 commit highlight、標題與 footer 均完整顯示。
+Notes: 一開始使用 Slidev code meta {2} / {8-12,14-15}，它會參與 code-click navigation，與頁面 $clicks 疊加後造成 direct-link 自動捲動；改以 Shiki token output 上的本頁 CSS line focus 後，不再消耗額外 click。Slide 11 時間由 100 秒調整為 115 秒，P1.4 notes time budget 合計由 325 秒調整為 340 秒。
+```
+
+Slide 13 中文可讀性調整：
+
+```text
+Red evidence: responsibility map 的標題、Mermaid nodes 與六欄 teaching contract 大量使用英文，繁體中文受眾需要先翻譯欄位才能理解責任關係。
+Green implementation: 將可見敘事改為中文直述，只保留 watch、composable、API、ref、computed 等需要與程式碼對照的術語；講稿與 proposal 同步更新。
+Verification: pnpm run build 成功（Slidev 52.18.0，643 modules transformed）；production /13 以 1280×720 確認 Mermaid 中文節點與六欄 footer 均完整、無裁切。
+Notes: 六欄改成觀眾可以直接回答的問題：問題範圍、規則由誰宣告、生命週期由誰維持、Vue 仍負責什麼、應用程式還要補上什麼、代價與非目標。
 ```
 
 ### P1.5：建立 Act 3 — Pinia Action

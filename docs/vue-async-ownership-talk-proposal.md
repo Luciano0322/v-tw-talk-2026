@@ -515,34 +515,103 @@ component composition and rendering
 
 > Pure Vue 不是「什麼都沒有」。Vue 已經維持 reactivity 與 consumer scope；application 另外宣告這個 feature 的 async policy。
 
-#### Slide 11 — Application code 還需要決定什麼？
+#### Slide 11 — Pure Vue：怎麼開始寫？
 
-建議只展示 10–14 行 curated snippet：
+這張保留單一 slide，使用五次 click 把實作脈絡拆成六幕，避免從概念直接跳到完整 watch。程式碼統一使用 Shiki `dark-plus` 主題，讓 TypeScript token 像 VS Code 一樣有明確色彩層次：
+
+**Click 0 — 先建立 composable boundary**
 
 ```ts
+export function useVueUsersDemo(api, keyword, userId) {
+  const users = ref([])
+  const usersStatus = ref('idle')
+
+  return { users, usersStatus }
+}
+```
+
+先說明 inputs 是外部能力與 reactive sources，outputs 是提供 Vue consumer 讀取的 snapshot refs。這一步建立 organization／reuse boundary，但還沒有決定 request correctness。
+
+**Click 1 — 用 watch 接上第一版 happy path**
+
+```ts
+let hasLoadedUsers = false
+
 watch(keyword, async currentKeyword => {
-  const generation = ++latestRequestGeneration
+  usersStatus.value = hasLoadedUsers ? 'refreshing' : 'pending'
+  users.value = await api.fetchUsers({ keyword: currentKeyword })
+  hasLoadedUsers = true
+  usersStatus.value = 'success'
+}, { immediate: true })
+```
+
+這一幕只建立 `watch(keyword)` trigger、`pending / refreshing` 與 `immediate` policy，並在畫面下方提出問題：
+
+> keyword 快速從 a → b，誰保證最後寫回的是 b？
+
+**Click 2 — 解釋為什麼需要 generation**
+
+```text
+keyword = a → generation 1 → request A ─────── resolves last
+keyword = b → generation 2 → request B ─ resolves first
+
+UI: result b → stale result a
+```
+
+Promise 完成順序不等於 source 的最新順序。Generation policy 分成三步：
+
+1. source change 時增加 `latestRequestGeneration`。
+2. request 記住開始時的 `requestGeneration`。
+3. 只有兩者仍相等，才允許 commit snapshot。
+
+**Click 3 — 回到 `useVueUsersDemo.ts` 的完整 curated excerpt**
+
+```ts
+watch(keyword, async (currentKeyword) => {
+  const requestGeneration = ++latestRequestGeneration
   usersStatus.value = hasLoadedUsers ? 'refreshing' : 'pending'
 
-  const nextUsers = await api.fetchUsers({ keyword: currentKeyword })
+  try {
+    const loadedUsers = await api.fetchUsers({ keyword: currentKeyword })
 
-  if (generation === latestRequestGeneration) {
-    users.value = nextUsers
-    usersStatus.value = 'success'
+    if (requestGeneration === latestRequestGeneration) {
+      users.value = loadedUsers
+      hasLoadedUsers = true
+      usersStatus.value = 'success'
+    }
+  } catch {
+    if (requestGeneration === latestRequestGeneration)
+      usersStatus.value = 'error'
   }
 }, { immediate: true })
 ```
 
-逐項標記 application policy：
+先讓觀眾看完整 policy 的位置與形狀，再逐步聚焦關鍵 invariant：
 
 ```text
 immediate trigger
 pending vs refreshing
-latest generation wins
+generation guard
 success/error transition
 ```
 
-Manual 不代表沒有 owner；這些規則由 application composable 明確宣告。
+Generation 不是為了 Vue reactivity，而是 application 宣告的 stale-result policy。Manual 不代表沒有 owner；這些規則由 application composable 明確宣告。
+
+**Click 4 — 聚焦 generation 的發號點**
+
+只高亮：
+
+```ts
+const requestGeneration = ++latestRequestGeneration
+```
+
+每次 source change 都先產生新版本，每個 request captures 自己啟動時的版本。這一步不會取消舊 request，也不會阻止 request 並行。
+
+**Click 5 — 聚焦 snapshot 的 commit guard**
+
+同時高亮 success 與 error 的 `requestGeneration === latestRequestGeneration` 區段。舊 request 仍可 resolve 或 reject，但只有最新版本能寫回 data／status snapshot。
+
+> Generation guard 不阻止 request 重入或並行；它阻止 stale request 晚完成後重新進入 commit 區段。
 
 #### Slide 12 — 抽成 composable，ownership 有改變嗎？
 
@@ -564,28 +633,33 @@ application code still declares async policy
 
 這頁用來防止觀眾把「檔案移動」誤認為 owner 改變，也為 Pinia 的 shared workflow boundary 做準備。
 
-#### Slide 13 — Pure Vue responsibility map
+#### Slide 13 — Pure Vue 的責任分布圖
 
 ```mermaid
 flowchart LR
-  Route[route query] --> Watch[Vue watch]
+  Route[路由 query] --> Watch[Vue watch]
+  VueScope[Vue 元件作用域] --> Watch
+  VueScope --> Cleanup[watch / stream 清理]
   Watch --> Request[Users API]
-  Watch --> Policy[status / generation policy]
-  Request --> Refs[data / status / error refs]
-  Refs --> UI[Vue projection / render]
-  VueScope[Vue component scope] --> Cleanup[watch / stream cleanup]
+  Watch --> Policy[狀態與新舊判斷]
+  Request --> Guard[只允許最新結果寫回]
+  Policy --> Refs[資料 / 狀態 / 錯誤 refs]
+  Guard --> Refs
+  Refs --> UI[computed 投影 / 畫面更新]
 ```
 
 固定 footer：
 
 ```text
-Problem scope: local feature
-Policy declared by: component / composable
-Lifecycle enforced by: Vue scope + application policy
-Vue still owns: route adaptation, interaction, projection, render
-Application glue: race guard, status transitions, mutation reload, stream bridge
-Cost / non-goal: manual policy; no shared server-state semantics
+問題範圍：單一功能內的非同步工作
+規則由誰宣告：元件 / composable
+生命週期由誰維持：Vue 作用域 + 應用程式規則
+Vue 仍然負責：路由轉接、互動、衍生資料、渲染
+應用程式還要補上：競態保護、狀態轉換、重載、串流橋接
+代價 / 非目標：手動維持規則；沒有共用的 server state 語意
 ```
+
+畫面以中文先傳達責任關係，只保留 `watch`、`composable`、`API`、`ref`、`computed` 等需要和程式碼對照的術語；不要求觀眾在現場先翻譯抽象欄位。
 
 #### Slide 14 — Pure Vue takeaway
 
