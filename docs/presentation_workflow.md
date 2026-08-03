@@ -1,6 +1,6 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 進行中（P1.1–P1.4 完成；下一項為 P1.5）
+> 狀態：P1 進行中（P1.1–P1.5 完成；下一項為 P1.6）
 >
 > 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
 >
@@ -70,6 +70,21 @@ Transition:
 Cut:
 ```
 
+Presenter notes 可讀性：
+
+- 樣式只作用於 `.slidev-presenter .grid-section.note`，不影響 viewer、slides 或 export。
+- Light mode 使用深色文字；dark mode 與系統深色偏好使用高對比亮灰文字。
+- 非當前 click 可以淡化，但必須保持可讀；code、連結與粗體需要有額外色彩層次。
+
+實作紀錄：
+
+```text
+Red evidence: dark Presenter Mode 中，notes 沿用 light prose foreground，講稿在黑底上呈現極低對比；使用者提供的實際 presenter screenshot 可觀察到整段文字接近背景色。
+Green implementation: 新增根目錄 styles.css，以 presenter notes 的公開 DOM boundary 限定樣式；一般文字提高亮度、字重與行距，strong/code/link 分別提供白色、amber 與 cyan 層次，slidev-note-fade 改為仍可閱讀的 muted gray。
+Verification: pnpm run build 成功（Slidev 52.18.0，659 modules transformed）；production `/presenter/6` 以 1717×797 dark-mode screenshot 確認 notes 為高對比亮色，slide canvas 與 presenter layout 未受影響。
+Notes: 使用 CSS variables 同時支援 html.dark 與 prefers-color-scheme: dark；light mode 保留深色 foreground，避免白字白底。
+```
+
 ### 2.4 Proposal alignment
 
 公開行為：
@@ -106,7 +121,7 @@ Cut:
 - [x] P1.2 建立 Act 0：共同 async lifecycle model
 - [x] P1.3 建立 Act 1：共同 Demo 與觀察範圍
 - [x] P1.4 建立 Act 2：Pure Vue
-- [ ] P1.5 建立 Act 3：Pinia Action
+- [x] P1.5 建立 Act 3：Pinia Action
 - [ ] P1.6 建立 Act 4：TanStack Query
 - [ ] P1.7 建立 Act 5：signal-kernel
 - [ ] P1.8 建立 Act 6：比較、結論與 Q&A
@@ -335,22 +350,31 @@ Audience outcome：
 
 Acceptance：
 
-- [ ] Pinia 沒有被簡化成「把 ref 搬進 store」。
-- [ ] Store lifetime 與 component lifetime 被明確區分。
-- [ ] Action 被描述成清楚的 shared workflow boundary。
-- [ ] Race guard、status、reload target 與 stream cleanup 仍標示為 application policy。
-- [ ] 沒有宣稱 Pinia 只能使用這一種 async architecture。
-- [ ] Responsibility footer 包含六個 teaching-contract fields。
-- [ ] Slide 15–18 都有 `Core / Time / Transition / Cut` notes。
-- [ ] `pnpm run build` 成功。
+- [x] Pinia 沒有被簡化成「把 ref 搬進 store」。
+- [x] Store lifetime 與 component lifetime 被明確區分。
+- [x] Action 被描述成清楚的 shared workflow boundary。
+- [x] Race guard、status、reload target 與 stream cleanup 仍標示為 application policy。
+- [x] 沒有宣稱 Pinia 只能使用這一種 async architecture。
+- [x] Responsibility footer 包含六個 teaching-contract fields。
+- [x] Slide 15–18 都有 `Core / Time / Transition / Cut` notes。
+- [x] `pnpm run build` 成功。
 
 實作紀錄：
 
 ```text
-Red evidence:
-Green implementation:
-Verification:
-Notes:
+Red evidence: production build 仍包含 `P1.5 placeholder`，Slide 15 只有 Act 標題，Slide 16 已直接進入 P1.6 placeholder；shared workflow、store/component lifetime、action policy 與六欄 responsibility contract 均不可見。
+Green implementation: Slide 15 從單一功能推導 shared workflow boundary；Slide 16 以 Mermaid 與 lifetime timeline 區分 store 接走的責任和不會自動獲得的 semantics；Slide 17 以一次 click 先展示 Demo 真實 update → reload action，再揭露 generation guard 與 page onUnmounted cleanup；Slide 18 使用中文 responsibility map 與六欄 teaching contract 收斂立場。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，658 modules transformed）；production `/15`、`/16`、`/17?clicks=0`、`/17?clicks=1`、`/18` 產生五個不同的 1280×720 screenshot SHA-256，標題、Mermaid、Dark+ code、footer 與 takeaway 均完整。
+Notes: Slide 15–18 notes time budget 合計 300 秒。第一次視覺驗證發現 Slide 15、16、17 click 0 下緣裁切，Slide 17 click 1 的 generation guard 出現水平捲軸；縮短 Mermaid 高度與垂直 spacing、將長程式行換行後，第二輪 production screenshots 均無裁切或捲軸。Pinia 採中性描述：它完整解決 shared client workflow 問題，但不預設 server-state lifecycle semantics；Demo 只是其中一種 architecture。
+```
+
+Slide 16 累積式 reveal 調整：
+
+```text
+Red evidence: production `/16?clicks=0..3` 的四張 1280×720 screenshots 具有完全相同的 SHA-256；所有責任、非自動 semantics 與 lifetime 對照同時出現，沒有可觀察的逐步堆疊。
+Green implementation: Slide 16 增加三個明確 v-click；初始只保留 boundary map，接著依序 reveal「Store 確實接走」、「不會自動獲得」，最後揭露 store/component lifetime 與結論。所有容器保留 layout space，click 時不重新排版。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，658 modules transformed）；production `/16?clicks=0..3` 產生四個不同的 1280×720 screenshot SHA-256，依序只增加指定區塊，最終畫面與原始完整內容一致，且無裁切或 layout shift。
+Notes: Slide 16 時間由 70 秒調整為 85 秒，P1.5 notes time budget 合計由 300 秒調整為 315 秒。
 ```
 
 ### P1.6：建立 Act 4 — TanStack Query

@@ -673,57 +673,84 @@ Vue 仍然負責：路由轉接、互動、衍生資料、渲染
 
 不要把 Pure Vue 描述成錯誤解法或未完成階段。它是完整且合理的 local boundary，也是四個 model 共用的比較基準。
 
-### Act 3：Pinia Action — store owns the shared workflow boundary
+### Act 3：Pinia Action — store 擁有共用 workflow boundary
 
 #### Slide 15 — 為什麼自然會想到 Pinia？
 
-畫面文案：
+以「問題範圍擴大」做左右對照：
 
-- 多個 component 需要同一份狀態。
-- request 與 update logic 不想散落在 page。
-- 希望 actions 提供一致的 application entry point。
+- 單一功能內可以由 component / composable 維持 snapshot、互動入口與 consumer lifetime。
+- 多個 consumer 共用同一份狀態時，Pinia store 提供 shared snapshot 與 actions。
+- Store 通常可以活得比單一元件久，形成跨 consumer 的 shared workflow boundary。
+
+結論：
+
+> Pinia 的價值不是搬動 ref，而是建立 shared state 與 workflow boundary。
 
 轉場句：
 
-> 問題從 local feature 變成 shared client workflow；我們先把責任集中到 store boundary。
+> 問題從單一功能變成 shared client workflow；我們先把責任集中到 store boundary。
 
-#### Slide 16 — Store boundary 改變了什麼？
+#### Slide 16 — Store 邊界改變了什麼？
+
+使用三次 click 累積內容，所有區塊預留原本位置，避免 reveal 時版面跳動：
+
+1. 初始畫面只看 route → page → actions/API → shared refs → consumers。
+2. Click 1 顯示 Store 確實接走的 shared snapshot、actions 與跨 consumer 狀態。
+3. Click 2 顯示不會自動獲得的取消／新舊判斷、失效／重載與 stream cleanup semantics。
+4. Click 3 顯示 store／component lifetime 對照與結論。
 
 建議 Mermaid：
 
 ```mermaid
 flowchart LR
-  Route[route query] --> Page[Vue page]
-  Page --> Action[Pinia actions]
-  Action --> API[Users API]
-  Action --> Store[shared refs / workflow state]
-  Store --> UI[Vue projection / render]
+  Route[路由 query] --> Page[Vue page]
+  Page --> Actions[Pinia actions]
+  Actions --> API[Users API]
+  API --> Actions
+  Actions --> Store[Pinia shared refs]
+  Store --> A[使用端 A]
+  Store --> B[使用端 B]
+  Store --> C[使用端 C]
 ```
 
-畫面註記：
-
-> Store owns shared state and workflow. Application-defined actions maintain the async policy.
-
-需要明確區分：
+畫面明確區分：
 
 - Store lifetime 通常比單一 component consumer 長。
 - Page 仍擁有 route adaptation 與 interaction。
 - 將資料放進 Pinia 不會自動獲得 cancellation、stale、invalidation 或 stream semantics。
 
+> Store 生命週期 ≠ 元件生命週期；共享狀態不等於自動擁有每一段 async lifecycle。
+
 #### Slide 17 — Action 集中 policy，但仍由 application 編排
 
-建議 snippet：
+這張使用一次 click，先建立 shared workflow，再揭露仍需手動維持的 lifecycle policy。
+
+**Click 0 — update → reload 有明確入口**
 
 ```ts
 async function updateUser(userId, patch) {
+  updateStatus.value = 'pending'
+
   await api.updateUser({ userId, patch })
 
   await Promise.all([
     fetchUsers(currentKeyword),
     fetchUserDetail(userId),
   ])
+
+  updateStatus.value = 'success'
 }
 ```
+
+Action 讓 mutation、reload targets 與 status transition 集中，但這些規則仍由 application 宣告。
+
+**Click 1 — policy 集中了，但沒有自動化**
+
+左右並列 Demo 的兩段真實 integration：
+
+- `latestUsersRequestGeneration` 仍在 fetch action 維持 currentness。
+- `onUnmounted(() => store.unsubscribeActivity())` 仍由 Vue page 接回 consumer lifetime。
 
 口說重點：
 
@@ -733,22 +760,34 @@ async function updateUser(userId, patch) {
 - Component unmount 不等於 store dispose；若 stream lifetime 跟 consumer 綁定，必須明確保留 page cleanup 或建立 store-level disposal policy。
 - 這是其中一種 Pinia architecture，不代表 Pinia 只能這樣組織 async work。
 
-#### Slide 18 — Pinia responsibility map 與 takeaway
+#### Slide 18 — Pinia 的責任分布圖與 takeaway
+
+```mermaid
+flowchart LR
+  Route[路由 query] --> Page[Vue 頁面]
+  Page --> Actions[Pinia actions]
+  Actions --> API[Users API]
+  API --> Actions
+  Actions --> Store[共用 refs]
+  Store --> UI[Vue 使用端]
+  Page --> Cleanup[consumer 清理]
+  Cleanup --> Actions
+```
 
 固定 footer：
 
 ```text
-Problem scope: shared client state and workflow
-Policy declared by: store actions + page integration
-Lifecycle enforced by: Pinia/Vue reactivity + application actions
-Vue still owns: route adaptation, interaction, projection, render
-Application glue: race guard, reload order, status, stream lifetime
-Cost / non-goal: orchestration stays manual; no prescribed server-state semantics
+問題範圍：共享的 client state 與 workflow
+規則由誰宣告：store actions + 頁面整合
+生命週期由誰維持：Pinia / Vue 響應機制 + 應用程式 actions
+Vue 仍然負責：路由轉接、互動、衍生資料、渲染
+應用程式還要補上：競態保護、重載順序、狀態、串流生命週期
+代價 / 非目標：手動編排；不預設 server state 語意
 ```
 
 大字：
 
-> Centralized makes policy explicit, not automatic.
+> 集中，讓 policy 更清楚；不代表 policy 自動成立。
 
 建議中文口說：
 
