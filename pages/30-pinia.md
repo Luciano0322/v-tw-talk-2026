@@ -83,11 +83,11 @@ clicks: 3
 
 ```mermaid
 flowchart LR
-  Route["路由 query"] --> Page["Vue page"]
+  Route["路由 query"] --> Page["Vue 頁面"]
   Page --> Actions["Pinia actions"]
   Actions --> API["Users API"]
   API --> Actions
-  Actions --> Store["Pinia shared refs"]
+  Actions --> Store["Pinia 共用 refs"]
   Store --> A["使用端 A"]
   Store --> B["使用端 B"]
   Store --> C["使用端 C"]
@@ -99,9 +99,9 @@ flowchart LR
   <div v-click="1" class="rounded-2xl border border-amber-300 p-3 dark:border-amber-700">
     <div class="font-semibold text-amber-600 dark:text-amber-300">Store 確實接走</div>
     <div class="mt-2 grid grid-cols-3 gap-2 text-center text-sm">
-      <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">共享 snapshot</div>
+      <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">共用狀態快照</div>
       <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">共用 actions</div>
-      <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">跨 consumer 狀態</div>
+      <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">跨消費端狀態</div>
     </div>
   </div>
   <div v-click="2" class="rounded-2xl border p-3">
@@ -109,21 +109,21 @@ flowchart LR
     <div class="mt-2 grid grid-cols-3 gap-2 text-center text-sm">
       <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">取消 / 新舊判斷</div>
       <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">失效 / 重載規則</div>
-      <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">stream 清理</div>
+      <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">串流清理</div>
     </div>
   </div>
 </div>
 
 <div v-click="3">
   <div class="mt-3 grid grid-cols-[130px_1fr] gap-x-4 gap-y-2 text-sm">
-    <div class="font-semibold opacity-55">Component</div>
-    <div class="rounded bg-blue-50 px-3 py-2 dark:bg-blue-950">mount ─────────── unmount</div>
+    <div class="font-semibold opacity-55">元件</div>
+    <div class="rounded bg-blue-50 px-3 py-2 dark:bg-blue-950">掛載 ─────────── 卸載</div>
     <div class="font-semibold text-amber-600 dark:text-amber-300">Pinia store</div>
     <div class="rounded bg-amber-50 px-3 py-2 dark:bg-amber-950">建立 ───────────────────────── 繼續存在</div>
   </div>
 
   <div class="mt-3 text-center text-base font-semibold">
-    Store 生命週期 ≠ 元件生命週期；共享狀態不等於自動擁有每一段 async lifecycle。
+    Store 生命週期 ≠ 元件生命週期；共用狀態不等於自動擁有每一段非同步生命週期。
   </div>
 </div>
 
@@ -310,9 +310,9 @@ Cut: 第一幕只講 mutation → reload；第二幕只指出 generation guard �
 layout: default
 ---
 
-# Pinia 的責任分布圖
+# Pinia 的非同步權責分布圖
 
-## Store 擁有共用 workflow；應用程式維持 async policy
+## Store 擁有共用流程；應用程式維持非同步規則
 
 <div class="pinia-responsibility-map">
 
@@ -331,16 +331,16 @@ flowchart LR
 </div>
 
 <div class="mt-1 grid grid-cols-3 gap-2 text-[11px] leading-4">
-  <div class="rounded-lg border px-3 py-2"><b>問題範圍</b><br>共享的 client state 與 workflow</div>
-  <div class="rounded-lg border px-3 py-2"><b>規則由誰宣告</b><br>store actions + 頁面整合</div>
-  <div class="rounded-lg border px-3 py-2"><b>生命週期由誰維持</b><br>Pinia / Vue 響應機制 + 應用程式 actions</div>
-  <div class="rounded-lg border px-3 py-2"><b>Vue 仍然負責</b><br>路由轉接 · 互動 · 衍生資料 · 渲染</div>
-  <div class="rounded-lg border px-3 py-2"><b>應用程式還要補上</b><br>競態保護 · 重載順序 · 狀態 · 串流生命週期</div>
-  <div class="rounded-lg border px-3 py-2"><b>代價 / 非目標</b><br>手動編排 · 不預設 server state 語意</div>
+  <div class="rounded-lg border px-3 py-2"><b>問題範圍</b><br>共用客戶端狀態與流程</div>
+  <div class="rounded-lg border px-3 py-2"><b>規則宣告</b><br>store actions＋頁面整合</div>
+  <div class="rounded-lg border px-3 py-2"><b>生命週期維持</b><br>Pinia／Vue 響應機制＋應用程式 actions</div>
+  <div class="rounded-lg border px-3 py-2"><b>Vue 的責任</b><br>路由轉接 · 互動 · 衍生資料 · 渲染</div>
+  <div class="rounded-lg border px-3 py-2"><b>應用程式銜接</b><br>競態保護 · 重載順序 · 狀態 · 串流生命週期</div>
+  <div class="rounded-lg border px-3 py-2"><b>成本／非目標</b><br>手動編排 · 不預設伺服器資料語意</div>
 </div>
 
-<div class="mt-3 rounded-xl bg-amber-50 p-3 text-center text-lg font-semibold dark:bg-amber-950">
-  集中，讓 policy 更清楚；不代表 policy 自動成立。
+<div class="mt-3 rounded-xl bg-amber-50 p-3 text-center text-base font-semibold dark:bg-amber-950">
+  移動：共用狀態快照／流程 → Store　｜　留下：競態／重載／串流清理 → Actions＋Vue 頁面
 </div>
 
 <style>
@@ -358,7 +358,7 @@ flowchart LR
 </style>
 
 <!--
-Core: Pinia store 擁有 shared client state 與 workflow boundary；server-state lifecycle semantics 仍由 application-defined actions 和 page integration 維持。
+Core: Pinia 把 shared snapshot 與 workflow 移到 store；race、reload、status 與 stream cleanup 仍由 application actions 和 Vue page integration 維持。
 Time: 75 秒。
 Talk track:
 從 route query 開始，Vue page 仍負責 route adaptation 和 interaction，再把共享操作交給 Pinia actions。
@@ -366,7 +366,7 @@ Actions 執行 Users API、維持 status、generation guard 與 update 後的 re
 Stream cleanup 特別畫成 page 回到 action 的路徑，因為 Demo 的 consumer lifetime 由 onUnmounted 決定，但真正停止 subscription 的 operation 位於 store。
 下方六欄和 Pure Vue 回答同一組問題。差異是 problem scope 已經擴大為 shared client state 與 workflow，policy 主要集中在 store actions，加上 page integration。
 Pinia 和 Vue 提供 reactive mechanism；application actions 維持這個 domain 的 lifecycle correctness。代價是 orchestration 仍需手動宣告，而且 Pinia 不預設 server-state semantics。
-這不是能力不足的評價。Pinia 已經完整解決這一章的 shared workflow 問題。底部結論是：集中讓 policy 更清楚，不代表 policy 自動成立。
-Transition: 下一章再改變一次問題範圍：當這些資料需要 identity、freshness、cache 與 invalidation semantics，我們開始把它視為 server state。
+這不是能力不足的評價。Pinia 已經完整解決這一章的 shared workflow 問題。底部用固定句型收尾：shared snapshot 和 workflow 移到 Store；race、reload 與 stream cleanup 仍留在 Actions 和 Vue page。
+Transition: 下一次重新配置不是把 store 換掉，而是當資料具有 identity、freshness、cache 與 invalidation 語意時，讓專用 runtime 接手 server-state lifecycle responsibilities。
 Cut: 只走 route → page → actions/API → shared refs → consumers，再念底部結論。
 -->

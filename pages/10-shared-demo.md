@@ -2,48 +2,48 @@
 layout: default
 ---
 
-# 同一個 Dashboard，三種 async work
+# 同一個 Dashboard，三種非同步工作
 
-## Route 提供可重現的 source：`keyword` + `userId`
+## 路由提供可重現的來源：`keyword` + `userId`
 
 <div class="mt-7 grid grid-cols-3 gap-5">
   <div class="rounded-xl border p-5">
-    <div class="text-sm font-semibold opacity-55">REQUEST-LIKE</div>
-    <div class="mt-2 text-xl font-semibold">Search users</div>
-    <div class="mt-1 font-mono text-sm opacity-65">source: keyword</div>
+    <div class="text-sm font-semibold opacity-55">請求型工作</div>
+    <div class="mt-2 text-xl font-semibold">搜尋使用者</div>
+    <div class="mt-1 font-mono text-sm opacity-65">來源：keyword</div>
     <div class="mt-5 text-sm leading-6 opacity-75">
-      pending · refreshing<br>
-      success · error<br>
-      stale-result protection
+      等待中 · 重新整理中<br>
+      成功 · 錯誤<br>
+      過期結果保護
     </div>
   </div>
 
   <div class="rounded-xl border p-5">
-    <div class="text-sm font-semibold opacity-55">MUTATION + INVALIDATION</div>
-    <div class="mt-2 text-xl font-semibold">Update user</div>
-    <div class="mt-1 font-mono text-sm opacity-65">source: userId + form</div>
+    <div class="text-sm font-semibold opacity-55">資料更新（MUTATION）＋失效</div>
+    <div class="mt-2 text-xl font-semibold">更新使用者</div>
+    <div class="mt-1 font-mono text-sm opacity-65">來源：userId＋表單</div>
     <div class="mt-5 text-sm leading-6 opacity-75">
-      updating · success · error<br>
-      affected data<br>
-      invalidate / refresh
+      更新中 · 成功 · 錯誤<br>
+      受影響的資料<br>
+      失效／重新整理
     </div>
   </div>
 
   <div class="rounded-xl border p-5">
-    <div class="text-sm font-semibold opacity-55">STREAM-LIKE</div>
-    <div class="mt-2 text-xl font-semibold">User activity</div>
-    <div class="mt-1 font-mono text-sm opacity-65">source: userId</div>
+    <div class="text-sm font-semibold opacity-55">串流型工作</div>
+    <div class="mt-2 text-xl font-semibold">使用者活動</div>
+    <div class="mt-1 font-mono text-sm opacity-65">來源：userId</div>
     <div class="mt-5 text-sm leading-6 opacity-75">
-      active · emission · error<br>
-      source switch<br>
-      unsubscribe / cleanup
+      持續中 · 事件 · 錯誤<br>
+      來源切換<br>
+      取消訂閱／清理
     </div>
   </div>
 </div>
 
 <div class="mt-7 rounded-xl bg-gray-100 p-4 text-center dark:bg-gray-800">
   <span class="font-semibold">共同 UI 只是觀察面。</span>
-  三種工作仍有不同的 lifecycle responsibilities。
+  三種工作仍有不同的生命週期責任。
 </div>
 
 <!--
@@ -63,9 +63,9 @@ Cut: 只說三種工作名稱，以及 keyword / userId 讓 source change 可重
 layout: default
 ---
 
-# 四條 Route，控制 selected outcomes
+# 四條路由，控制選定結果
 
-## 同一 UI、API 與 route state；不是控制實驗
+## 同一 UI、API 與路由狀態；不是控制實驗
 
 <div class="mt-6 grid grid-cols-[1.05fr_1fr] gap-6">
 <div>
@@ -130,6 +130,6 @@ Talk track:
 它沒有控制 abstraction level、runtime maturity、ecosystem 或 application glue；這些差異本來就是各 model 的一部分。
 所以後面看到的程式碼量與 responsibility map，應該被當成 architecture case study，而不是 benchmark 或全面的工具選型結論。
 現場 Demo 會先走一次共同 happy path；race 或 stream-switch trace 留到後面的收斂段落。現在仍保留 route 與 fallback screenshot placeholder，QR 在最後製作階段補上。
-Transition: 比較邊界固定以後，先從 Vue 開發者最直接的做法開始：把 lifecycle 寫在 component 與 composable 裡。
+Transition: 比較邊界固定以後，先看 Pure Vue 的 Async Ownership baseline：Vue reactivity、component lifecycle 與 application code 如何共同承擔同一段工作。
 Cut: 只念四條 routes，並保留「selected outcomes 相同，不代表控制 maturity、ecosystem 或 glue」。
 -->

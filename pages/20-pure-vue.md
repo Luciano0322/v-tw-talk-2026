@@ -384,24 +384,24 @@ layout: default
 
 <div class="mt-8 grid grid-cols-[1fr_auto_1fr] items-center gap-5">
   <div class="rounded-2xl border p-6">
-    <div class="text-sm font-semibold opacity-55">BEFORE</div>
-    <div class="mt-3 text-xl font-semibold">Page component</div>
+    <div class="text-sm font-semibold opacity-55">調整前</div>
+    <div class="mt-3 text-xl font-semibold">頁面元件</div>
     <div class="mt-5 grid gap-2 text-sm opacity-75">
       <div>refs / computed</div>
-      <div>watch + cleanup registration</div>
-      <div>async policy</div>
+      <div>watch＋清理註冊</div>
+      <div>非同步規則</div>
     </div>
   </div>
 
   <div class="text-4xl opacity-45">→</div>
 
   <div class="rounded-2xl border border-blue-300 p-6 dark:border-blue-700">
-    <div class="text-sm font-semibold text-blue-600 dark:text-blue-300">AFTER</div>
-    <div class="mt-3 text-xl font-semibold">Feature composable</div>
+    <div class="text-sm font-semibold text-blue-600 dark:text-blue-300">抽出後</div>
+    <div class="mt-3 text-xl font-semibold">功能 composable</div>
     <div class="mt-5 grid gap-2 text-sm opacity-75">
-      <div>exposes refs + operations</div>
-      <div>reusable organization boundary</div>
-      <div>async policy 仍由 application 宣告</div>
+      <div>暴露 refs＋操作</div>
+      <div>可重用的組織邊界</div>
+      <div>非同步規則仍由應用程式宣告</div>
     </div>
   </div>
 </div>
@@ -409,16 +409,16 @@ layout: default
 <div class="mt-7 grid grid-cols-2 gap-5 text-center">
   <div class="rounded-xl bg-gray-100 p-4 dark:bg-gray-800">
     <div class="text-sm opacity-55">改變的是</div>
-    <div class="mt-1 font-semibold">organization · reuse · API surface</div>
+    <div class="mt-1 font-semibold">組織 · 重用 · API 表面</div>
   </div>
   <div class="rounded-xl bg-gray-100 p-4 dark:bg-gray-800">
     <div class="text-sm opacity-55">不會自動改變的是</div>
-    <div class="mt-1 font-semibold">Vue scope · async lifecycle owner</div>
+    <div class="mt-1 font-semibold">Vue 作用域 · 非同步生命週期責任邊界</div>
   </div>
 </div>
 
 <div class="mt-6 text-center text-xl font-semibold">
-  移動 code 會建立組織邊界，不會自動轉移 lifecycle ownership。
+  移動程式碼會建立組織邊界，不會自動轉移生命週期 Ownership。
 </div>
 
 <!--
@@ -437,7 +437,7 @@ Cut: 只保留「organization boundary 不等於 ownership transfer」。
 layout: default
 ---
 
-# Pure Vue 的責任分布圖
+# Pure Vue 的非同步權責分布圖
 
 ## Vue 作用域 + 應用程式規則，共同完成局部邊界
 
@@ -460,11 +460,11 @@ flowchart LR
 
 <div class="mt-2 grid grid-cols-3 gap-2 text-[11px] leading-4">
   <div class="rounded-lg border px-3 py-2"><b>問題範圍</b><br>單一功能內的非同步工作</div>
-  <div class="rounded-lg border px-3 py-2"><b>規則由誰宣告</b><br>元件 / composable</div>
-  <div class="rounded-lg border px-3 py-2"><b>生命週期由誰維持</b><br>Vue 作用域 + 應用程式規則</div>
-  <div class="rounded-lg border px-3 py-2"><b>Vue 仍然負責</b><br>路由轉接 · 互動 · 衍生資料 · 渲染</div>
-  <div class="rounded-lg border px-3 py-2"><b>應用程式還要補上</b><br>競態保護 · 狀態轉換 · 重載 · 串流橋接</div>
-  <div class="rounded-lg border px-3 py-2"><b>代價 / 非目標</b><br>手動維持規則 · 無共用 server state 語意</div>
+  <div class="rounded-lg border px-3 py-2"><b>規則宣告</b><br>元件／composable</div>
+  <div class="rounded-lg border px-3 py-2"><b>生命週期維持</b><br>Vue 作用域＋應用程式規則</div>
+  <div class="rounded-lg border px-3 py-2"><b>Vue 的責任</b><br>路由轉接 · 互動 · 衍生資料 · 渲染</div>
+  <div class="rounded-lg border px-3 py-2"><b>應用程式銜接</b><br>競態保護 · 狀態轉換 · 重載 · 串流橋接</div>
+  <div class="rounded-lg border px-3 py-2"><b>成本／非目標</b><br>手動維持規則 · 無共用伺服器資料語意</div>
 </div>
 
 <style>
@@ -498,27 +498,27 @@ Cut: 只走路由 → watch → 規則/API → refs → 畫面，底部六欄留
 layout: center
 ---
 
-# Pure Vue takeaway
+# Pure Vue：非同步 Ownership 基準
 
 <div class="mt-10 text-center">
   <div class="text-4xl font-semibold text-blue-600 dark:text-blue-300">
     對 local feature：完整、明確，而且合理
   </div>
   <div class="mt-4 text-xl opacity-70">
-    Local, explicit, and complete for a local feature.
+    對局部功能而言，它已經完整而且明確。
   </div>
 </div>
 
 <div class="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-5 text-center">
   <div class="rounded-2xl border p-5">
-    <div class="text-sm font-semibold opacity-55">VUE OWNS</div>
-    <div class="mt-2 text-lg font-semibold">reactivity · scope cleanup</div>
-    <div class="mt-2 text-sm opacity-65">projection · composition · render</div>
+    <div class="text-sm font-semibold opacity-55">交給 VUE 基礎機制</div>
+    <div class="mt-2 text-lg font-semibold">響應式系統 · 元件生命週期</div>
+    <div class="mt-2 text-sm opacity-65">狀態傳播 · 消費端範圍 · 清理時機 · 渲染</div>
   </div>
   <div class="rounded-2xl border p-5">
-    <div class="text-sm font-semibold opacity-55">APPLICATION OWNS</div>
-    <div class="mt-2 text-lg font-semibold">feature async policy</div>
-    <div class="mt-2 text-sm opacity-65">status · currentness · reload · stream bridge</div>
+    <div class="text-sm font-semibold opacity-55">留在應用程式程式碼</div>
+    <div class="mt-2 text-lg font-semibold">功能內的非同步正確性</div>
+    <div class="mt-2 text-sm opacity-65">觸發 · 狀態 · 新舊判斷 · 重載 · 串流橋接</div>
   </div>
 </div>
 
@@ -527,12 +527,12 @@ layout: center
 </div>
 
 <!--
-Core: Pure Vue 是完整且合理的 local-feature ownership boundary，也是後續比較 responsibility configuration 的 baseline。
+Core: Pure Vue 的 Async Ownership 分布在 Vue reactivity、component lifecycle 與 application code；這是完整合理的 local-feature baseline。
 Time: 50 秒。
 Talk track:
 Pure Vue 這一章只收斂成一句話：對 lifecycle 局部、關係容易追蹤的 feature，它是完整、明確，而且通常成本最低的選擇。
-Vue 擁有 reactivity、consumer scope cleanup、projection 和 rendering；application code 擁有 feature 的 async policy。這個 responsibility configuration 已經能讓 Dashboard 保持正確。
+Vue reactivity 負責傳播狀態，component lifecycle 提供 consumer scope 與 cleanup hook；application code 仍負責 trigger、status、currentness、reload 與 stream bridge。Promise、API 和 stream 則執行外部工作。這張 responsibility map 已經能讓 Dashboard 保持正確。
 接下來比較 Pinia、TanStack Query 和 signal-kernel，不是因為 Pure Vue 是等待被修好的半成品，而是當 problem scope 改變時，我們可能希望重新配置 responsibility。
-Transition: 第一個 scope change 是：當狀態與 workflow 不再只屬於單一 component，而要被多個 consumer 共用時，Pinia 自然會進入討論。
+Transition: 第一個重新配置是：當 snapshot 與 workflow 要跨越單一 consumer，共享責任移到 Pinia store；接著確認哪些 async correctness 仍留在 actions 與 Vue page。
 Cut: 只說大字結論，以及「baseline 不是半成品」。
 -->

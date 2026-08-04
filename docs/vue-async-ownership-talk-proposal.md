@@ -30,9 +30,9 @@
 
 ### 2.1 一句話版本
 
-> State management 幫助我們組織資料與變更；lifecycle ownership 指出哪一層負責維持跨時間的正確性。
+> Async Ownership 是一段非同步工作跨時間運行時，觸發、狀態傳播、生命週期正確性、UI 消費與清理責任在系統邊界之間的配置。
 
-這裡的 owner 不是「自動化最多的工具」，而是對某一組 lifecycle invariants 負責的 layer。Application 可以在 component、store、query options 或 graph factory 中宣告 policy；Vue、application code、Query runtime 或 signal-kernel runtime 則以不同機制維持它。
+這裡的 Async Ownership 是整體 responsibility map；async responsibility 是 trigger、status、stale、invalidate、dispose 或 render 等可分配責任；owner 則是在相關 lifetime 內，持續維持某項 responsibility 正確性的 boundary。同一段 async work 可以有多個 owner，不代表所有細節都由同一個 library 自動完成。
 
 ### 2.2 這場演講採取的立場
 
@@ -107,6 +107,8 @@ Pure Vue、Pinia Action、TanStack Query 與 signal-kernel 是四種不同的 re
 - `ownership`、`lifecycle`、`server state`、`invalidation` 等核心詞彙第一次出現時，用中文句子解釋；後續可直接保留英文。
 - 不要求每個英文名詞都有逐字中文對照，重點是讓觀眾理解它在責任邊界中的角色。
 - 可見文案優先使用「非同步狀態、響應式圖、轉接層、消費端、執行層、狀態快照、依賴關係、擁有者、清理規則」；`Ownership`、`Graph` 與 `source / resource / revision / computed / observe` 可保留，因為它們分別是全場主題、模型名稱與實際 API vocabulary。
+- 四個 model 的 responsibility map 固定使用六個中文欄位：`問題範圍 / 規則宣告 / 生命週期維持 / Vue 的責任 / 應用程式銜接 / 成本／非目標`。不在不同章節改用 `Policy / Lifecycle owner / Application glue` 等英文主標籤。
+- Map、卡片與 takeaway 由中文承擔概念解釋；產品名稱、套件名稱、API、程式碼識別字與狀態機 canonical tokens 才保留英文。必要時採「中文概念＋英文識別字」，不為追求全中文而切斷與原始碼的對照。
 - Slidev 全域語言設定使用 `zh-TW`，PDF 匯出前確認繁中字型、標點與 Mermaid 中文節點不會缺字。
 
 這樣可維持 Vue 開發者熟悉的技術語境，同時避免主要論點因大量英文段落而增加理解負擔。
@@ -148,14 +150,22 @@ Request-like resource 與 stream-like resource 不必共用完全相同的 state
 
 這個最小模型刻意不使用 query key、revision、resource graph 等特定工具 vocabulary。它是四個 model 的共同觀察基準，避免先用任何一個實作的抽象定義問題。
 
-本場將 ownership 定義為：
+本場將 Async Ownership 定義為：
 
-> 對某一組 lifecycle invariants 負責，並不等於所有細節都由 library 自動完成。
+> 一段非同步工作跨時間運行時，觸發、狀態傳播、生命週期正確性、UI 消費與清理責任，在 system boundaries 之間如何被配置與承擔。
 
-每個 model 都必須分開回答兩個維度：
+這個定義包含三個層次：
 
-1. Policy 在哪裡被宣告？
-2. 哪個 framework、application layer 或 runtime 維持這項 invariant？
+1. `Async Ownership`：整體 responsibility-to-owner mapping。
+2. `Async responsibility`：trigger、status、stale、invalidate、dispose、render 等可分配責任。
+3. `Owner`：在相關 lifetime 內，以實際 mechanism 持續維持其中一項責任正確性的 boundary。
+
+每個 model 都必須分開回答四個維度：
+
+1. 哪些 async responsibilities 移到新的 boundary？
+2. 哪些 responsibilities 仍留在 Vue 或 application code？
+3. Policy 在哪裡被宣告？
+4. 哪個 framework、application layer 或 runtime 以什麼 mechanism 維持這項 invariant？
 
 後面四個 model 再使用同一組問題：
 
@@ -189,10 +199,11 @@ Request-like resource 與 stream-like resource 不必共用完全相同的 state
 每個 model 的段落都用同一個結構：
 
 1. 這個 model 主要處理哪一種 problem scope？
-2. Policy 在哪裡宣告，哪個 mechanism 維持 lifecycle invariants？
-3. Vue 保留哪些 presentation responsibility？
-4. 哪些 application glue 與 integration cost 仍然存在？
-5. 這個 model 沒有試圖解決什麼？
+2. 哪些 async responsibilities 移到新的 boundary，哪些仍然留下？
+3. Policy 在哪裡宣告，哪個 mechanism 維持 lifecycle invariants？
+4. Vue 保留哪些 presentation 與 consumer responsibility？
+5. 哪些 application glue 與 integration cost 仍然存在？
+6. 這個 model 沒有試圖解決什麼？
 
 ### 6.3 不把演講做成排行榜
 
@@ -380,36 +391,35 @@ Who disposes it?
 
 避免為了統一 vocabulary 而假裝 request 與 stream 完全相同；本場只要求兩者能用同一組 ownership questions 討論。這張只描述 control-flow handoff 與不同 lifecycle shape；責任實際分布在哪些 layer，留到 Slide 5 展開。
 
-#### Slide 5 — 一段 async work，責任通常分散在哪裡？
+#### Slide 5 — 一段 async work 進入 Vue 之後
 
-建議 Mermaid：
+畫面使用單一路徑與獨立 component-lifecycle 註記：
 
-```mermaid
-flowchart LR
-  Source[Route / props / local source]
-  Scope[Vue component scope]
-  Policy[Composable / store / options]
-  Runtime[Vue / Query / graph runtime]
-  External[API / stream]
-  Consumer[Vue projection / render]
+```text
+Route / Props / Local Source
+→ Application Code：trigger、status、stale、refresh
+→ Promise / API / Stream：執行外部工作
+→ Async Snapshot
+→ Vue Reactivity：傳播變化
+→ UI Render
 
-  Source --> Policy
-  Scope --> Policy
-  Policy --> Runtime
-  Runtime --> External
-  Runtime --> Consumer
-  Scope -. dispose .-> Runtime
+Vue Component Lifecycle
+└─ 定義 consumer scope 與 cleanup 時機
 ```
 
 口說重點：
 
-- Source 提供 identity，不等於自動擁有 request lifecycle。
-- Application code 宣告 domain policy。
-- Framework 或 runtime 維持它承諾的 invariants。
-- Vue consumer 保留 route adaptation、interaction、projection、composition 與 rendering。
-- External API 執行工作，但不知道 UI correctness。
+- Application code 決定 trigger，也常要維持 status、stale 與 refresh。
+- Promise、API 或 stream 執行外部工作，但不知道 UI correctness。
+- Vue reactivity 傳播 snapshot 的變化。
+- Component lifecycle 定義 consumer 何時存在，以及 cleanup hook 何時發生。
+- Component 將 snapshot 投影成 UI。
 
-這張使用「責任分散」而不是「ownership 被瓜分」，避免暗示所有 layer 在競爭同一份權力。
+畫面在 30 秒內正式給出定義：
+
+> Async Ownership：這些責任在系統邊界之間如何被配置與承擔。
+
+這張使用「責任配置」而不是「ownership 被瓜分」，避免暗示所有 layer 在競爭同一份權力，也不把 Async Ownership 誤解成單一 owner handoff。
 
 #### Slide 6 — State 放在哪裡，不等於 async lifecycle 由誰維持
 
@@ -438,7 +448,7 @@ snapshot = { status, data, error }
 
 **Click 2 — 再回到 ownership 三層**
 
-| Snapshot location | Async policy | Async lifecycle owner |
+| Snapshot location | Async policy | Owner |
 | --- | --- | --- |
 | UI 此刻讀到的值放在哪裡？ | 規則在哪裡被宣告？ | 誰持續維持正確性？ |
 | component、store、cache、graph | trigger、refresh、error、invalidation | currentness、status、stale、cleanup |
@@ -446,16 +456,16 @@ snapshot = { status, data, error }
 再用同一個具體例子收斂：
 
 ```text
-users snapshot：component ref → Pinia store
-只證明讀取位置改變；
-async lifecycle owner 是否改變，仍要看 action 與 runtime 的承諾。
+Async Ownership = responsibility → owner 的配置圖
+Snapshot 搬進 store，只證明讀取位置改變；
+責任是否轉移，仍要看 action 與 runtime 接手了什麼。
 ```
 
 口說重點：
 
-> 把 ref 搬進 store 會改變 snapshot location，也可能改變 workflow boundary；但 stale、refresh 與 cleanup 由誰負責，仍取決於 async policy 和 lifecycle owner。
+> 把 ref 搬進 store 會改變 snapshot location，也可能改變 workflow boundary；但 stale、refresh 與 cleanup 是否轉移，仍取決於哪個 owner 以實際 mechanism 接手責任。
 
-#### Slide 7 — 接下來，固定問六個 Ownership questions
+#### Slide 7 — 用六個問題讀出 Async Ownership
 
 六個 badge 各自帶一個中文問題：
 
@@ -472,7 +482,7 @@ render     誰把 snapshot 投影成 UI？
 
 > Architecture case study：比較 responsibility map，不做工具排名。
 
-後面每個 model 都回答同一份 checklist，不臨時更換標準。Dashboard、Users API、route state 與 selected outcomes 留到 Act 1 建立，避免 Slide 7 同時承擔比較標準與 Demo 情境兩個認知任務。
+六個問題不是 Async Ownership 的定義，而是讀出 responsibility map 的分析座標。後面每個 model 都必須回答「哪些責任移動了」與「哪些仍留在 Vue 或 application code」，不臨時更換標準。Dashboard、Users API、route state 與 selected outcomes 留到 Act 1 建立，避免 Slide 7 同時承擔比較標準與 Demo 情境兩個認知任務。
 
 ### Act 1：固定共同 Demo 與觀察範圍
 
@@ -993,26 +1003,33 @@ flowchart LR
 
 Graph factory 沒有 Vue import；Vue adapter 才把 kernel snapshot 轉成 Vue refs。這份 Demo 的 graph instance 雖在 page setup 中建立，adapter 仍只借用 graph。Graph 可以跨 Vue consumer 存活；是否要在 page 結束時 dispose，必須由真正的 graph owner 明確決定，不能由 adapter 猜測。
 
-#### Slide 27 — 依賴關係直接寫進響應式 Resource
+#### Slide 27 — 讀取與更新，透過 revision 接成同一張 Graph
 
 ```ts
 const users = createResource({
   input: keyword.get,
   observe: usersRevision.get,
-  run: (currentKeyword, context) =>
-    api.fetchUsers({
-      keyword: currentKeyword,
-      signal: context.signal,
-    }),
+  run: (keyword, context) =>
+    api.fetchUsers({ keyword, signal: context.signal }),
+})
+
+const updateUser = createResource({
+  trigger: 'manual',
+  run: input => api.updateUser(input),
+  invalidates: (_result, input) => [
+    usersRevision,
+    userRevision.target(input.userId),
+  ],
 })
 ```
 
-- `input` 讓 source change 成為 resource dependency。
-- `observe` 讓 mutation revision 成為 invalidation dependency。
-- 執行層維持 pending、error、取消、過期結果與快照發布。
-- Application 仍提供 API operation 與 domain invalidation meaning。
+- Revision 是代表「相關非同步狀態需要重新驗證」的響應式版本節點；不是資料、快取或 Mutation 結果。
+- Resource 用 `observe` 讀取 revision，建立 revision → resource 的 Graph 依賴。
+- Mutation 用 `invalidates` 宣告成功後影響的 revision targets；Application 擁有領域失效語意，執行層擁有成功時機與版本推進。
+- `usersRevision` 對應列表重新驗證；`userRevision.target(input.userId)` 只對應被更新的使用者明細。
+- Revision 推進後，Graph 依賴決定哪些 Resource 重新執行；Vue 只透過轉接層消費新快照。
 
-使用三個 clicks 依序聚焦 `input`、`observe`、`run`。口說必須明確指出：Vue 不需要監聽回應；resource 快照更新會沿 graph 傳播，再透過 Vue 轉接層 refs 通知元件。
+使用三個 clicks 依序聚焦讀取端 `observe`、寫入端 `invalidates`、以及列表 revision 與 keyed detail revision 的作用範圍。不新增投影片，仍以 95 秒講完「Mutation 成功 → invalidates → revision 推進 → observe 感知 → Resource 重新執行」的完整循環。
 
 #### Slide 28 — Vue 解除消費關係，不接管 Graph 生命週期
 
@@ -1073,9 +1090,9 @@ Vue 仍負責：route 轉接、互動、畫面投影、渲染
 
 ### Act 6：收斂與選擇
 
-#### Slide 30 — 四種 ownership configuration
+#### Slide 30 — 四種 Ownership 配置
 
-建議比較表：
+實作以四個固定欄位搭配 click 切換 concern，避免把九列資訊一次塞進畫面。完整責任資料仍以以下比較表作為講稿依據：
 
 | Concern | Pure Vue | Pinia Action | TanStack Query | signal-kernel |
 | --- | --- | --- | --- | --- |
@@ -1089,24 +1106,24 @@ Vue 仍負責：route 轉接、互動、畫面投影、渲染
 | Scope demonstrated | local feature | shared client workflow | server state | async state as reactive graph |
 | Cost visible here | manual async policy | store orchestration | query/cache model + separate stream boundary | second reactive runtime, vocabulary, adapters, debugging and teardown integration |
 
-表格下方大字：
+最後一個 click 的收斂句：
 
-> Different scopes buy different clarity at different costs.
+> 不同問題範圍，用不同成本換取不同程度的清晰度。
 
-此頁停留約 2–3 分鐘，是整場最重要的總結頁。講解時沿著 concern 橫向比較 policy、enforcement mechanism、Vue role 與 integration cost，不由左到右描述成技術進化史。
+此頁停留約 2 分鐘，是整場最重要的總結頁。依序用 click 橫向比較負責的問題、規則與生命週期、Vue／stream 邊界、可見成本；不由左到右描述成技術進化史。
 
-#### Slide 31 — Same selected outcomes, different responsibility maps
+#### Slide 31 — 共同結果，不同責任圖
 
 畫面大字：
 
-> 4 models × 10 contract executions = 40 passing cases
+> 4 種 Ownership 模型 × 10 個契約案例 = 40 次契約執行
 
 小字：
 
 ```text
-8 shared async behaviors
-1 shared-surface check
-1 model-specific explanation check
+8 個共同非同步行為
+1 個共同畫面契約
+1 個模型說明案例
 ```
 
 只用一張圖或一句話交代 TDD：
@@ -1139,7 +1156,7 @@ Explicit graph  async state dependency model before framework consumption
 
 大字：
 
-> These are scopes, not levels.
+> 這些是不同問題範圍，不是不同工具等級。
 
 建議口說：
 
@@ -1151,11 +1168,11 @@ Explicit graph  async state dependency model before framework consumption
 
 大字：
 
-> Make lifecycle ownership explicit at the scope where correctness is enforced.
+> Async Ownership 是一段非同步工作跨時間運行時，各項責任在系統邊界之間如何被配置與承擔。
 
 補充核心句：
 
-> signal-kernel 不是這場演講的結論，explicit ownership 才是。signal-kernel 是我嘗試把這個立場做成可運行系統的方式。
+> signal-kernel 不是這場演講的結論；讓每項 async responsibility 都能指出 owner、lifetime 與維持 correctness 的 mechanism，才是結論。
 
 講者立場：
 
@@ -1163,14 +1180,14 @@ Explicit graph  async state dependency model before framework consumption
 
 最後留給觀眾的問題：
 
-> 在你的系統裡，async state 與 framework reactivity 之間的 adaptation，已經複雜到值得建立 explicit graph 了嗎？
+> 你的 async responsibilities 分布在哪裡？這張配置圖仍容易理解、測試與維持嗎？
 
 #### Slide 35 — Q&A 與 Demo repository
 
 這頁在 40 分鐘正式內容結束後顯示，作為 Q&A 背景與會後入口。畫面保持簡單：
 
 ```text
-Questions?
+Q&A／提問與交流
 
 [Demo repository QR code]
 
@@ -1486,13 +1503,15 @@ Transition: What changes when the problem is specifically server state?
 
 ## 16. Definition of Done
 
-- [ ] 觀眾能在 30 秒內理解 ownership 的定義。
+- [ ] 觀眾能在 30 秒內說出：Async Ownership 是 async responsibilities 在系統邊界之間的配置，不是 state location 或 API caller。
 - [ ] 觀眾能先用 source、trigger、active/settled、refresh/switch 與 dispose 描述 async work lifecycle。
 - [ ] 觀眾能分辨 request-like 與 stream-like work 不必共用相同 state machine，但可回答相同 ownership questions。
 - [ ] 觀眾能指出 Vue scope、application policy、runtime、external work 與 UI consumer 各自可能負責的範圍。
 - [ ] 觀眾能分辨「policy 在哪裡宣告」與「哪個 mechanism 維持 invariant」。
 - [ ] 四個 model 都能用相同語法回答六個 ownership 問題。
+- [ ] 四個 model 都明確回答「哪些 responsibilities 移動了」與「哪些仍留在 Vue 或 application code」。
 - [ ] 四個 model 都交代 problem scope、policy、enforcement、Vue responsibility、application glue 與 cost/non-goal。
+- [ ] 四個 model 的權責分布圖都使用相同六欄中文結構，不以英文主標籤承擔主要概念。
 - [ ] 每章都有一句清楚的 takeaway。
 - [ ] Pure Vue 被描述成完整 local boundary，Vue 的 reactive tracking 與 scope cleanup 沒有被抹去。
 - [ ] Pinia Action 被描述成 store-owned workflow；Pinia 沒有被縮減成只搬動 state location。

@@ -1,6 +1,6 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 進行中（P1.1–P1.7 完成；下一項為 P1.8）
+> 狀態：P1 進行中（P1.1–P1.8 完成；下一項為 P1.9）
 >
 > 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
 >
@@ -124,7 +124,7 @@ Notes: 使用 CSS variables 同時支援 html.dark 與 prefers-color-scheme: dar
 - [x] P1.5 建立 Act 3：Pinia Action
 - [x] P1.6 建立 Act 4：TanStack Query
 - [x] P1.7 建立 Act 5：signal-kernel
-- [ ] P1.8 建立 Act 6：比較、結論與 Q&A
+- [x] P1.8 建立 Act 6：比較、結論與 Q&A
 - [ ] P1.9 完成 P1 全體驗收
 
 ## 5. P1 Tasks
@@ -186,7 +186,7 @@ Notes: P1.2 前 deck 為封面加 7 個 section placeholders；完整 35 張由�
 
 Audience outcome：
 
-> 觀眾在看到任何方案前，能先用中立 vocabulary 描述 async work lifecycle，並理解 ownership 是對 lifecycle invariants 負責。
+> 觀眾在看到任何方案前，能先用中立 vocabulary 描述 async work lifecycle，並在 30 秒內理解 Async Ownership 是 responsibilities 在 system boundaries 之間的配置。
 
 實作範圍：
 
@@ -194,9 +194,9 @@ Audience outcome：
 - Slide 2：講者資訊。
 - Slide 3：Promise 結束後仍持續存在的 responsibility。
 - Slide 4：request-like 與 stream-like lifecycle。
-- Slide 5：Vue 環境中的 responsibility distribution。
-- Slide 6：Snapshot location 與 async lifecycle ownership 的差異。
-- Slide 7：共同 ownership checklist 與 case-study disclaimer。
+- Slide 5：正式定義 Async Ownership，並建立 Vue reactivity、component lifecycle、application code 與 external work 的 responsibility distribution。
+- Slide 6：Snapshot location、async policy 與 owner 的差異。
+- Slide 7：用六個問題讀出 responsibility map，並加入 case-study disclaimer。
 
 Acceptance：
 
@@ -206,9 +206,10 @@ Acceptance：
 - [x] 講者照片可以使用明確 placeholder，不阻擋 P1。
 - [x] 共同模型沒有使用 query key、revision、observe 或 graph 定義 async work。
 - [x] Request 與 Stream 沒有被描述成相同 state machine。
-- [x] Slide 5 分開 source、Vue scope、application policy、runtime、external work 與 consumer。
+- [x] Slide 5 在 30 秒內明確定義 Async Ownership，不將它等同 state location 或單一 owner handoff。
+- [x] Slide 5 分開 Vue reactivity、component lifecycle、application code、external work 與 UI consumer。
 - [x] Slide 6 以 clicks 依序定義 snapshot、區分 Vue／async lifecycle，再導入 location／policy／owner。
-- [x] Slide 7 顯示 `trigger / status / stale / invalidate / dispose / render`。
+- [x] Slide 7 顯示 `trigger / status / stale / invalidate / dispose / render`，並說明它們是分析座標而非 Ownership 定義。
 - [x] Slide 7 明確標示 case study 不是 benchmark 或完整工具選型。
 - [x] Slide 1–7 都有 `Core / Time / Transition / Cut` notes。
 - [x] `pnpm run build` 成功。
@@ -450,7 +451,7 @@ Audience outcome：
 - Slide 24：從 Query 轉接模型轉向「非同步狀態成為響應式 Graph」。
 - Slide 25：signal-kernel 定義、必要語彙、版本與成熟度。
 - Slide 26：Users graph、借用式轉接層與明確的 Graph 擁有者。
-- Slide 27：Resource 依賴片段與程式碼聚焦 clicks。
+- Slide 27：Resource `observe` 與 Mutation `invalidates` 的完整 revision 循環，以及列表／特定明細的作用範圍。
 - Slide 28：解除 Vue 消費關係與 Graph 生命週期 ownership。
 - Slide 29：響應式 Graph 清晰度、第二套執行層與轉接成本。
 
@@ -460,6 +461,9 @@ Acceptance：
 - [x] `server state` 與較廣義的 `async state` 沒有被當成完全同義詞。
 - [x] `source / resource / revision / computed / observe` 有最小且一致的定義。
 - [x] Resource 被描述為同時具有 async lifecycle、snapshot 與 reactive dependencies 的 graph node。
+- [x] Slide 27 同時顯示 Resource 讀取端 `observe` 與 Mutation 寫入端 `invalidates`，不只留下 query-like flow。
+- [x] Revision 被定義為「需要重新驗證」的響應式版本節點，而不是資料、快取或 Mutation 結果。
+- [x] Application 的領域失效語意、執行層的成功時機／版本推進、Graph 的依賴重跑與 Vue 快照消費已分開。
 - [x] Vue Query adapter 與 signal-kernel Vue adapter 的角色被分開描述。
 - [x] computed/watch 被描述為 input、projection 或 stream composition，不被誤稱為手動追蹤 response。
 - [x] 顯示 Demo 實際使用的三個 package versions。
@@ -482,6 +486,15 @@ Red evidence: P1.7 初版雖已完成六張投影片，但主線是 cross-resour
 Green implementation: Slide 24 先並列 Query runtime→Vue adapter 與 graph→Vue consumer；Slide 25 定義 async resource graph node、vocabulary、真實版本與 maturity；Slide 26 用 users graph 顯示 async reactivity 先於 Vue adapter；Slide 27 用 input/observe/run 三個 focus clicks 說明 source、revision、runtime snapshot propagation；Slide 28 用 input adapter、graph、output adapter 建立 Vue borrowed-consumer boundary；Slide 29 同頁結算 graph ownership 收益、兩套 runtime、adapter、explicit graph ownership 與 external teardown policy。
 Verification: 第一次 Green build 因 Slide 28 的 raw pre/code markup 被 Vue parser 判定未閉合而失敗；改成 Vue-safe 的 font-mono blocks 後，`pnpm run build` 成功（Slidev 52.18.0，701 modules transformed）。Public deck source 已包含四個 acceptance phrases，Slide 23–29 的 click branches 全部通過 Slidev/Vue production compilation。
 Notes: Slide 24–29 分別配置 70、75、80、95、100、80 秒，共 500 秒。所有 maturity、adapter、instance lifetime 與 teardown claim 都以 Demo 原始碼和既有 tests 為界；不宣稱 TanStack Query 缺少 Vue reactivity，也不把 component unmount 誤當成 framework-neutral graph 的預設 dispose signal。
+```
+
+Slide 27 讀寫循環補強：
+
+```text
+Red evidence: Slide 27 只顯示 users Resource 的 input / observe / run；雖然口說提到 Mutation 會推進 revision，畫面沒有 updateUser invalidates，觀眾無法看到 revision 由誰、在什麼時機推進，也無法連成 Mutation 回到 Resource 的完整循環。
+Green implementation: Slide 27 維持三個 clicks 與單張結構；依序聚焦 Resource observe、Mutation invalidates，以及 usersRevision / userRevision.target(userId) 的作用範圍。右側加入「Mutation 成功 → invalidates → revision 推進 → observe 感知 → Resource 重新執行」循環，並將 revision 定義為需要重新驗證的響應式版本節點。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，721 modules transformed）；`/27?clicks=0..3` 的四個狀態均以 1280×720 截圖驗證，兩段程式碼、局部 highlight、讀寫循環與底部結論條沒有 raw HTML 或內容裁切。
+Notes: 不新增投影片，Slide 27 維持 95 秒。原本的 run 生命週期說明縮短，改用來釐清 Application 宣告領域影響、執行層維持成功時機與版本推進、Graph 決定重跑對象、Vue 消費快照的 ownership 分工。
 ```
 
 Slide 28 graph-owner 語意修正：
@@ -514,32 +527,50 @@ Audience outcome：
 
 實作範圍：
 
-- Slide 30：四種 ownership configuration。
-- Slide 31：Same selected outcomes，different responsibility maps。
-- Slide 32：Boundary 與 problem-scope fit。
-- Slide 33：四種 boundary 可以共存。
+- Slide 30：四種 Ownership 配置。
+- Slide 31：共同結果與不同責任圖。
+- Slide 32：Ownership 邊界與問題範圍適配。
+- Slide 33：四種邊界可以共存。
 - Slide 34：結論。
 - Slide 35：Q&A 與 QR placeholder。
 
 Acceptance：
 
-- [ ] 四種 model 使用平行比較，不使用升級箭頭或階梯。
-- [ ] Slide 31 正確解釋 40 次 contract executions 的來源。
-- [ ] Contract 沒有被用來證明 ownership、clarity 或 architecture superiority。
-- [ ] Slide 32 使用 problem-solution fit，不宣稱完整工具選型。
-- [ ] Slide 33 明確說明 `These are scopes, not levels`。
-- [ ] Slide 34 將 explicit ownership 設為結論，signal-kernel 只是可運行實驗。
-- [ ] Slide 35 只使用 QR 與短網址 placeholder。
-- [ ] Slide 30–35 都有 `Core / Time / Transition / Cut` notes。
-- [ ] `pnpm run build` 成功。
+- [x] 四種 model 使用平行比較，不使用升級箭頭或階梯。
+- [x] Slide 31 正確解釋 40 次 contract executions 的來源。
+- [x] Contract 沒有被用來證明 ownership、clarity 或 architecture superiority。
+- [x] Slide 32 使用 problem-solution fit，不宣稱完整工具選型。
+- [x] Slide 33 明確說明「這些是不同問題範圍，不是不同工具等級」。
+- [x] Slide 34 將 explicit ownership 設為結論，signal-kernel 只是可運行實驗。
+- [x] Slide 35 只使用 QR 與短網址 placeholder。
+- [x] Slide 30–35 都有 `Core / Time / Transition / Cut` notes。
+- [x] `pnpm run build` 成功。
 
 實作紀錄：
 
 ```text
-Red evidence:
-Green implementation:
-Verification:
-Notes:
+Red evidence: `pages/60-comparison.md` 只有一張 `P1.8 placeholder`，因此 `/30` 沒有比較內容，`/31–35` 也不存在。另以 demo repo 的 `dashboard-routes.spec.ts` 核對，每個 model 實際執行 10 個案例：8 個共同非同步行為、1 個共同畫面契約、1 個 Ownership 說明案例。
+Green implementation: 建立 Slide 30–35。Slide 30 以四欄和三個 click 平行比較問題範圍、規則位置、生命週期維護者、Vue／stream 邊界與成本；Slide 31 限制 40 次契約執行的證據範圍；Slide 32–34 依序收斂適用情境、共存關係與 explicit Ownership 結論；Slide 35 維持單一 QR 與短網址 placeholder。六張都補上 `Core / Time / Talk track / Transition / Cut`。
+Verification: Demo repo 的 `pnpm exec vitest run src/examples/__tests__/dashboard-routes.spec.ts` 實際通過 1 個檔案、40 個測試；簡報的 `pnpm run build` 成功（Slidev 52.18.0，721 modules transformed）。靜態檢查確認六張 frontmatter、click 狀態、notes、40 次來源、工具選型限制、非升級結論與兩個 repo placeholders 都存在，舊 placeholder 與工具勝負語意不存在。Slide 30–34 的 notes 時間合計 300 秒，符合 Act 6 的 5 分鐘配置；Slide 35 不計入正式內容。
+Notes: 可見標題與核心論述以繁體中文為主，保留產品名、Ownership、Graph 與必要 API 詞彙。P1.9 仍需在 Slidev presenter / slideshow 中做完整視覺、click 順序與 38 分鐘彩排驗收。
+```
+
+Async Ownership 主線補強（P1.9 前置）：
+
+```text
+Red evidence: 全稿沒有一句正式的 `Async Ownership 是……` 定義；Slide 6 使用單數 async lifecycle owner，Slide 7 又允許六項責任由不同 owner 承擔，導致 Ownership 在開場像單一 boundary、在結尾又變成抽象 correctness principle。各 model 也沒有固定回答「哪些責任移動、哪些責任留下」。
+Green implementation: `CONTEXT.md` 固定 `Async Ownership / Async responsibility / Owner` 三層語彙。Slide 5 在 Vue async 情境中定義責任配置；Slide 6 區分 location／policy／owner；Slide 7 將六個問題定位成 responsibility map 的分析座標。Pure Vue、Pinia、TanStack Query、signal-kernel 均以「移動／留下」收尾；Slide 30 與 Slide 34 原樣回收相同定義。
+Verification: Production build 成功（Slidev 52.18.0，721 modules transformed）；靜態內容契約確認開場與結論含相同定義、Pure Vue 明列 Vue primitives／application code 分工，另外三個 model 均含移動／留下句型；`git diff --check` 通過。
+Open for P1.9: 正式內容 speaker notes 目前合計 2385 秒（39 分 45 秒），仍高於 38 分鐘 acceptance；需要在全稿彩排與視覺驗收時刪減，不以加快語速處理。
+```
+
+中文化與 map 結構對齊（P1.9 前置）：
+
+```text
+Red evidence: Pure Vue、Pinia、TanStack Query 與 signal-kernel 的 map 分別使用 `VUE OWNS / APPLICATION OWNS`、`shared workflow / client state`、`Policy / Lifecycle owner / Application glue` 與其他混合標籤；Slide 4、8、23、30 也由英文卡片承擔主要概念，中文聽眾必須先翻譯才能理解權責差異。
+Green implementation: 四個 model 的 map 固定成 `問題範圍 / 規則宣告 / 生命週期維持 / Vue 的責任 / 應用程式銜接 / 成本／非目標` 六欄中文結構。Slide 4 的請求／串流接力、Slide 8 的三種非同步工作、Pure Vue composable／takeaway、Pinia boundary、TanStack Query runtime／adapter 與 signal-kernel Graph boundary 都改由中文解釋概念；保留產品名、API 與 `queryKey / mutation / resource / revision / computed / observe` 等程式碼識別字。
+Verification: 四個 map 的六個欄位各出現 4 次；舊的 `VUE OWNS / APPLICATION OWNS / Policy / Lifecycle owner / Application glue / SERVER-STATE MODEL / VUE REACTIVITY MODEL / TANSTACK QUERY RUNTIME` 可見主標籤為 0；Slidev production build 成功（721 modules transformed），`git diff --check` 通過。
+Notes: 這輪採中文概念＋英文識別字，不追求逐字全譯。尚未重新啟動系統 Chrome 做自動截圖；P1.9 仍需在 slideshow／presenter 與投影尺寸下確認較長中文沒有換行或裁切問題。
 ```
 
 ### P1.9：完成 P1 全體驗收
@@ -558,6 +589,9 @@ Acceptance：
 - [ ] `/presenter` 可以顯示所有 speaker notes。
 - [ ] 官方標題、活動、場次、講者與日期正確。
 - [ ] 四個 model 均包含六個 teaching-contract fields。
+- [ ] 四個 model 的 map 均使用 `問題範圍 / 規則宣告 / 生命週期維持 / Vue 的責任 / 應用程式銜接 / 成本／非目標` 六欄中文結構。
+- [ ] 四個 model 均能回答「哪些 async responsibilities 移動了」與「哪些仍留在 Vue 或 application code」。
+- [ ] Slide 5 的 30 秒定義與 Slide 34 的結論使用同一套 Async Ownership 語彙。
 - [ ] 所有 diagram、code、照片與 QR 缺口都有明確 placeholder。
 - [ ] 正式內容的 notes time budget 合計不超過 38 分鐘。
 - [ ] `pnpm run build` 成功。

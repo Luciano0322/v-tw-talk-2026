@@ -117,116 +117,116 @@ layout: default
 clicks: 3
 ---
 
-# Request 與 Stream
+# 請求與串流
 
-## Framework 裡的接力方式不同
+## 在框架裡的接力方式不同
 
 <div class="relative mt-5 h-[390px]">
 <div v-click.hide="1" class="absolute inset-0 flex flex-col justify-center">
 <div class="flex items-center justify-center gap-4 text-center">
 <div class="w-60 rounded-xl border p-5">
-<div class="text-lg font-semibold">Vue source / scope</div>
-<div class="mt-2 text-sm opacity-65">知道目前 source<br>與 consumer lifetime</div>
+<div class="text-lg font-semibold">Vue 來源／作用域</div>
+<div class="mt-2 text-sm opacity-65">知道目前來源<br>與 UI 消費端生命週期</div>
 </div>
 <div class="text-3xl">→</div>
 <div class="w-60 rounded-xl border p-5">
-<div class="text-lg font-semibold">External async work</div>
-<div class="mt-2 text-sm opacity-65">執行 request<br>或持續 stream</div>
+<div class="text-lg font-semibold">外部非同步工作</div>
+<div class="mt-2 text-sm opacity-65">執行請求<br>或持續串流</div>
 </div>
 <div class="text-3xl">→</div>
 <div class="w-60 rounded-xl border p-5">
-<div class="text-lg font-semibold">Vue projection</div>
-<div class="mt-2 text-sm opacity-65">把 snapshot / emission<br>投影成 UI</div>
+<div class="text-lg font-semibold">Vue 畫面投影</div>
+<div class="mt-2 text-sm opacity-65">把狀態快照／事件<br>投影成 UI</div>
 </div>
 </div>
 <div class="mt-9 text-center text-xl font-semibold">
-Control flow 會跨 layer 接力；lifecycle ownership 不會因此自動轉移。
+控制流程會跨層接力；生命週期 Ownership 不會因此自動轉移。
 </div>
 </div>
 
 <div v-click="[1, 2]" class="absolute inset-0">
-<div class="text-center text-xl font-semibold">Request-like：通常等待一次 settled result</div>
+<div class="text-center text-xl font-semibold">請求型工作：通常等待一次完成結果</div>
 <div class="mt-6 flex items-center justify-center gap-4 text-center">
 <div class="w-52 rounded-xl border p-4">
-<div class="font-semibold">Vue source</div>
-<div class="mt-1 font-mono text-sm opacity-65">trigger</div>
+<div class="font-semibold">Vue 來源</div>
+<div class="mt-1 font-mono text-sm opacity-65">觸發</div>
 </div>
 <div class="text-3xl">→</div>
 <div class="w-60 rounded-xl border p-4">
-<div class="font-semibold">Request</div>
+<div class="font-semibold">請求</div>
 <div class="mt-1 font-mono text-sm opacity-65">pending → success / error</div>
 </div>
 <div class="text-3xl">→</div>
 <div class="w-52 rounded-xl border p-4">
-<div class="font-semibold">Vue consumer</div>
-<div class="mt-1 font-mono text-sm opacity-65">snapshot → render</div>
+<div class="font-semibold">Vue 消費端</div>
+<div class="mt-1 font-mono text-sm opacity-65">狀態快照 → 渲染</div>
 </div>
 </div>
 <div class="mt-7 grid grid-cols-2 gap-4 text-center">
 <div class="rounded-xl bg-gray-100 p-4 dark:bg-gray-800">
-source 改變：誰判斷 currentness 與 stale response？
+來源改變：誰判斷目前結果與過期回應？
 </div>
 <div class="rounded-xl bg-gray-100 p-4 dark:bg-gray-800">
-mutation 完成：誰宣告 invalidate / refresh？
+mutation 完成：誰宣告失效／重新整理？
 </div>
 </div>
 </div>
 
 <div v-click="[2, 3]" class="absolute inset-0">
-<div class="text-center text-xl font-semibold">Stream-like：會持續產生 emission</div>
+<div class="text-center text-xl font-semibold">串流型工作：會持續產生事件</div>
 <div class="mt-6 flex items-center justify-center gap-4 text-center">
 <div class="w-52 rounded-xl border p-4">
-<div class="font-semibold">Vue source</div>
-<div class="mt-1 font-mono text-sm opacity-65">subscribe</div>
+<div class="font-semibold">Vue 來源</div>
+<div class="mt-1 font-mono text-sm opacity-65">訂閱</div>
 </div>
 <div class="text-3xl">→</div>
 <div class="w-60 rounded-xl border p-4">
-<div class="font-semibold">Stream</div>
-<div class="mt-1 font-mono text-sm opacity-65">active ↺ emission*</div>
+<div class="font-semibold">串流</div>
+<div class="mt-1 font-mono text-sm opacity-65">持續中 ↺ 事件*</div>
 </div>
 <div class="text-3xl">→</div>
 <div class="w-52 rounded-xl border p-4">
-<div class="font-semibold">Vue consumer</div>
-<div class="mt-1 font-mono text-sm opacity-65">snapshot → render</div>
+<div class="font-semibold">Vue 消費端</div>
+<div class="mt-1 font-mono text-sm opacity-65">狀態快照 → 渲染</div>
 </div>
 </div>
 <div class="mt-7 grid grid-cols-2 gap-4 text-center">
 <div class="rounded-xl bg-gray-100 p-4 dark:bg-gray-800">
-source switch / unmount：誰負責 unsubscribe？
+來源切換／元件卸載：誰負責取消訂閱？
 </div>
 <div class="rounded-xl bg-gray-100 p-4 dark:bg-gray-800">
-stream error：要 reconnect，還是停止？
+串流錯誤：要重新連線，還是停止？
 </div>
 </div>
 </div>
 
 <div v-click="3" class="absolute inset-0 bg-white dark:bg-[#121212]">
 <div class="mb-3 text-center text-lg font-semibold">
-相同的是 ownership questions，不是 API 形狀。
+相同的是 Ownership 問題，不是 API 形狀。
 </div>
 
 <div class="grid grid-cols-2 gap-5">
 <div class="rounded-xl border p-3">
-<div class="text-center font-semibold">Request-like</div>
+<div class="text-center font-semibold">請求型工作</div>
 <div class="slide4-final-mermaid">
 
 ```mermaid
 flowchart LR
-  R1["trigger"] --> R2["pending"] --> R3["settled"]
-  R3 -. "refresh" .-> R2
+  R1["觸發"] --> R2["等待中"] --> R3["完成"]
+  R3 -. "重新整理" .-> R2
 ```
 
 </div>
 </div>
 <div class="rounded-xl border p-3">
-<div class="text-center font-semibold">Stream-like</div>
+<div class="text-center font-semibold">串流型工作</div>
 <div class="slide4-final-mermaid">
 
 ```mermaid
 flowchart LR
-  S1["subscribe"] --> S2["active"]
-  S2 -. "emit" .-> S2
-  S2 --> S3["dispose"]
+  S1["訂閱"] --> S2["持續中"]
+  S2 -. "事件" .-> S2
+  S2 --> S3["終止"]
 ```
 
 </div>
@@ -265,45 +265,42 @@ Cut: 跳過 request／stream 各自的問題卡，直接從 common boundary 切�
 layout: center
 ---
 
-# 一段 async work
+# 一段非同步工作進入 Vue 之後
 
-## 責任通常分散在不同 layer
+## 執行、狀態與生命週期不會由同一個機制包辦
 
 ```text
-Route / Props / Local Source
+路由 / Props / 區域來源
               │
               ▼
-Composable / Store / Options ── declares policy
+應用程式程式碼 ── 觸發 · 狀態 · 新舊判斷 · 重新整理
               │
               ▼
-Vue / Query / Graph Runtime ─── maintains selected invariants
+Promise / API / 串流 ── 執行外部工作
               │
-       ┌──────┴──────┐
-       ▼             ▼
-   API / Stream   Resource Snapshot
-                         │
-                         ▼
-                  Vue Projection / Render
+              ▼
+        非同步狀態快照
+              │
+              ▼
+Vue 響應式系統 ── 傳播變化 ──▶ UI 渲染
 
-Vue Component Scope
-└─ component unmount → UI consumer 結束
-   resource 是否 dispose，取決於 lifecycle owner
+Vue 元件生命週期
+└─ 定義 UI 消費端範圍與清理時機
 ```
 
-<div class="mt-6 text-center opacity-70">
-  責任分散在不同層；正確性來自清楚的 ownership 邊界。
+<div class="mt-6 rounded-xl bg-emerald-50 p-4 text-center text-lg font-semibold dark:bg-emerald-950">
+  非同步 Ownership：這些責任在系統邊界之間如何被配置與承擔。
 </div>
 
 <!--
-Core: Vue async correctness 通常由 source、scope、application policy、runtime、external work 與 UI consumer 共同構成。
+Core: Async Ownership 是一段非同步工作跨時間運行時，觸發、狀態傳播、生命週期正確性、UI 消費與清理責任在不同系統邊界之間的配置。
 Time: 55 秒。
 Talk track:
-放回 Vue application 以後，route、props 或 local state 通常提供 source；composable、store 或 options 宣告 application policy；framework 或 runtime 維持它承諾的 invariants。
-API 和 stream 實際執行外部工作，但它們不知道 UI correctness。最後 Vue 還要把 snapshot 投影成 component tree，並提供 consumer 的 mount 與 unmount scope。
-這個 scope 決定的是 UI consumer 何時結束；component unmount 不代表共享 resource、cache 或 stream 一定同時被 dispose，那仍取決於 lifecycle owner。
-所以我不會說 ownership 被工具搶走或瓜分，而是 responsibility 本來就分散在不同 layer。真正的問題是：邊界是否清楚，以及誰對哪一項 invariant 負責。
-Transition: 這也帶出今天最容易混淆的一件事：資料放在哪裡，不等於誰在負責。
-Cut: 可刪除 external work 說明，保留 source、policy、runtime、Vue consumer 四層。
+一段非同步工作進入 Vue 後，route、props 或 local state 提供來源；application code 決定何時觸發，也常要自己維持 status、stale result 與 refresh。Promise、API 或 stream 實際執行外部工作，但不知道 UI correctness。
+結果回來後，Vue reactivity 傳播 snapshot 的變化；component lifecycle 定義 consumer 何時存在，以及 cleanup hook 何時發生；component 最後把 snapshot render 成 UI。這些都是同一段 async work 的不同責任。
+這場說的 Async Ownership，就是 trigger、狀態傳播、生命週期正確性、UI 消費與清理，分別被哪些系統邊界承擔。它不是 state 放在哪裡，也不要求只有一個 owner。
+Transition: 定義成立後，下一張先拆開最容易混淆的 state location、Vue lifecycle 與 async lifecycle。
+Cut: 保留 application code、external work、Vue reactivity、component lifecycle 四行與定義框。
 -->
 
 ---
@@ -311,13 +308,13 @@ layout: default
 clicks: 2
 ---
 
-# State 放在哪裡
+# 狀態放在哪裡
 
-## 不等於 async lifecycle 由誰維持
+## 不等於非同步生命週期由誰維持
 
 <div class="relative mt-5 h-[390px]">
   <div v-click.hide="1" class="absolute inset-0 flex flex-col items-center justify-center">
-    <div class="text-xl font-semibold">Async state 會跨時間改變</div>
+    <div class="text-xl font-semibold">非同步狀態會跨時間改變</div>
     <div class="mt-5 flex items-center gap-3 font-mono text-lg">
       <span class="rounded-lg border px-4 py-2">pending</span>
       <span class="opacity-45">→</span>
@@ -329,7 +326,7 @@ clicks: 2
     <div class="mt-3 rounded-xl bg-gray-100 px-8 py-4 text-center dark:bg-gray-800">
       <div class="font-mono text-lg">snapshot = { status, data, error }</div>
       <div class="mt-2 font-semibold">
-        Snapshot 不是另一套 state；它是 UI 此刻讀到的 async state。
+        狀態快照不是另一套 state；它是 UI 此刻讀到的非同步狀態。
       </div>
     </div>
   </div>
@@ -337,15 +334,15 @@ clicks: 2
   <div v-click="[1, 2]" class="absolute inset-0">
     <div class="grid grid-cols-2 gap-5">
       <div class="rounded-xl border p-5 text-center">
-        <div class="text-lg font-semibold">Vue lifecycle</div>
+        <div class="text-lg font-semibold">Vue 元件生命週期</div>
         <div class="mt-3 font-mono">mount → update → unmount</div>
-        <div class="mt-3 text-sm opacity-70">consumer 何時存在</div>
+        <div class="mt-3 text-sm opacity-70">UI 消費端何時存在</div>
       </div>
       <div class="rounded-xl border p-5 text-center">
-        <div class="text-lg font-semibold">Async lifecycle</div>
+        <div class="text-lg font-semibold">非同步工作生命週期</div>
         <div class="mt-3 font-mono">trigger → active → settle</div>
         <div class="mt-1 font-mono text-sm">refresh · dispose</div>
-        <div class="mt-3 text-sm opacity-70">work / resource 如何跨時間保持正確</div>
+        <div class="mt-3 text-sm opacity-70">工作／資源如何跨時間保持正確</div>
       </div>
     </div>
     <div class="mx-auto mt-5 max-w-3xl rounded-xl bg-gray-100 p-4 text-center dark:bg-gray-800">
@@ -357,41 +354,41 @@ clicks: 2
   <div v-click="2" class="absolute inset-0">
     <div class="grid grid-cols-3 gap-4 text-center">
       <div class="rounded-xl border p-4">
-        <div class="text-lg font-semibold">1. Snapshot location</div>
+        <div class="text-lg font-semibold">1. 狀態快照位置</div>
         <div class="mt-2 text-sm">UI 此刻讀到的值放在哪裡？</div>
         <div class="mt-3 text-sm opacity-70">component · store<br>cache · graph</div>
       </div>
       <div class="rounded-xl border p-4">
-        <div class="text-lg font-semibold">2. Async policy</div>
+        <div class="text-lg font-semibold">2. 非同步規則</div>
         <div class="mt-2 text-sm">規則在哪裡被宣告？</div>
         <div class="mt-3 text-sm opacity-70">trigger · refresh<br>error · invalidation</div>
       </div>
       <div class="rounded-xl border p-4">
-        <div class="text-lg font-semibold">3. Async lifecycle owner</div>
+        <div class="text-lg font-semibold">3. 責任邊界</div>
         <div class="mt-2 text-sm">誰持續維持正確性？</div>
         <div class="mt-3 text-sm opacity-70">currentness · status<br>stale · cleanup</div>
       </div>
     </div>
     <div class="mt-5 rounded-xl bg-gray-100 p-4 text-center dark:bg-gray-800">
-      <div><code>users snapshot</code>：component ref → Pinia store</div>
+      <div><b>非同步 Ownership = 責任 → 責任邊界的配置圖</b></div>
       <div class="mt-2 font-semibold">
-        只證明讀取位置改變；async lifecycle owner 是否改變，仍要看 action 與 runtime 的承諾。
+        Snapshot 搬進 store，只證明讀取位置改變；責任是否轉移，仍要看 action 與 runtime 接手了什麼。
       </div>
     </div>
   </div>
 </div>
 
 <!--
-Core: Snapshot 是 UI 某一刻讀到的 async state；Vue lifecycle 與 async lifecycle 會交會，但不是同一條；location、policy 與 owner 也是三個不同問題。
+Core: Async Ownership 是 responsibility 到 owner 的配置圖；snapshot location、policy declaration 與持續維持 correctness 的 owner 是三個不同問題。
 Time: 85 秒。
 Talk track:
 第一步先釐清 state 和 snapshot。Async state 會隨時間從 pending 走到 success，也可能帶著舊資料進入 refreshing；snapshot 不是另一套 state，而是 UI 在某一刻讀到的 status、data 與 error。
 第二步把兩條 lifecycle 分開。Vue lifecycle 描述 component consumer 何時 mount、update、unmount；async lifecycle 描述 request 或 stream 何時 trigger、active、settle、refresh、dispose。
 兩條線會在 unmount 時交會，例如 cancel request、unsubscribe stream 或 detach consumer，但 Vue lifecycle 本身不等於 async lifecycle。
-第三步才回到 ownership。假設把 users snapshot 從 component ref 搬進 Pinia store，可以確定的是讀取位置改變了，也可能建立 shared workflow boundary。
+第三步把這些差異放回 Async Ownership。假設把 users snapshot 從 component ref 搬進 Pinia store，可以確定的是讀取位置改變了，也可能建立 shared workflow boundary。
 但 stale response 怎麼判斷、refresh 何時發生、consumer 離開後誰 cleanup，不會因為換了容器就自動得到答案。
-因此後面會分開看三件事：snapshot 放在哪裡、async policy 在哪裡宣告，以及誰持續維持 async lifecycle correctness。
-Transition: 為了避免每一章臨時更換標準，接下來先固定六個 ownership questions。
+因此後面會分開看三件事：snapshot 放在哪裡、async policy 在哪裡宣告，以及誰持續維持各項 async responsibility。整體的 responsibility-to-owner mapping，才是這場說的 Async Ownership。
+Transition: 為了讓每一章都能畫出同一種責任配置圖，接下來固定六個分析問題。
 Cut: 快速點到最後一幕，只保留「location、policy、owner 是三件事」。
 -->
 
@@ -399,9 +396,9 @@ Cut: 快速點到最後一幕，只保留「location、policy、owner 是三件�
 layout: center
 ---
 
-# 接下來怎麼比較
+# 用六個問題讀出非同步 Ownership
 
-## 固定問這六個 Ownership questions
+## 它們是權責分布圖的分析座標
 
 <div class="mt-8 grid grid-cols-3 gap-4 text-center">
   <div class="rounded-xl border p-4">
@@ -431,20 +428,20 @@ layout: center
 </div>
 
 <div class="mt-8 text-center text-lg font-semibold">
-  後面四種 model，都回答同一組 ownership questions。
+  每一章都回答：哪些責任移動了？哪些仍留在 Vue 或應用程式程式碼？
 </div>
 
 <div class="mt-5 text-center text-sm font-semibold opacity-70">
-  Architecture case study：比較 responsibility map，不做工具排名。
+  架構案例研究：比較權責分布圖，不做工具排名。
 </div>
 
 <!--
-Core: 後面四種 model 固定回答同一組 ownership questions，不臨時更換比較標準。
+Core: 六個問題不是 Async Ownership 的定義，而是用來讀出 responsibility-to-owner mapping 的共同分析座標。
 Time: 40 秒。
 Talk track:
-每一章都會回答 trigger、status、stale、invalidate、dispose 和 render 由誰負責。
-這六個問題不要求同一個 owner；它們是用來畫出 responsibility map，讓我們看見責任如何分布，以及 application 還要補上哪些 glue。
+Async Ownership 已經定義成 async responsibilities 在系統邊界之間的配置。接著每一章都用 trigger、status、stale、invalidate、dispose 和 render 六個問題，把這張配置圖讀出來。
+這六個責任不要求同一個 owner。每看完一種 model，都要能回答兩句話：哪些責任移動到新的 boundary，哪些仍留在 Vue 或 application code。
 這仍然是 architecture case study，不是 benchmark，也不能直接證明哪套工具全面更好。
-Transition: 問題固定後，下一段再建立共同 Dashboard，看看裡面同時存在的三種 async work。
-Cut: 只保留六個問題與「不是工具排名」。
+Transition: 分析方法固定後，下一段建立共同 Dashboard，讓四個 model 面對完全相同的 request、mutation 與 stream responsibilities。
+Cut: 只保留六個問題，以及「移動了什麼、留下了什麼」。
 -->
