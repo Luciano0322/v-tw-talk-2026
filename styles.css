@@ -1,0 +1,60 @@
+/* Presenter notes need stronger contrast than the slide canvas itself. */
+.slidev-presenter .grid-section.note {
+  --presenter-note-foreground: #273244;
+  --presenter-note-muted: #5b677a;
+  --presenter-note-strong: #111827;
+  --presenter-note-code: #92400e;
+  --presenter-note-link: #0369a1;
+}
+
+html.dark .slidev-presenter .grid-section.note {
+  --presenter-note-foreground: #e5e7eb;
+  --presenter-note-muted: #aebbd0;
+  --presenter-note-strong: #ffffff;
+  --presenter-note-code: #fcd34d;
+  --presenter-note-link: #67e8f9;
+}
+
+@media (prefers-color-scheme: dark) {
+  .slidev-presenter .grid-section.note {
+    --presenter-note-foreground: #e5e7eb;
+    --presenter-note-muted: #aebbd0;
+    --presenter-note-strong: #ffffff;
+    --presenter-note-code: #fcd34d;
+    --presenter-note-link: #67e8f9;
+  }
+}
+
+.slidev-presenter .grid-section.note .slidev-note {
+  color: var(--presenter-note-foreground) !important;
+  font-weight: 500;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+.slidev-presenter .grid-section.note .slidev-note :where(p, li, blockquote) {
+  color: inherit !important;
+}
+
+.slidev-presenter .grid-section.note .slidev-note :where(strong, b, h1, h2, h3, h4) {
+  color: var(--presenter-note-strong) !important;
+  font-weight: 700;
+}
+
+.slidev-presenter .grid-section.note .slidev-note code {
+  color: var(--presenter-note-code) !important;
+  background: color-mix(in srgb, var(--presenter-note-code) 12%, transparent);
+  border-radius: 0.25rem;
+  padding: 0.08em 0.28em;
+}
+
+.slidev-presenter .grid-section.note .slidev-note a {
+  color: var(--presenter-note-link) !important;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+.slidev-presenter .grid-section.note .slidev-note-with-clicks .slidev-note-fade {
+  color: var(--presenter-note-muted) !important;
+  opacity: 1 !important;
+}

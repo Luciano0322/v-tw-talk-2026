@@ -5,7 +5,8 @@
   "scripts": {
     "build": "slidev build",
     "dev": "slidev --open",
-    "export": "slidev export"
+    "export": "slidev export",
+    "test:p1": "node tools/validate-p1.mjs"
   },
   "dependencies": {
     "@slidev/cli": "^52.18.0",
