@@ -1,6 +1,6 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 進行中（P1.1–P1.8 完成；下一項為 P1.9）
+> 狀態：P1 已完成（P1.1–P1.9 全部通過；下一階段可規劃 P2）
 >
 > 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
 >
@@ -14,7 +14,7 @@ P1 的目標是建立一份可以在 Slidev 中完整導覽與試講的最小內
 - 活動定版資訊與核心論點正確。
 - 每張投影片只有一個 audience outcome。
 - 每張投影片都有可在 Presenter Mode 閱讀的 speaker notes。
-- Diagram、code、照片與 QR code 可以使用明確 placeholder。
+- Diagram、code 與照片缺口使用明確 placeholder；Demo repository QR 使用正式資產。
 - Slidev build 成功。
 
 P1 不處理：
@@ -24,7 +24,7 @@ P1 不處理：
 - 完整 code highlighting 或 Magic Move。
 - Live Demo 自動化。
 - 正式 screenshots。
-- QR code 與短網址。
+- QR 的多裝置／實體投影掃描驗證與短網址。
 - PDF 與投影驗證。
 
 ## 2. 驗證 seams
@@ -125,7 +125,7 @@ Notes: 使用 CSS variables 同時支援 html.dark 與 prefers-color-scheme: dar
 - [x] P1.6 建立 Act 4：TanStack Query
 - [x] P1.7 建立 Act 5：signal-kernel
 - [x] P1.8 建立 Act 6：比較、結論與 Q&A
-- [ ] P1.9 完成 P1 全體驗收
+- [x] P1.9 完成 P1 全體驗收
 
 ## 5. P1 Tasks
 
@@ -202,7 +202,7 @@ Acceptance：
 
 - [x] Slide 1 使用活動定版標題、活動名稱、場次、講者與日期。
 - [x] 開場 notes 明確說明「從……到……」不是工具升級路線。
-- [x] Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`。
+- [x] Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並顯示 Demo repository 文字連結。
 - [x] 講者照片可以使用明確 placeholder，不阻擋 P1。
 - [x] 共同模型沒有使用 query key、revision、observe 或 graph 定義 async work。
 - [x] Request 與 Stream 沒有被描述成相同 state machine。
@@ -221,6 +221,15 @@ Red evidence: 00-intro.md 只有一張 P1.2 placeholder；封面 notes 也只有
 Green implementation: 建立 Slide 1–7，加入共同 lifecycle、request/stream 差異、responsibility distribution、state location 與 ownership checklist；每張均加入完整 Talk track。
 Verification: pnpm run build 成功；production bundle 已包含 Presenter noteHTML；Slide 1–7 notes time budget 合計 330 秒。
 Notes: Slide 2 暫時使用 public/assets/speakers/avatar.png 完整講者卡，P2 再決定原始人像或裁切方式。Review 時將 Slide 3–4 的文字流程改為 Mermaid；1280×720 實際渲染後壓縮節點層級，避免雙欄圖底部裁切，正式 node styling 留到 P2。Slide 3 後續加入三次 click reveal：先從 Promise 的 pending／fulfilled／rejected 三態開始，再切換到完整 async lifecycle，最後揭露 ownership takeaway；production preview 的 clicks 0–3 均產生獨立畫面。Slide 4 也加入三次 click reveal：common framework boundary → request-like → stream-like → final comparison；以 control-flow handoff 與 lifecycle ownership 分離為主軸，production preview clicks 0–3 均產生獨立且完整的 1280×720 畫面。後續 review 重新開啟 P1.2，移除全域 frontmatter 後的空白首頁，讓 cover 回到 Slide 1；Slide 6 改為 location／policy／owner 三層問題，Slide 7 只保留六個 ownership questions，Demo 情境留給 P1.3。以 production preview 驗證 `/1`、`/6`、`/7`、`/8`，其中 `/8` 仍為 P1.3 placeholder。Slide 6 後續再加入兩次 click 過渡：先定義 async state 與 snapshot，再區分 Vue lifecycle 和 async lifecycle，最後才揭露 snapshot location／async policy／async lifecycle owner；用語同步記錄於根目錄 `CONTEXT.md`。
+```
+
+Slide 2 提前提供 Demo repository：
+
+```text
+Red evidence: Slide 2 只顯示講者 GitHub profile，觀眾無法在演講開始時直接開啟 Demo 原始碼對照。
+Green implementation: 將左欄底部改為低視覺權重的 Demo Repo 卡片，顯示並連結到 github.com/Luciano0322/vue-async-ownership。Speaker notes 提醒觀眾可先開著對照，最後一頁仍會提供全場唯一 QR code。
+Verification: `pnpm run build` 成功（Slidev 52.18.0，722 modules transformed）；production `/2` 以 1280×720 截圖確認姓名、職稱、研究主題、Demo Repo 卡片與右側照片均無裁切。
+Notes: Slide 2 不新增 QR，避免開場就要求所有人拿手機掃描；連結是可選擇的同步參照入口。
 ```
 
 Slide 6 過渡調整：
@@ -532,7 +541,7 @@ Audience outcome：
 - Slide 32：Ownership 邊界與問題範圍適配。
 - Slide 33：四種邊界可以共存。
 - Slide 34：結論。
-- Slide 35：Q&A 與 QR placeholder。
+- Slide 35：Q&A、單一 Demo repository QR 與可手動輸入的 GitHub URL。
 
 Acceptance：
 
@@ -542,7 +551,7 @@ Acceptance：
 - [x] Slide 32 使用 problem-solution fit，不宣稱完整工具選型。
 - [x] Slide 33 明確說明「這些是不同問題範圍，不是不同工具等級」。
 - [x] Slide 34 將 explicit ownership 設為結論，signal-kernel 只是可運行實驗。
-- [x] Slide 35 只使用 QR 與短網址 placeholder。
+- [x] Slide 35 只使用單一 Demo repository QR 與可手動輸入的 GitHub URL。
 - [x] Slide 30–35 都有 `Core / Time / Transition / Cut` notes。
 - [x] `pnpm run build` 成功。
 
@@ -555,13 +564,22 @@ Verification: Demo repo 的 `pnpm exec vitest run src/examples/__tests__/dashboa
 Notes: 可見標題與核心論述以繁體中文為主，保留產品名、Ownership、Graph 與必要 API 詞彙。P1.9 仍需在 Slidev presenter / slideshow 中做完整視覺、click 順序與 38 分鐘彩排驗收。
 ```
 
+Slide 35 Demo repository QR 定稿：
+
+```text
+Red evidence: Slide 35 仍顯示 {{DEMO_REPO_QR}} 與 {{DEMO_REPO_URL}}，無法在會後導向已公開的 Demo repository。
+Green implementation: canonical URL 固定為 https://github.com/Luciano0322/vue-async-ownership；產生高容錯、高對比、保留 quiet zone 的 public/qr/demo-repository.svg。Slide 35 改用單一 QR，並同時顯示 github.com/Luciano0322/vue-async-ownership 作為無法掃描時的 fallback。
+Verification: 獨立 jsQR decoder 從 SVG 讀回完整 canonical URL；Slidev production build 成功（722 modules transformed）；production `/35` 以 1280×720 截圖確認 QR、URL 與輔助文字無裁切或異常換行。
+Notes: 程式解碼驗證編碼內容，不取代活動前的實際設備驗收；仍需以至少兩支手機及投影畫面掃描。
+```
+
 Async Ownership 主線補強（P1.9 前置）：
 
 ```text
 Red evidence: 全稿沒有一句正式的 `Async Ownership 是……` 定義；Slide 6 使用單數 async lifecycle owner，Slide 7 又允許六項責任由不同 owner 承擔，導致 Ownership 在開場像單一 boundary、在結尾又變成抽象 correctness principle。各 model 也沒有固定回答「哪些責任移動、哪些責任留下」。
 Green implementation: `CONTEXT.md` 固定 `Async Ownership / Async responsibility / Owner` 三層語彙。Slide 5 在 Vue async 情境中定義責任配置；Slide 6 區分 location／policy／owner；Slide 7 將六個問題定位成 responsibility map 的分析座標。Pure Vue、Pinia、TanStack Query、signal-kernel 均以「移動／留下」收尾；Slide 30 與 Slide 34 原樣回收相同定義。
 Verification: Production build 成功（Slidev 52.18.0，721 modules transformed）；靜態內容契約確認開場與結論含相同定義、Pure Vue 明列 Vue primitives／application code 分工，另外三個 model 均含移動／留下句型；`git diff --check` 通過。
-Open for P1.9: 正式內容 speaker notes 目前合計 2385 秒（39 分 45 秒），仍高於 38 分鐘 acceptance；需要在全稿彩排與視覺驗收時刪減，不以加快語速處理。
+Resolved in P1.9: 先以驗收腳本留下 40 分 20 秒的 Red evidence，再刪減重複轉場與較重段落的正式時間配置；Green 後合計 37 分 35 秒，不以加快語速處理。
 ```
 
 中文化與 map 結構對齊（P1.9 前置）：
@@ -570,7 +588,7 @@ Open for P1.9: 正式內容 speaker notes 目前合計 2385 秒（39 分 45 秒�
 Red evidence: Pure Vue、Pinia、TanStack Query 與 signal-kernel 的 map 分別使用 `VUE OWNS / APPLICATION OWNS`、`shared workflow / client state`、`Policy / Lifecycle owner / Application glue` 與其他混合標籤；Slide 4、8、23、30 也由英文卡片承擔主要概念，中文聽眾必須先翻譯才能理解權責差異。
 Green implementation: 四個 model 的 map 固定成 `問題範圍 / 規則宣告 / 生命週期維持 / Vue 的責任 / 應用程式銜接 / 成本／非目標` 六欄中文結構。Slide 4 的請求／串流接力、Slide 8 的三種非同步工作、Pure Vue composable／takeaway、Pinia boundary、TanStack Query runtime／adapter 與 signal-kernel Graph boundary 都改由中文解釋概念；保留產品名、API 與 `queryKey / mutation / resource / revision / computed / observe` 等程式碼識別字。
 Verification: 四個 map 的六個欄位各出現 4 次；舊的 `VUE OWNS / APPLICATION OWNS / Policy / Lifecycle owner / Application glue / SERVER-STATE MODEL / VUE REACTIVITY MODEL / TANSTACK QUERY RUNTIME` 可見主標籤為 0；Slidev production build 成功（721 modules transformed），`git diff --check` 通過。
-Notes: 這輪採中文概念＋英文識別字，不追求逐字全譯。尚未重新啟動系統 Chrome 做自動截圖；P1.9 仍需在 slideshow／presenter 與投影尺寸下確認較長中文沒有換行或裁切問題。
+Notes: 這輪採中文概念＋英文識別字，不追求逐字全譯。P1.9 已在 production slideshow／presenter 與 1280×720 viewport 驗證所有 35 張及 85 個 click states，沒有偵測到較長中文、程式碼或 SVG 超出投影片畫布。
 ```
 
 ### P1.9：完成 P1 全體驗收
@@ -581,31 +599,34 @@ Audience outcome：
 
 Acceptance：
 
-- [ ] Slidev starter content 已完全移除。
-- [ ] Slide 1–35 連續存在，沒有缺號或重複。
-- [ ] 7 個 main section files 順序正確。
-- [ ] 每張只有一個主要 audience outcome。
-- [ ] 每張都有 `Core / Time / Transition / Cut` speaker notes。
-- [ ] `/presenter` 可以顯示所有 speaker notes。
-- [ ] 官方標題、活動、場次、講者與日期正確。
-- [ ] 四個 model 均包含六個 teaching-contract fields。
-- [ ] 四個 model 的 map 均使用 `問題範圍 / 規則宣告 / 生命週期維持 / Vue 的責任 / 應用程式銜接 / 成本／非目標` 六欄中文結構。
-- [ ] 四個 model 均能回答「哪些 async responsibilities 移動了」與「哪些仍留在 Vue 或 application code」。
-- [ ] Slide 5 的 30 秒定義與 Slide 34 的結論使用同一套 Async Ownership 語彙。
-- [ ] 所有 diagram、code、照片與 QR 缺口都有明確 placeholder。
-- [ ] 正式內容的 notes time budget 合計不超過 38 分鐘。
-- [ ] `pnpm run build` 成功。
-- [ ] `git diff --check` 通過。
+- [x] Slidev starter content 已完全移除。
+- [x] Slide 1–35 連續存在，沒有缺號或重複。
+- [x] 7 個 main section files 順序正確。
+- [x] 每張只有一個主要 audience outcome。
+- [x] 每張都有 `Core / Time / Transition / Cut` speaker notes。
+- [x] `/presenter` 可以顯示所有 speaker notes。
+- [x] 官方標題、活動、場次、講者與日期正確。
+- [x] 四個 model 均包含六個 teaching-contract fields。
+- [x] 四個 model 的 map 均使用 `問題範圍 / 規則宣告 / 生命週期維持 / Vue 的責任 / 應用程式銜接 / 成本／非目標` 六欄中文結構。
+- [x] 四個 model 均能回答「哪些 async responsibilities 移動了」與「哪些仍留在 Vue 或 application code」。
+- [x] Slide 5 的 30 秒定義與 Slide 34 的結論使用同一套 Async Ownership 語彙。
+- [x] 所有 diagram、code、照片與其餘素材缺口都有明確 placeholder；QR 已改為正式資產。
+- [x] 正式內容的 notes time budget 合計不超過 38 分鐘。
+- [x] `pnpm run build` 成功。
+- [x] `git diff --check` 通過。
 
 實作紀錄：
 
 ```text
-Slide count:
-Notes coverage:
-Build:
-Presenter check:
-Time-budget total:
-Open placeholders:
+Red evidence: 新增 `pnpm run test:p1` 後，第一輪只有 time budget 失敗；35 張正式內容合計 2420 秒（40:20），超過 38:00 acceptance 140 秒。
+Green implementation: 收斂重複的 lifecycle 鋪陳、model 轉場與結尾比較段，保留每張既有 Core 與 Cut 路徑；同時修正開場 notes 錯字及「QR 尚未補上」的過期描述。
+Slide count: 35；Slide 1–35 production routes 全部存在，7 個 section imports 順序正確。
+Notes coverage: 35/35 均有 Core / Time / Transition / Cut；四個 model 的六欄 map、責任移動／留下與開場／結論 ownership 語彙契約均通過。
+Build: `pnpm run build` 成功（Slidev 52.18.0，722 modules transformed）；`git diff --check` 通過。
+Presenter check: production `/presenter` 顯示全部四種 notes markers；production `/1–35` 共驗證 85 個 click states，在 1280×720 下沒有標題、文字、程式碼、圖片或 SVG overflow。
+Time-budget total: 2255 秒（37:35），低於 38:00 上限，並替 40 分鐘正式內容保留 2:25 緩衝。
+Open placeholders: `P1 photo placeholder` 與 `Live Demo placeholder`；Demo repository QR 已是正式資產並保留可手動輸入 URL。
+Non-blocking follow-up: CLI PDF export 目前需要額外安裝 `playwright-chromium`；PDF 與現場投影本來就不在 P1 範圍，留待 P2／交付前驗收。
 ```
 
 ## 6. P1 完成條件

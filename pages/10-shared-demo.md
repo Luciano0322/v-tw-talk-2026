@@ -123,13 +123,13 @@ ecosystem · application glue
 
 <!--
 Core: 四條 route 重複相同的 user-visible scenario 與 selected outcomes；共同 contract 不等於控制實驗，也不能推導工具排名。
-Time: 60 秒。
+Time: 50 秒。
 Talk track:
 四種做法各自有一條正式 route，並共用 keyword、userId 和 scenario，所以我可以在相同 source state 下切換 model。
 共同 contract 只固定觀眾能看到的 selected outcomes，例如 pending、refreshing、error、stale protection、update 結果與 stream source switch。
 它沒有控制 abstraction level、runtime maturity、ecosystem 或 application glue；這些差異本來就是各 model 的一部分。
 所以後面看到的程式碼量與 responsibility map，應該被當成 architecture case study，而不是 benchmark 或全面的工具選型結論。
-現場 Demo 會先走一次共同 happy path；race 或 stream-switch trace 留到後面的收斂段落。現在仍保留 route 與 fallback screenshot placeholder，QR 在最後製作階段補上。
+現場 Demo 會先走一次共同 happy path；race 或 stream-switch trace 留到後面的收斂段落。現在仍保留 route 與 fallback screenshot placeholder；Demo repository 與正式 QR 已經放在開場和結尾。
 Transition: 比較邊界固定以後，先看 Pure Vue 的 Async Ownership baseline：Vue reactivity、component lifecycle 與 application code 如何共同承擔同一段工作。
 Cut: 只念四條 routes，並保留「selected outcomes 相同，不代表控制 maturity、ecosystem 或 glue」。
 -->

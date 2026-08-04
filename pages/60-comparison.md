@@ -116,7 +116,7 @@ clicks: 3
 
 <!--
 Core: 四種實作改變的是 Async responsibilities 在 Vue、application code、store、Query runtime 與 Graph runtime 之間的配置，不是成熟度階梯。
-Time: 120 秒。
+Time: 100 秒。
 Talk track:
 初始畫面先用同一個句型結算 responsibility movement。Pure Vue 是 baseline：Vue reactivity 傳播狀態、component lifecycle 定義 consumer scope、application code 維持 async correctness。Pinia 把 shared workflow 移到 store；TanStack Query 把 server-state lifecycle 移到 Query runtime；signal-kernel 把 resource relationships 與 lifecycle 移到 Graph。每一欄同時寫出仍留在 Vue 或 application 的責任。
 第一個 click 再比較規則在哪裡宣告、誰真的維持生命週期；state location 和 lifecycle ownership 不一定是同一件事。第二個 click 比較 Vue 的角色與 stream 邊界，特別提醒 TanStack Query 範例的 stream composable 是有效架構，只是它不在 query cache 的 problem scope。第三個 click 公開成本：graph 並不是免費的清晰度，它帶來第二套 reactive runtime、詞彙、adapter、除錯與 teardown 整合。這裡沒有贏家，只有不同的 responsibility-to-owner mapping。
@@ -232,7 +232,7 @@ clicks: 3
 
 <!--
 Core: 邊界選擇要從 problem scope 出發。Pure Vue、Pinia、TanStack Query 與 explicit graph 各自對不同複雜度來源提供清晰度，沒有單一解能覆蓋所有評估面向。
-Time: 55 秒。
+Time: 50 秒。
 Talk track:
 依序用四個 click 對準四種問題。若 async lifecycle 能在區域 scope 看完，Pure Vue 最直接。若同一個 client workflow 被多個 component 使用，Pinia 提供共享 ownership 入口。若困難來自 server entity identity、cache、freshness 與 mutation，TanStack Query 的 problem model 最貼近。只有當 async sources、derived state、resources 與 effects 的關係需要在 Vue mount 之前存在，而且框架只應成為 consumer，explicit graph 才開始值得付出成本。最後提醒這不是完整工具評選；我們沒有用這個 demo 測 SSR、Devtools、效能、生態或團隊學習成本。
 Transition: 而且真實專案通常不會只選一個；這些邊界可以同時存在。
@@ -312,7 +312,7 @@ clicks: 2
 
 <!--
 Core: 結論是讓 Async Ownership 可被讀出：每項 responsibility 都能指出 owner、lifetime 與維持 correctness 的 mechanism；signal-kernel 只是其中一種可運行實驗。
-Time: 45 秒。
+Time: 40 秒。
 Talk track:
 結尾原樣回收開場定義：Async Ownership 是一段非同步工作跨時間運行時，各項責任在系統邊界之間如何被配置與承擔。它不是 state location，也不是 API caller。
 第一個 click 給三個檢查方向：哪些責任移動、哪些仍留在原 boundary，以及真正由誰、透過什麼 mechanism 維持 correctness。好的配置不要求全部集中，但每項責任都必須讀得出 owner 與 lifetime。
@@ -329,21 +329,21 @@ layout: center
 ## 提問與交流
 
 <div class="mt-6 flex items-center justify-center gap-9">
-  <div class="flex h-44 w-44 items-center justify-center rounded-2xl border-2 border-dashed border-gray-400 bg-white p-4 text-center font-mono text-xs text-gray-500">
-    {{DEMO_REPO_QR}}
+  <div class="h-52 w-52 rounded-2xl bg-white p-2 shadow-lg">
+    <img src="/qr/demo-repository.svg" alt="Demo repository QR code" class="h-full w-full" />
   </div>
   <div class="max-w-md text-left">
     <div class="text-lg font-semibold">Demo repository</div>
-    <div class="mt-3 rounded-xl bg-gray-100 px-4 py-3 font-mono text-sm dark:bg-gray-800">{{DEMO_REPO_URL}}</div>
+    <div class="mt-3 rounded-xl bg-gray-100 px-4 py-3 font-mono text-sm dark:bg-gray-800">github.com/Luciano0322/vue-async-ownership</div>
     <div class="mt-4 text-sm opacity-65">Pure Vue · Pinia · TanStack Query · signal-kernel</div>
   </div>
 </div>
 
 <!--
-Core: 正式內容結束後保留提問與 Demo repository 入口；正式網址確認前維持單一 QR 與短網址 placeholder。
+Core: 正式內容結束後保留提問與 Demo repository 入口；全場只使用這個已驗證的 repository QR code。
 Time: 0 秒（不計入 40 分鐘正式內容）。
 Talk track:
-感謝大家。接下來開放提問；Demo repository 公開後會把這一頁的 placeholder 換成正式 QR code 與短網址。
+感謝大家。接下來開放提問；這裡的 QR code 會帶大家到 Demo repository，裡面有 Pure Vue、Pinia、TanStack Query 與 signal-kernel 四種實作。
 Transition: 無。
-Cut: Q&A 頁不刪除；若 repo 尚未公開，現場版本可只保留「即將公開」。
+Cut: Q&A 頁不刪除；若現場網路不穩，提醒觀眾可手動輸入旁邊的 GitHub URL。
 -->

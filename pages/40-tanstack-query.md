@@ -115,7 +115,7 @@ flowchart LR
 
 <!--
 Core: Query runtime 接手 query、cache、mutation 與 invalidation 的 lifecycle；route、Vue projection、query function 的 domain 意義與 callback stream bridge 仍由 application 組合。
-Time: 90 秒。
+Time: 80 秒。
 Talk track:
 從左邊開始。route query 仍然是 keyword 和 userId 的 source，Vue page 負責把它們投影成 query keys。
 進到藍色邊界後，TanStack Query runtime 維持 request status、取消訊號、stale result 與 cache interaction；mutation 成功後，也由 runtime 執行 invalidation 對應的 cache lifecycle。
@@ -281,7 +281,7 @@ const usersQuery = useQuery({
 
 <!--
 Core: query key 同時表達 server-state identity 與 reactive dependency；runtime 接手 lifecycle mechanics，但 query function 和 placeholder projection 仍由 application 宣告。
-Time: 100 秒。
+Time: 90 秒。
 Talk track:
 先看完整片段。這是 Demo 真正使用的 users query，不需要手寫 watch、generation guard 或 status transition。
 第一個 click 聚焦 usersQueryKey。它不是隨便取的 cache 名稱。users 是資源類型，keyword 是這份遠端資料的 identity dependency；computed 變動後，Vue adapter 讓 Query runtime 觀察新的 key。
@@ -454,7 +454,7 @@ const updateMutation = useMutation({
 
 <!--
 Core: 先把 unfamiliar TanStack Query syntax 拆成 mutation work、success timing、list/detail relationships 與 runtime handoff；application 用 query keys 宣告受影響的 domain relationship，Query runtime 執行 matching、stale marking 與 active refetch。
-Time: 100 秒。
+Time: 90 秒。
 Talk track:
 如果你沒用過 TanStack Query，先不要逐字讀 API。初始畫面只找四個角色：mutationFn 是 work，onSuccess 是 timing，queryKey 描述 relationship，invalidateQueries 把後續 lifecycle 交給 runtime。
 第一個 click 聚焦 mutationFn。Application 仍然提供 api.updateUser；Query runtime 接手 mutation 的 pending、success 與 error status，但不會替我們猜實際 work。
@@ -553,7 +553,7 @@ clicks: 2
 
 <!--
 Core: TanStack Query 把 server-state lifecycle responsibilities 移到 Query runtime；route input、view projection、render 與 Query cache 之外的 stream 仍留在 Vue 和 application integration。
-Time: 100 秒。
+Time: 90 秒。
 Talk track:
 初始畫面先把兩個模型並排。Query runtime 維持 query identity、cache、status、mutation、invalidation 與 refetch；Vue 維持 route input、component lifecycle、view projection 與 rendering。這種分離不是缺陷，而是 TanStack Query 的核心設計選擇。
 第一個 click 再看連接方式。computed queryKey 和 enabled 把 route refs 適配成 query options；Vue Query adapter 把 QueryObserver 的 snapshot 暴露為 reactive refs；page computed 再整理 users、selectedUser 與 status。Callback stream 不屬於這份 query cache，所以 Demo 仍用 watch 和 composable 維持它。

@@ -359,7 +359,7 @@ watch(keyword, async (currentKeyword) => {
 
 <!--
 Core: 先建立 composable boundary，再用 watch 宣告 trigger/status；generation guard 用來阻止較舊 request 在較晚完成時覆蓋目前 snapshot。
-Time: 115 秒。
+Time: 95 秒。
 Talk track:
 第一幕先不要急著看 watch。useVueUsersDemo 先接收 API 與 keyword、userId 兩個 reactive sources，再暴露 users 與 usersStatus 給 Vue consumer。這一步建立的是 feature 的 organization 和 reuse boundary，還沒有回答 request correctness。
 第二幕加入第一版 happy path。watch 讓 keyword 改變時 trigger request；hasLoadedUsers 區分初次 pending 和保留舊 snapshot 的 refreshing；immediate 讓 composable 建立時先跑一次。

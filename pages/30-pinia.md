@@ -143,7 +143,7 @@ flowchart LR
 
 <!--
 Core: Pinia store 改變 shared snapshot、actions 與 lifetime boundary；它不會自動替 application 定義 server-state lifecycle semantics。
-Time: 85 秒。
+Time: 75 秒。
 Talk track:
 第一幕只看圖。從 route query 進入 Vue page，page 做 route adaptation，再呼叫 Pinia actions。Action 執行 Users API，最後把結果寫進 shared refs，供多個 consumer 使用。
 第一次 click 顯示 Store 確實接走的責任：共享 snapshot、共用 operations，以及跨 consumer 的狀態。這已經是實質的 ownership 轉移，不只是檔案整理。
@@ -295,7 +295,7 @@ onUnmounted(() => store.unsubscribeActivity())
 
 <!--
 Core: Pinia actions 讓 shared workflow policy 有明確入口，但 status、race guard、reload target 與 stream cleanup 仍由 application implementation 宣告。
-Time: 100 秒。
+Time: 90 秒。
 Talk track:
 第一幕先看 update action。Demo 的 updateUser 先進入 pending，執行 mutation，再平行 reload users list 與 selected detail，最後進入 success。這讓 update 到 reload 的 domain intent 集中在 store，而不是散落在各個 component。
 但集中不等於自動。是這份 action 決定 reload list 和 detail；換一個 feature，目標完全可能不同。Error transition 也仍由 implementation 維持。

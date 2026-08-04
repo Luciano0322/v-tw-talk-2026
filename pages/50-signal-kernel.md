@@ -345,7 +345,7 @@ const updateUser = createResource({
 
 <!--
 Core: Revision 把 Resource 的讀取端與 Mutation 的寫入端接成 Graph 依賴；Resource 用 observe 建立依賴，Mutation 用 invalidates 宣告成功後影響的 revision。Application 定義領域失效語意，執行層維持成功時機與版本推進，Graph 依賴決定哪些 Resource 重新執行。
-Time: 95 秒。
+Time: 85 秒。
 Talk track:
 初始畫面先讀右邊循環：Mutation 成功後，invalidates 告訴執行層要推進哪些 revision；Resource 早已用 observe 讀取這些 revision，所以版本變化會沿 Graph 依賴使它重新執行。這張不是只教 query，而是完整的讀寫循環。
 第一個 click 聚焦 observe。Revision 是「這份非同步狀態需要重新驗證」的響應式版本節點；它不是資料本身、快取，也不是 Mutation 的回傳結果。Users Resource 讀取 usersRevision，就建立了 revision 到 resource 的依賴。
@@ -442,7 +442,7 @@ clicks: 2
 
 <!--
 Core: Vue 在 signal-kernel 版本中是輸入邊界與 UI 消費端；元件卸載只停止轉接層 observer，不預設取消 resource 或銷毀 Graph。Graph 生命週期必須由框架中立的 Graph 擁有者決定。
-Time: 100 秒。
+Time: 90 秒。
 Talk track:
 初始畫面先看完整資料流。左邊輸入轉接層把 Vue route computed 經 watch 寫進 graph sources；中間 graph 維持 sources、revisions、非同步 resources、computed 狀態和生命週期資訊；右邊輸出轉接層用 useResource 和 useKernelValue 暴露 Vue refs。元件主要負責讀取、互動和渲染。
 第一個 click 看實際程式碼。兩個 watch 還存在，所以不能說 Vue 完全只是被動消費端；它是 route 響應式狀態進 graph 的輸入邊界。另一邊 useResource、useKernelValue 接回 graph 快照，外層 computed 只把 value.value 整理成 template 想讀的 users 陣列。它不是在追蹤回應是否回來。

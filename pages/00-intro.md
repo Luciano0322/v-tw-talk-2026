@@ -16,8 +16,14 @@ Framework-independent Data Flow
 
 </div>
 
-<div class="mt-8 text-sm opacity-60">
-  github.com/Luciano0322
+<div class="mt-8 rounded-xl border border-gray-300 px-4 py-3 dark:border-gray-700">
+  <div class="text-xs font-semibold opacity-55">Demo Repo · 演講中可同步參照</div>
+  <a
+    href="https://github.com/Luciano0322/vue-async-ownership"
+    target="_blank"
+    rel="noreferrer"
+    class="mt-1 block font-mono text-xs text-cyan-700 no-underline dark:text-cyan-300"
+  >github.com/Luciano0322/vue-async-ownership</a>
 </div>
 
 ::right::
@@ -33,14 +39,15 @@ Framework-independent Data Flow
 </div>
 
 <!--
-Core: 交代研究 ownership 的背景，不把這場演講變成 React 對 Vue 的評論。
-Time: 40 秒。
+Core: 交代研究 ownership 的背景，不把這場演講變成 React 對 Vue 的評論；同時提前給出 Demo repository 讓觀眾同步參照。
+Time: 45 秒。
 Talk track:
 我是 Luciano，目前是一名前端工程師，也是 signal-kernel 的作者。
 我的主要工作背景從 React 生態出發，但這幾年在研究 reactivity、async resource 和跨框架資料流時，我慢慢把注意力從「framework 怎麼更新畫面」，移到「哪一層負責讓 async lifecycle 持續保持正確」。
 所以今天不是要把 React 的作法搬進 Vue，也不是一套 Vue 替代方案的發表。我做的是一個完整的 Vue case study，用相同 UI 與 selected outcomes，觀察四種 responsibility configuration。
+今天使用的 Demo 已經公開，連結先放在這裡；想同步對照原始碼可以先開著，最後一頁也會再提供 QR code。
 Transition: 接下來先不談任何工具，先看一次 async work 從開始到結束究竟經歷了什麼。
-Cut: React 背景可以縮成一句，只保留「研究起點，不是框架比較」。
+Cut: React 背景可以縮成一句；Demo Repo 口頭提示也可略過，連結仍保留在畫面。
 -->
 
 ---
@@ -251,7 +258,7 @@ flowchart LR
 
 <!--
 Core: Framework、external work 與 UI projection 會在 control flow 上接力，但 request 與 stream 的 lifecycle responsibilities 不同，ownership 也不會因呼叫跨層就自動轉移。
-Time: 70 秒。
+Time: 60 秒。
 Talk track:
 放進 framework 後，control flow 通常從 Vue 的 source 與 component scope 出發，交給外部 async work，再回到 Vue projection。但呼叫跨過一層，不代表 lifecycle ownership 自動跟著轉移。
 Request-like work 通常等待一次 settled result。除了 pending 與 success / error，application 還要回答 source 改變時誰拒絕 stale response，以及 mutation 後誰 refresh。
@@ -380,7 +387,7 @@ clicks: 2
 
 <!--
 Core: Async Ownership 是 responsibility 到 owner 的配置圖；snapshot location、policy declaration 與持續維持 correctness 的 owner 是三個不同問題。
-Time: 85 秒。
+Time: 75 秒。
 Talk track:
 第一步先釐清 state 和 snapshot。Async state 會隨時間從 pending 走到 success，也可能帶著舊資料進入 refreshing；snapshot 不是另一套 state，而是 UI 在某一刻讀到的 status、data 與 error。
 第二步把兩條 lifecycle 分開。Vue lifecycle 描述 component consumer 何時 mount、update、unmount；async lifecycle 描述 request 或 stream 何時 trigger、active、settle、refresh、dispose。
@@ -437,7 +444,7 @@ layout: center
 
 <!--
 Core: 六個問題不是 Async Ownership 的定義，而是用來讀出 responsibility-to-owner mapping 的共同分析座標。
-Time: 40 秒。
+Time: 35 秒。
 Talk track:
 Async Ownership 已經定義成 async responsibilities 在系統邊界之間的配置。接著每一章都用 trigger、status、stale、invalidate、dispose 和 render 六個問題，把這張配置圖讀出來。
 這六個責任不要求同一個 owner。每看完一種 model，都要能回答兩句話：哪些責任移動到新的 boundary，哪些仍留在 Vue 或 application code。
