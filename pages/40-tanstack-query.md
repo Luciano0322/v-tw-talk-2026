@@ -135,7 +135,9 @@ clicks: 3
 
 ## 它同時宣告遠端資料識別與響應式依賴
 
-<div class="mt-3 grid grid-cols-[1.25fr_0.75fr] gap-6">
+<div class="mt-1 text-[10px] font-semibold opacity-55">來源 · <code>src/examples/tanstack-query/useUsersQueryDemo.ts</code></div>
+
+<div class="mt-2 grid grid-cols-[1.25fr_0.75fr] gap-6">
   <div>
     <div v-if="$clicks === 0" class="mb-2 text-xs font-semibold opacity-55">
       Curated from <code>useUsersQueryDemo.ts</code>
@@ -231,8 +233,10 @@ const usersQuery = useQuery({
   </div>
 </div>
 
-<div class="mt-4 rounded-xl bg-cyan-50 p-3 text-center font-semibold dark:bg-cyan-950">
-  Runtime 能維持 lifecycle，是因為 application 先把 identity 與 work 說清楚。
+<div class="mt-3 grid grid-cols-3 gap-2 text-center text-[10px] leading-tight">
+  <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">規則宣告：queryKey／queryFn／placeholderData</div>
+  <div class="rounded-lg bg-cyan-50 p-2 dark:bg-cyan-950">維持機制：Query runtime＋Vue Query adapter</div>
+  <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">省略的銜接：route input／view projection／stream</div>
 </div>
 
 <style>
@@ -301,7 +305,9 @@ clicks: 4
 
 ## 應用程式指出「誰受影響」；執行層維持快取生命週期
 
-<div class="mt-3 grid grid-cols-[1.25fr_0.75fr] gap-6">
+<div class="mt-1 text-[10px] font-semibold opacity-55">來源 · <code>src/examples/tanstack-query/useUsersQueryDemo.ts</code></div>
+
+<div class="mt-2 grid grid-cols-[1.25fr_0.75fr] gap-6">
   <div>
     <div v-if="$clicks === 0" class="mb-2 text-xs font-semibold opacity-55">
       先不用記 API；先找出四個責任角色
@@ -398,8 +404,10 @@ const updateMutation = useMutation({
 <div v-if="$clicks < 4" class="mt-3 rounded-xl bg-gray-100 p-3 text-center text-lg font-semibold dark:bg-gray-800">
   Invalidation 的語法不重要；先看懂 mutation 與 server state 的關係。
 </div>
-<div v-else class="mt-3 rounded-xl bg-amber-50 p-3 text-center text-lg font-semibold dark:bg-amber-950">
-  Invalidation 移走了 cache mechanics，沒有移走 application 的 domain knowledge。
+<div v-else class="mt-3 grid grid-cols-3 gap-2 text-center text-[10px] leading-tight">
+  <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">規則宣告：mutationFn＋affected query keys</div>
+  <div class="rounded-lg bg-cyan-50 p-2 dark:bg-cyan-950">維持機制：Mutation／Query cache lifecycle</div>
+  <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">省略的銜接：route userId／UI status projection</div>
 </div>
 
 <style>

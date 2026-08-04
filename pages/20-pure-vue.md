@@ -198,7 +198,8 @@ watch(keyword, async currentKeyword => {
 <div v-else>
   <h1>Pure Vue：怎麼開始寫？</h1>
   <h2>從 <code>useVueUsersDemo</code> composable 到 generation guard</h2>
-  <div class="mt-3 grid grid-cols-[1.25fr_0.75fr] gap-6">
+  <div class="mt-1 text-[10px] font-semibold opacity-55">來源 · <code>src/examples/vue-baseline/useVueUsersDemo.ts</code></div>
+  <div class="mt-2 grid grid-cols-[1.25fr_0.75fr] gap-6">
     <div>
       <div v-if="$clicks === 3" class="mb-2 text-xs font-semibold opacity-55">
         Step 4 · 把完整 policy 放回 <code>useVueUsersDemo.ts</code>
@@ -303,11 +304,13 @@ watch(keyword, async (currentKeyword) => {
 </div>
 </div>
 
-  <div v-if="$clicks < 5" class="mt-2 rounded-xl bg-blue-50 p-2 text-center font-semibold dark:bg-blue-950">
+  <div v-if="$clicks < 3" class="mt-2 rounded-xl bg-blue-50 p-2 text-center font-semibold dark:bg-blue-950">
     Generation 不是為了 reactivity；它是 application 的 stale-result policy。
   </div>
-  <div v-else class="mt-2 rounded-xl bg-emerald-50 p-2 text-center font-semibold dark:bg-emerald-950">
-    它不阻止 request 並行；它阻止 stale request 重新進入 commit 區段。
+  <div v-else class="mt-2 grid grid-cols-3 gap-2 text-center text-[10px] leading-tight">
+    <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">規則宣告：watch trigger／status／generation</div>
+    <div class="rounded-lg bg-emerald-50 p-2 dark:bg-emerald-950">維持機制：Vue watch scope＋generation guard</div>
+    <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">省略的銜接：detail／mutation／stream</div>
   </div>
 </div>
 

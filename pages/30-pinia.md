@@ -166,7 +166,7 @@ clicks: 1
   <div class="mt-3 grid grid-cols-[1.25fr_0.75fr] gap-6">
     <div>
       <div class="mb-2 text-xs font-semibold opacity-55">
-        Curated from <code>userDemo.store.ts</code>
+        來源 · <code>src/examples/pinia-action/userDemo.store.ts</code>
       </div>
 
 <div class="pinia-code">
@@ -207,8 +207,10 @@ async function updateUser(userId, patch) {
 </div>
 </div>
 
-  <div class="mt-3 rounded-xl bg-amber-50 p-2 text-center text-base font-semibold dark:bg-amber-950">
-    Action 集中的是 domain intent；reload 目標與狀態轉換仍由 application 宣告。
+  <div class="mt-3 grid grid-cols-3 gap-2 text-center text-[10px] leading-tight">
+    <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">規則宣告：update → reload targets</div>
+    <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">維持機制：Pinia action</div>
+    <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">省略的銜接：route adaptation／API error mapping</div>
   </div>
 </div>
 
@@ -218,7 +220,7 @@ async function updateUser(userId, patch) {
 
   <div class="mt-4 grid grid-cols-2 gap-5">
     <div>
-      <div class="mb-2 text-xs font-semibold opacity-55">Race guard 留在 fetch action</div>
+      <div class="mb-2 text-xs font-semibold opacity-55">Race guard · <code>src/examples/pinia-action/userDemo.store.ts</code></div>
 
 <div class="pinia-code pinia-code-small">
 
@@ -239,7 +241,7 @@ if (
 </div>
 
 <div>
-  <div class="mb-2 text-xs font-semibold opacity-55">Consumer cleanup 留在 Vue page</div>
+  <div class="mb-2 text-xs font-semibold opacity-55">Consumer cleanup · <code>src/examples/pinia-action/PiniaActionPage.vue</code></div>
 
 <div class="pinia-code pinia-code-small">
 
@@ -265,8 +267,10 @@ onUnmounted(() => store.unsubscribeActivity())
     <div class="rounded-xl border p-3"><b>串流清理</b><br><span class="opacity-65">page + store action</span></div>
   </div>
 
-  <div class="mt-5 rounded-xl bg-blue-50 p-3 text-center font-semibold dark:bg-blue-950">
-    這是 Demo 選擇的一種 Pinia architecture，不是 Pinia 唯一能採用的 async 組織方式。
+  <div class="mt-4 grid grid-cols-3 gap-2 text-center text-[10px] leading-tight">
+    <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">規則宣告：currentness／stream cleanup</div>
+    <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">維持機制：generation guard＋Vue onUnmounted</div>
+    <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">省略的銜接：store setup／component rendering</div>
   </div>
 </div>
 

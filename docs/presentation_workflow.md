@@ -1,8 +1,8 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 已完成（P1.1–P1.9 全部通過；下一階段可規劃 P2）
+> 狀態：P1 已完成（P1.1–P1.9 全部通過）；P2 收尾另見 [`presentation_p2_workflow.md`](./presentation_p2_workflow.md)
 >
-> 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
+> 本文件封存 P1：內容骨架的決策與驗收紀錄；不在完成後混入 P2–P4 的實作歷史。
 >
 > 內容規格來源：[`vue-async-ownership-talk-proposal.md`](./vue-async-ownership-talk-proposal.md)
 

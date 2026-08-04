@@ -1479,13 +1479,15 @@ Transition: What changes when the problem is specifically server state?
 - 35 張都先標示唯一 audience outcome、預計秒數、transition 與可刪內容。
 - 不處理動畫與精緻 CSS。
 
-### P2：Code 與圖
+### P2：Code 與圖（已完成）
 
-- 從 Demo 擷取 curated snippets。
-- 建立四張平行 responsibility maps，不使用升級箭頭。
-- 完成四種 responsibility configuration comparison table。
-- 每章最多保留一個主要 code example。
-- 每段 code 標示 policy、enforcement mechanism 與 omitted glue。
+- [x] 從 Demo 擷取 curated snippets，並顯示可追溯的 canonical source path。
+- [x] 建立四張平行 responsibility maps，不使用升級箭頭。
+- [x] 完成四種 responsibility configuration comparison table。
+- [x] 每章保留一條主要 code walkthrough；TanStack Query 與 signal-kernel 在同一條讀寫敘事中分別呈現 read／write halves。
+- [x] 每段 code 以 `規則宣告 / 維持機制 / 省略的銜接` 中文結構標示 policy、enforcement mechanism 與 omitted glue。
+
+詳細 Red／Green evidence 與驗收紀錄見 [`presentation_p2_workflow.md`](./presentation_p2_workflow.md)。
 
 ### P3：Demo 與備援
 

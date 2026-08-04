@@ -214,7 +214,9 @@ clicks: 3
 
 ## Resource 觀察失效節點；Mutation 宣告影響範圍
 
-<div class="mt-2 grid grid-cols-[1.22fr_0.78fr] gap-5">
+<div class="mt-1 text-[10px] font-semibold opacity-55">來源 · <code>src/examples/signal-kernel/usersGraph.ts</code></div>
+
+<div class="mt-1 grid grid-cols-[1.22fr_0.78fr] gap-5">
   <div class="grid gap-1">
     <div v-if="$clicks === 0" class="text-xs font-semibold opacity-55">先看完整循環：讀取端 observe，寫入端 invalidates</div>
     <div v-else-if="$clicks === 1" class="text-xs font-semibold text-emerald-600 dark:text-emerald-300">第一步 · observe：Resource 讀取 revision，建立失效依賴</div>
@@ -295,7 +297,11 @@ const updateUser = createResource({
 <div v-if="$clicks === 0" class="mt-1 rounded-xl bg-gray-100 p-2 text-center text-lg font-semibold dark:bg-gray-800">Revision 把更新結果連回依賴它的 Resource。</div>
 <div v-else-if="$clicks === 1" class="mt-1 rounded-xl bg-emerald-50 p-2 text-center text-lg font-semibold dark:bg-emerald-950">Revision 不儲存資料；它表示非同步狀態需要重新驗證。</div>
 <div v-else-if="$clicks === 2" class="mt-1 rounded-xl bg-amber-50 p-2 text-center text-lg font-semibold dark:bg-amber-950">應用宣告失效語意；執行層維持成功時機與版本推進。</div>
-<div v-else class="mt-1 rounded-xl bg-cyan-50 p-2 text-center text-lg font-semibold dark:bg-cyan-950">Graph 依賴決定誰重跑；Vue 只消費新快照。</div>
+<div v-else class="mt-1 grid grid-cols-3 gap-2 text-center text-[10px] leading-tight">
+  <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">規則宣告：observe＋invalidates</div>
+  <div class="rounded-lg bg-emerald-50 p-2 dark:bg-emerald-950">維持機制：Resource runtime＋Graph dependencies</div>
+  <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">省略的銜接：Vue adapter／Graph owner teardown</div>
+</div>
 
 <style>
 .signal-resource-code {
