@@ -31,8 +31,8 @@ Core: 「從 Pinia Action 到 Async Resource」描述的是 problem scope 展開
 Time: 30 秒。
 Talk track:
 大家好，今天的題目是「從 Pinia Action 到 Async Resource」。
-我想先補一個很重要的閱讀方式：這個「從……到……」不是要大家從 Pinia 遷移到另一套工具，也不是四種方案的能力排名。
-我們會從 Vue 開發者熟悉的 action 與 composable 出發，把觀察尺度從一次 async workflow，逐步拉到 shared workflow、server-state lifecycle，以及跨 resource 的 relationships。
+我想先補一個很重要點是：這個「從……到……」不是一定要大家從 Pinia 遷移到另一套工具，也不是之後四種方案的能力排名，沒有要採一捧一的環節。
+我們會從 Vue 開發者熟悉的 action 與 composable 出發，把觀察尺度從一次非同步 workflow，逐步拉到 shared workflow、server-state 生命週期，以及跨 resource 的權責關係。
 Transition: 在定義 ownership 以前，我先簡短交代自己為什麼會研究這個問題。
 Cut: 若現場時間不足，只保留「problem scope 展開，不是工具升級」。
 -->
