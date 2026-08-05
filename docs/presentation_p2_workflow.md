@@ -60,11 +60,11 @@ Verification: `pnpm run test:p2` 通過 4 models、5 canonical source files。
 
 Acceptance：
 
-- [x] 每段 code 都以 `規則宣告 / 維持機制 / 省略的銜接` 呈現。
+- [x] 每段 code 都以可見標示或講稿交代 `規則宣告 / 維持機制 / 省略的銜接`；Slide 27 為避免版面溢出，改由講稿收斂 ownership 分工。
 - [x] Pure Vue 交代 watch／generation guard 與未展示的 detail／mutation／stream。
 - [x] Pinia 分別交代 update→reload 與 currentness／stream cleanup。
 - [x] TanStack Query 分別交代 query read policy 與 mutation invalidation relationship。
-- [x] signal-kernel 交代 observe／invalidates、Resource／Graph 維持機制與 adapter／teardown glue。
+- [x] signal-kernel 交代 Application 宣告影響範圍、runtime 推進 revision、Graph 決定 Resource 重跑；adapter／teardown 留給下一張接續。
 
 實作紀錄：
 

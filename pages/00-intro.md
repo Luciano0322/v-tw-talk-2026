@@ -59,41 +59,47 @@ clicks: 3
 
 ## pending → fulfilled / rejected
 
-<div class="relative mt-4 h-[360px]">
+<ChapterHeader
+  :index="1"
+  title="共同模型"
+  question="一次 Promise settled 之後，誰繼續維持非同步生命週期？"
+/>
+
+<div class="relative mt-3 h-[315px]">
 <div v-click.hide="2" class="absolute inset-0 flex flex-col items-center justify-center">
 <div class="text-sm font-semibold opacity-60">Promise 建立後</div>
-<div class="mt-2 min-w-48 rounded-xl border px-8 py-4 text-center font-mono text-2xl">
+<div class="mt-2 min-w-48 rounded-xl border px-8 py-3 text-center font-mono text-2xl">
 pending
 </div>
 
-<div v-click="1" class="mt-3 text-4xl">↙　　　　　↘</div>
+<div v-click="1" class="mt-2 text-3xl">↙　　　　　↘</div>
 
-<div v-click="1" class="mt-1 grid grid-cols-2 gap-16 text-center">
+<div v-click="1" class="mt-1 grid grid-cols-2 gap-12 text-center">
 <div>
 <div class="text-sm opacity-60">成功完成</div>
-<div class="mt-1 min-w-48 rounded-xl border px-6 py-4 font-mono text-xl">
+<div class="mt-1 min-w-48 rounded-xl border px-5 py-3 font-mono text-xl">
 fulfilled
 </div>
 </div>
 <div>
 <div class="text-sm opacity-60">失敗完成</div>
-<div class="mt-1 min-w-48 rounded-xl border px-6 py-4 font-mono text-xl">
+<div class="mt-1 min-w-48 rounded-xl border px-5 py-3 font-mono text-xl">
 rejected
 </div>
 </div>
 </div>
 
-<div v-click="1" class="mt-5 text-lg font-semibold">
+<div v-click="1" class="mt-3 text-base font-semibold">
 兩者都代表 settled：結果已固定，不會回到 pending。
 </div>
 </div>
 
-<div v-click="2" class="absolute inset-0">
+<div v-click="2" class="promise-lifecycle-graph absolute inset-0">
 <div class="relative mb-2 h-7 text-center font-semibold">
-<div v-click.hide="3" class="absolute inset-0 text-lg">
+<div v-click.hide="3" class="absolute backdrop-blur inset-0 text-lg">
 但 UI correctness 不只問「這次成功或失敗」
 </div>
-<div v-click="3" class="absolute inset-0 text-xl">
+<div v-click="3" class="absolute backdrop-blur inset-0 text-xl">
 Promise settled 了；非同步責任還沒結束。
 </div>
 </div>
@@ -107,6 +113,20 @@ flowchart TB
 ```
 </div>
 </div>
+
+<style>
+.promise-lifecycle-graph .mermaid {
+  display: flex;
+  height: 280px;
+  align-items: center;
+  justify-content: center;
+}
+
+.promise-lifecycle-graph .mermaid svg {
+  width: 100%;
+  max-height: 280px;
+}
+</style>
 
 <!--
 Core: Promise 三態只描述一次工作的結果；UI correctness 還需要處理 identity、refresh、switch 與 disposal。

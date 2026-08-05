@@ -7,11 +7,17 @@ clicks: 3
 
 ## 遠端資料還有識別、新鮮度與關係
 
-<div class="mt-7 text-center text-2xl font-semibold">
+<ChapterHeader
+  :index="5"
+  title="TanStack Query"
+  question="當問題變成 server state，哪些生命週期交給 Query runtime？"
+/>
+
+<div class="mt-4 text-center text-2xl font-semibold">
   同一份資料被多人讀取時，還要回答：<span class="text-cyan-600 dark:text-cyan-300">「現在這份還有效嗎？」</span>
 </div>
 
-<div class="mt-7 grid grid-cols-3 gap-4">
+<div class="mt-4 grid grid-cols-3 gap-4">
   <div v-click="1" class="rounded-2xl border border-cyan-300 p-4 dark:border-cyan-700">
     <div class="text-sm font-semibold text-cyan-600 dark:text-cyan-300">資料識別</div>
     <div class="mt-2 text-lg font-semibold">這是哪一份遠端資料？</div>
@@ -83,11 +89,11 @@ flowchart LR
 </div>
 
 <div class="mt-3 grid grid-cols-2 gap-4 text-sm">
-  <div class="rounded-xl border border-cyan-300 p-3 dark:border-cyan-700">
+  <div class="rounded-xl border border-cyan-300 p-3 dark:border-cyan-700 backdrop-blur">
     <b class="text-cyan-600 dark:text-cyan-300">Query 執行層接手</b>
     <span class="ml-2 opacity-70">狀態 · 取消 · 過期結果 · 快取互動</span>
   </div>
-  <div class="rounded-xl border p-3">
+  <div class="rounded-xl border p-3 backdrop-blur">
     <b>應用程式仍宣告</b>
     <span class="ml-2 opacity-70">query function · 失效關係 · 串流橋接</span>
   </div>

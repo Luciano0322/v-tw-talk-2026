@@ -6,7 +6,13 @@ clicks: 3
 # 四張非同步 Ownership 權責圖
 ## 同一份非同步工作：責任移到哪裡，又留下什麼？
 
-<div class="mt-3 grid grid-cols-4 gap-3 text-center text-sm font-semibold">
+<ChapterHeader
+  :index="7"
+  title="比較與收斂"
+  question="責任移到哪裡、留下什麼，又付出哪些成本？"
+/>
+
+<div class="mt-2 grid grid-cols-4 gap-3 text-center text-sm font-semibold">
   <div class="rounded-xl border border-sky-300 px-3 py-2 dark:border-sky-700">Pure Vue</div>
   <div class="rounded-xl border border-violet-300 px-3 py-2 dark:border-violet-700">Pinia Action</div>
   <div class="rounded-xl border border-amber-300 px-3 py-2 dark:border-amber-700">TanStack Query</div>

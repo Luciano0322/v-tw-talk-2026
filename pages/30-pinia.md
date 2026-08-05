@@ -6,7 +6,13 @@ layout: default
 
 ## 問題不再只屬於單一元件
 
-<div class="mt-4 grid grid-cols-[0.8fr_auto_1.2fr] items-center gap-5">
+<ChapterHeader
+  :index="4"
+  title="Pinia"
+  question="當狀態與流程跨越 component，ownership 如何移進 store？"
+/>
+
+<div class="mt-3 grid grid-cols-[0.8fr_auto_1.2fr] items-center gap-5">
   <div class="rounded-2xl border p-4">
     <div class="text-sm font-semibold opacity-55">單一功能內</div>
     <div class="mt-3 text-xl font-semibold">Component / composable</div>
@@ -96,7 +102,7 @@ flowchart LR
 </div>
 
 <div class="grid grid-cols-2 gap-4">
-  <div v-click="1" class="rounded-2xl border border-amber-300 p-3 dark:border-amber-700">
+  <div v-click="1" class="rounded-2xl border border-amber-300 p-3 backdrop-blur dark:border-amber-700">
     <div class="font-semibold text-amber-600 dark:text-amber-300">Store 確實接走</div>
     <div class="mt-2 grid grid-cols-3 gap-2 text-center text-sm">
       <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">共用狀態快照</div>
@@ -104,7 +110,7 @@ flowchart LR
       <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">跨消費端狀態</div>
     </div>
   </div>
-  <div v-click="2" class="rounded-2xl border p-3">
+  <div v-click="2" class="rounded-2xl border p-3 backdrop-blur">
     <div class="font-semibold">不會自動獲得</div>
     <div class="mt-2 grid grid-cols-3 gap-2 text-center text-sm">
       <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">取消 / 新舊判斷</div>

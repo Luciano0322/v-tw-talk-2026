@@ -7,7 +7,13 @@ clicks: 1
 
 ## 把 Ownership 邊界從 Query 轉接層移到框架之外
 
-<div class="mt-4 min-h-[265px]">
+<ChapterHeader
+  :index="6"
+  title="signal-kernel"
+  question="如果 async resource 成為 graph 節點，責任邊界如何改變？"
+/>
+
+<div class="mt-3 min-h-[265px]">
   <div v-if="$clicks === 0" class="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-3 pt-10 text-center text-sm">
     <div class="rounded-2xl border border-blue-300 p-4 dark:border-blue-700">
       <div class="font-semibold text-blue-600 dark:text-blue-300">VUE 響應式系統</div>
@@ -171,9 +177,9 @@ flowchart LR
 </div>
 
 <div class="mt-2 grid grid-cols-3 gap-3 text-xs">
-  <div class="rounded-xl border border-emerald-300 p-3 dark:border-emerald-700"><b>Graph factory</b><br><span class="opacity-65">source／resource／revision／computed<br>不依賴 Vue</span></div>
-  <div class="rounded-xl border border-cyan-300 p-3 dark:border-cyan-700"><b>Graph 實例</b><br><span class="opacity-65">這份 Demo 在 page setup 建立<br>擁有者仍應明確宣告</span></div>
-  <div class="rounded-xl border border-violet-300 p-3 dark:border-violet-700"><b>Vue 轉接層</b><br><span class="opacity-65">訂閱 Graph 快照<br>暴露 Vue refs</span></div>
+  <div class="rounded-xl border border-emerald-300 p-3 dark:border-emerald-700 backdrop-blur"><b>Graph factory</b><br><span class="opacity-65">source／resource／revision／computed<br>不依賴 Vue</span></div>
+  <div class="rounded-xl border border-cyan-300 p-3 dark:border-cyan-700 backdrop-blur"><b>Graph 實例</b><br><span class="opacity-65">這份 Demo 在 page setup 建立<br>擁有者仍應明確宣告</span></div>
+  <div class="rounded-xl border border-violet-300 p-3 dark:border-violet-700 backdrop-blur"><b>Vue 轉接層</b><br><span class="opacity-65">訂閱 Graph 快照<br>暴露 Vue refs</span></div>
 </div>
 
 <div v-click class="mt-2 rounded-xl bg-amber-50 p-2 text-center text-base font-semibold dark:bg-amber-950">
@@ -294,15 +300,6 @@ const updateUser = createResource({
   </div>
 </div>
 
-<div v-if="$clicks === 0" class="mt-1 rounded-xl bg-gray-100 p-2 text-center text-lg font-semibold dark:bg-gray-800">Revision 把更新結果連回依賴它的 Resource。</div>
-<div v-else-if="$clicks === 1" class="mt-1 rounded-xl bg-emerald-50 p-2 text-center text-lg font-semibold dark:bg-emerald-950">Revision 不儲存資料；它表示非同步狀態需要重新驗證。</div>
-<div v-else-if="$clicks === 2" class="mt-1 rounded-xl bg-amber-50 p-2 text-center text-lg font-semibold dark:bg-amber-950">應用宣告失效語意；執行層維持成功時機與版本推進。</div>
-<div v-else class="mt-1 grid grid-cols-3 gap-2 text-center text-[10px] leading-tight">
-  <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">規則宣告：observe＋invalidates</div>
-  <div class="rounded-lg bg-emerald-50 p-2 dark:bg-emerald-950">維持機制：Resource runtime＋Graph dependencies</div>
-  <div class="rounded-lg bg-gray-100 p-2 dark:bg-gray-800">省略的銜接：Vue adapter／Graph owner teardown</div>
-</div>
-
 <style>
 .signal-resource-code {
   overflow: hidden;
@@ -357,6 +354,7 @@ Talk track:
 第一個 click 聚焦 observe。Revision 是「這份非同步狀態需要重新驗證」的響應式版本節點；它不是資料本身、快取，也不是 Mutation 的回傳結果。Users Resource 讀取 usersRevision，就建立了 revision 到 resource 的依賴。
 第二個 click 聚焦 invalidates。Application 知道 updateUser 成功後會影響列表與該使用者明細，所以在 Mutation 宣告這兩個 revision target；執行層負責只在成功時推進它們。這和 TanStack Query 的 mutation invalidation 都能表達影響範圍，差異是這裡的失效關係成為 Graph 依賴。
 第三個 click 區分作用範圍。usersRevision 使列表 Resource 需要重新驗證；userRevision.target(input.userId) 只對應被更新的使用者明細。Application 擁有「更新影響誰」的領域語意，執行層擁有成功時機與 revision 推進，Graph 追蹤依賴並重跑 Resource，Vue 只消費最後的快照。
+這張最後可以收成一句：Application 宣告更新影響誰，runtime 推進 revision，Graph 決定哪些 Resource 重新執行。
 Transition: 既然回應不需要 Vue watch，下一張就精確看 Vue 還留下哪兩個轉接邊界。
 Cut: 若時間不足，保留 observe → invalidates → revision → resource 循環；列表 revision 與 keyed detail revision 的差異放到 Demo 再指出。
 -->

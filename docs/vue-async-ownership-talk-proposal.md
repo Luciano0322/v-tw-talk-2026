@@ -1485,7 +1485,7 @@ Transition: What changes when the problem is specifically server state?
 - [x] 建立四張平行 responsibility maps，不使用升級箭頭。
 - [x] 完成四種 responsibility configuration comparison table。
 - [x] 每章保留一條主要 code walkthrough；TanStack Query 與 signal-kernel 在同一條讀寫敘事中分別呈現 read／write halves。
-- [x] 每段 code 以 `規則宣告 / 維持機制 / 省略的銜接` 中文結構標示 policy、enforcement mechanism 與 omitted glue。
+- [x] 每段 code 以可見標示或講稿交代 `規則宣告 / 維持機制 / 省略的銜接`；Slide 27 為避免版面溢出，改由講稿收斂 Application、runtime 與 Graph 的 ownership 分工。
 
 詳細 Red／Green evidence 與驗收紀錄見 [`presentation_p2_workflow.md`](./presentation_p2_workflow.md)。
 

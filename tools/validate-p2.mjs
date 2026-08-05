@@ -130,9 +130,9 @@ const codeResponsibilityContracts = [
     model: 'signal-kernel',
     page: 'pages/50-signal-kernel.md',
     statements: [
-      '規則宣告：observe＋invalidates',
-      '維持機制：Resource runtime＋Graph dependencies',
-      '省略的銜接：Vue adapter／Graph owner teardown',
+      'Application 宣告更新影響誰',
+      'runtime 推進 revision',
+      'Graph 決定哪些 Resource 重新執行',
     ],
   },
 ]

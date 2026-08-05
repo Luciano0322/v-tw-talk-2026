@@ -6,37 +6,43 @@ layout: default
 
 ## Pure Vue 不是「什麼都沒有」
 
-<div class="mt-6 grid grid-cols-[1.15fr_0.85fr] gap-6">
-  <div class="rounded-2xl border border-blue-300 p-5 dark:border-blue-700">
+<ChapterHeader
+  :index="3"
+  title="Pure Vue"
+  question="Vue 已維持 reactivity；application policy 由誰維持？"
+/>
+
+<div class="mt-3 grid grid-cols-[1.15fr_0.85fr] gap-5">
+  <div class="rounded-2xl border border-blue-300 p-4 dark:border-blue-700">
     <div class="text-sm font-semibold text-blue-600 dark:text-blue-300">VUE MAINTAINS</div>
-    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-      <div class="rounded-lg bg-blue-50 p-3 dark:bg-blue-950">
+    <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
+      <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">
         <div class="font-semibold">Reactive tracking</div>
         <div class="mt-1 opacity-65">dependency 變化能被追蹤</div>
       </div>
-      <div class="rounded-lg bg-blue-50 p-3 dark:bg-blue-950">
+      <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">
         <div class="font-semibold">Watch scheduling</div>
         <div class="mt-1 opacity-65">callback 與 cleanup registration</div>
       </div>
-      <div class="rounded-lg bg-blue-50 p-3 dark:bg-blue-950">
+      <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">
         <div class="font-semibold">Component scope</div>
         <div class="mt-1 opacity-65">mount / unmount 與 scope cleanup</div>
       </div>
-      <div class="rounded-lg bg-blue-50 p-3 dark:bg-blue-950">
+      <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">
         <div class="font-semibold">Computed projection</div>
         <div class="mt-1 opacity-65">state → UI snapshot</div>
       </div>
-      <div class="col-span-2 rounded-lg bg-blue-50 p-3 text-center dark:bg-blue-950">
+      <div class="col-span-2 rounded-lg bg-blue-50 p-2 text-center dark:bg-blue-950">
         <span class="font-semibold">Composition + rendering</span>
         <span class="ml-2 opacity-65">組合 consumer 並更新畫面</span>
       </div>
     </div>
   </div>
 
-  <div class="rounded-2xl border p-5">
+  <div class="rounded-2xl border p-4">
     <div class="text-sm font-semibold opacity-55">APPLICATION DECLARES</div>
-    <div class="mt-4 text-lg font-semibold">這個 feature 的 async policy</div>
-    <div class="mt-4 grid gap-2 text-sm">
+    <div class="mt-3 text-lg font-semibold">這個 feature 的 async policy</div>
+    <div class="mt-3 grid gap-2 text-sm">
       <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">何時 trigger / refresh</div>
       <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">pending / refreshing / error</div>
       <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">currentness / stale result</div>
@@ -45,7 +51,7 @@ layout: default
   </div>
 </div>
 
-<div class="mt-5 text-center text-lg font-semibold">
+<div class="mt-3 text-center text-base font-semibold">
   Vue 維持 reactivity 與 consumer scope；application code 維持 feature policy。
 </div>
 

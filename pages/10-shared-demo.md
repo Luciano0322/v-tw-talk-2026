@@ -6,7 +6,13 @@ layout: default
 
 ## 路由提供可重現的來源：`keyword` + `userId`
 
-<div class="mt-7 grid grid-cols-3 gap-5">
+<ChapterHeader
+  :index="2"
+  title="共同 Demo"
+  question="同一組 request、mutation 與 stream，四種做法如何分配責任？"
+/>
+
+<div class="mt-4 grid grid-cols-3 gap-5">
   <div class="rounded-xl border p-5">
     <div class="text-sm font-semibold opacity-55">請求型工作</div>
     <div class="mt-2 text-xl font-semibold">搜尋使用者</div>
@@ -41,7 +47,7 @@ layout: default
   </div>
 </div>
 
-<div class="mt-7 rounded-xl bg-gray-100 p-4 text-center dark:bg-gray-800">
+<div class="mt-4 rounded-xl bg-gray-100 p-4 text-center dark:bg-gray-800">
   <span class="font-semibold">共同 UI 只是觀察面。</span>
   三種工作仍有不同的生命週期責任。
 </div>
