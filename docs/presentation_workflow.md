@@ -625,7 +625,7 @@ Notes coverage: 35/35 均有 Core / Time / Transition / Cut；四個 model 的�
 Build: `pnpm run build` 成功（Slidev 52.18.0，722 modules transformed）；`git diff --check` 通過。
 Presenter check: production `/presenter` 顯示全部四種 notes markers；production `/1–35` 共驗證 85 個 click states，在 1280×720 下沒有標題、文字、程式碼、圖片或 SVG overflow。
 Time-budget total: 2255 秒（37:35），低於 38:00 上限，並替 40 分鐘正式內容保留 2:25 緩衝。
-Open placeholders: `P1 photo placeholder` 與 `Live Demo placeholder`；Demo repository QR 已是正式資產並保留可手動輸入 URL。
+Open placeholder: `P1 photo placeholder`；共同 Demo 已改用固定 default 情境截圖，Demo repository QR 也已是正式資產並保留可手動輸入 URL。
 Non-blocking follow-up: CLI PDF export 目前需要額外安裝 `playwright-chromium`；PDF 與現場投影本來就不在 P1 範圍，留待 P2／交付前驗收。
 ```
 

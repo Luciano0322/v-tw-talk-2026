@@ -83,7 +83,7 @@ const ownershipDefinitionPrefix = 'Async Ownership 是一段非同步工作跨�
 const definitionCount = deckSource.split(ownershipDefinitionPrefix).length - 1
 check(definitionCount >= 2, 'Slide 5 與 Slide 34 沒有使用同一套 Async Ownership 定義語彙')
 
-const expectedPlaceholders = ['P1 photo placeholder', 'Live Demo placeholder']
+const expectedPlaceholders = ['P1 photo placeholder']
 for (const placeholder of expectedPlaceholders)
   check(visibleDeckSource.includes(placeholder), `缺少已登記的公開 placeholder：${placeholder}`)
 check(!/\{\{[^}]+\}\}/.test(visibleDeckSource), '公開投影片仍有未替換的 {{template placeholder}}')

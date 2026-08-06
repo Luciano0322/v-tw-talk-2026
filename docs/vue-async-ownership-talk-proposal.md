@@ -499,7 +499,7 @@ User activity     → stream-like resource
 
 Route 提供 `keyword` 與 `userId`。共同 UI 必須能觀察 pending、refreshing、success、error、stale-result protection、update 與 stream source switch。
 
-#### Slide 9 — 四條 route，控制 selected outcomes
+#### Slide 9 — 四條路由，控制選定結果
 
 ```text
 /examples/vue
@@ -508,7 +508,7 @@ Route 提供 `keyword` 與 `userId`。共同 UI 必須能觀察 pending、refres
 /examples/signal-kernel
 ```
 
-建議現場只先操作一次共同 happy path，再在收斂章節展示一條 race 或 stream-switch trace。這份 Demo 控制 user-visible scenario 與 selected outcomes，不控制 abstraction level、runtime maturity、ecosystem 或 application glue。
+建議現場只先操作一次共同正常流程，再在收斂章節展示一條競態或串流切換軌跡。這份 Demo 控制觀眾可見情境與選定結果，不控制抽象層次、執行層成熟度、生態系或應用程式銜接。
 
 ### Act 2：Pure Vue — 先看清 framework 與 application 的邊界
 
@@ -1492,7 +1492,7 @@ Transition: What changes when the problem is specifically server state?
 ### P3：Demo 與備援
 
 - 活動前確認 Demo repository 的 canonical URL、README 與公開狀態。
-- 產生 `default` scenario 的真正 16:9 screenshots。
+- [x] 產生 `default` scenario 的 16:9 主畫面截圖，以及 mutation 成功後的備援截圖；主線在 Slide 8 以三段 click 聚焦 request、mutation 與 stream。
 - 以最終公開 URL 建立 QR code 與可讀短連結。
 - 以手機、Slidev 與 PDF 驗證 QR code。
 - 確認無網路時仍能完成演講。
@@ -1531,8 +1531,8 @@ Transition: What changes when the problem is specifically server state?
 - [ ] Slide 7 明確標示 case study 不是 benchmark、控制實驗或完整工具選型。
 - [ ] Slide 31 將 40 cases 說明為 8 個 async behaviors＋1 個 surface check＋1 個 explanation check，再乘以四個 model。
 - [ ] Contract 只用來控制 selected outcomes，不用來證明 ownership、clarity 或 architecture superiority。
-- [ ] 主線只有一條穩定 live demo flow。
-- [ ] 主線不使用 `stream-disconnect` 當作四模型預設畫面。
+- [x] 主線只使用一組固定 `default` 截圖解說流程；若臨場需要操作，則沿用同一組 route 情境。
+- [x] 主線不使用 `stream-disconnect` 當作四模型預設畫面。
 - [ ] 每段 code 可在 20 秒內看完。
 - [ ] Slide 2 的講者介紹可在 45 秒內完成。
 - [ ] Slide 34 的正式內容彩排不超過 38 分鐘，完整場次不超過 40 分鐘。
