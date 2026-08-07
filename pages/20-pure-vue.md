@@ -9,63 +9,63 @@ layout: default
 <ChapterHeader
   :index="3"
   title="Pure Vue"
-  question="Vue 已維持 reactivity；application policy 由誰維持？"
+  question="Vue 已維持響應式更新；應用程式的非同步規則由誰維持？"
 />
 
 <div class="mt-3 grid grid-cols-[1.15fr_0.85fr] gap-5">
   <div class="rounded-2xl border border-blue-300 p-4 dark:border-blue-700">
-    <div class="text-sm font-semibold text-blue-600 dark:text-blue-300">VUE MAINTAINS</div>
+    <div class="text-sm font-semibold text-blue-600 dark:text-blue-300">VUE 負責維持</div>
     <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
       <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">
-        <div class="font-semibold">Reactive tracking</div>
-        <div class="mt-1 opacity-65">dependency 變化能被追蹤</div>
+        <div class="font-semibold">響應式依賴追蹤</div>
+        <div class="mt-1 opacity-65">依賴變化能被追蹤</div>
       </div>
       <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">
-        <div class="font-semibold">Watch scheduling</div>
-        <div class="mt-1 opacity-65">callback 與 cleanup registration</div>
+        <div class="font-semibold">監聽排程</div>
+        <div class="mt-1 opacity-65">執行回呼並註冊清理邏輯</div>
       </div>
       <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">
-        <div class="font-semibold">Component scope</div>
-        <div class="mt-1 opacity-65">mount / unmount 與 scope cleanup</div>
+        <div class="font-semibold">元件作用域</div>
+        <div class="mt-1 opacity-65">掛載／卸載與作用域清理</div>
       </div>
       <div class="rounded-lg bg-blue-50 p-2 dark:bg-blue-950">
-        <div class="font-semibold">Computed projection</div>
-        <div class="mt-1 opacity-65">state → UI snapshot</div>
+        <div class="font-semibold">衍生狀態投影</div>
+        <div class="mt-1 opacity-65">狀態 → UI 快照</div>
       </div>
       <div class="col-span-2 rounded-lg bg-blue-50 p-2 text-center dark:bg-blue-950">
-        <span class="font-semibold">Composition + rendering</span>
-        <span class="ml-2 opacity-65">組合 consumer 並更新畫面</span>
+        <span class="font-semibold">元件組合與畫面渲染</span>
+        <span class="ml-2 opacity-65">組合消費端並更新畫面</span>
       </div>
     </div>
   </div>
 
   <div class="rounded-2xl border p-4">
-    <div class="text-sm font-semibold opacity-55">APPLICATION DECLARES</div>
-    <div class="mt-3 text-lg font-semibold">這個 feature 的 async policy</div>
+    <div class="text-sm font-semibold opacity-55">應用程式負責宣告</div>
+    <div class="mt-3 text-lg font-semibold">這項功能的非同步規則</div>
     <div class="mt-3 grid gap-2 text-sm">
-      <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">何時 trigger / refresh</div>
-      <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">pending / refreshing / error</div>
-      <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">currentness / stale result</div>
-      <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">mutation reload / stream bridge</div>
+      <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">何時啟動／重新取得</div>
+      <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">等待中／重新整理中／錯誤</div>
+      <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">當前性／過期結果處理</div>
+      <div class="rounded-lg bg-gray-100 px-3 py-2 dark:bg-gray-800">更新後重載／串流銜接</div>
     </div>
   </div>
 </div>
 
 <div class="mt-3 text-center text-base font-semibold">
-  Vue 維持 reactivity 與 consumer scope；application code 維持 feature policy。
+  Vue 維持響應式更新與消費端作用域；應用程式碼維持功能的非同步規則。
 </div>
 
 <!--
-Core: Pure Vue 已提供完整的 reactive consumer boundary；manual async policy 仍有明確的 application owner。
+Core: Pure Vue 已提供完整的響應式消費邊界；手動維持的非同步規則仍有明確的應用程式 owner。
 Time: 55 秒。
 Talk track:
-先把「Pure Vue」這個名字拆開看。它不是沒有 runtime，也不是所有責任都從零開始。
-Vue 已經替我們維持 reactive dependency tracking、watch scheduling、component mount 和 unmount scope、computed projection，以及 component composition 和 rendering。
-這些都是畫面保持 reactive 的必要責任，不能因為接下來要談其他工具就把它們抹掉。
-但 Vue 不知道這個 Dashboard 的 users request 應該何時算 refreshing、舊 response 何時失效、update 後要 reload 什麼，或 stream source 切換時要採用什麼 policy。
-在 Pure Vue 版本裡，這些規則由 application code 明確宣告並維持。Manual 不代表沒有 owner，只代表 owner 是我們寫的 component 或 composable。
-Transition: 接下來從 composable 的 inputs / outputs 開始，逐步把 watch 與 stale-result policy 寫進去。
-Cut: 只保留「Vue 維持 reactivity 與 scope；application 維持 feature policy」。
+先把「Pure Vue」這個名字拆開看。它不是沒有執行機制，也不是所有責任都從零開始。
+Vue 已經替我們維持響應式依賴追蹤、watch 排程、元件掛載與卸載作用域、computed 狀態投影，以及元件組合與畫面渲染。
+這些都是畫面保持響應式的必要責任，不能因為接下來要談其他工具就把它們抹掉。
+但 Vue 不知道這個 Dashboard 的使用者請求何時算重新整理、舊回應何時失效、更新後要重新載入什麼，或串流來源切換時要採用什麼規則。
+在 Pure Vue 版本裡，這些規則由應用程式碼明確宣告並維持。手動處理不代表沒有 owner，只代表 owner 是我們寫的元件或 composable。
+Transition: 接下來從 composable 的輸入與輸出開始，逐步加入 watch 與過期結果保護規則。
+Cut: 只保留「Vue 維持響應式更新與作用域；應用程式維持功能的非同步規則」。
 -->
 
 ---
@@ -370,10 +370,10 @@ watch(keyword, async (currentKeyword) => {
 Core: 先建立 composable boundary，再用 watch 宣告 trigger/status；generation guard 用來阻止較舊 request 在較晚完成時覆蓋目前 snapshot。
 Time: 95 秒。
 Talk track:
-第一幕先不要急著看 watch。useVueUsersDemo 先接收 API 與 keyword、userId 兩個 reactive sources，再暴露 users 與 usersStatus 給 Vue consumer。這一步建立的是 feature 的 organization 和 reuse boundary，還沒有回答 request correctness。
-第二幕加入第一版 happy path。watch 讓 keyword 改變時 trigger request；hasLoadedUsers 區分初次 pending 和保留舊 snapshot 的 refreshing；immediate 讓 composable 建立時先跑一次。
+第一幕 useVueUsersDemo 先接收 API 與 keyword、userId 兩個 reactive sources，再暴露 users 與 usersStatus 給 Vue 元件使用。這一步建立的是 feature 的 organization 和 reuse boundary，還沒有回答 request correctness。
+第二幕加入 watch 讓 keyword 改變時 trigger request；hasLoadedUsers 區分初次 pending 和保留舊 snapshot 的 refreshing；immediate 讓 composable 建立時先跑一次。
 但只 await 還不夠。假設 keyword 先是 a、很快變成 b，request B 可能先完成，request A 卻比較晚完成。若兩個 Promise 都能直接寫 users，畫面會先正確顯示 b，再被舊的 a 覆蓋。
-第三幕就是 generation 的理由。每次 source change 都增加 latestRequestGeneration；每個 request 記住自己開始時的 requestGeneration；只有兩者仍相等時，才代表它仍屬於最新 source，可以 commit snapshot。
+第三幕就是 generation 的理由(照投影片講解)。
 第四幕回到 Demo 的完整實作，先看 policy 的全貌。
 第五幕只聚焦 ++latestRequestGeneration。source 每改變一次就發出新版號；每個 request captures 自己啟動時的 requestGeneration。這不會取消或阻止先前 request 繼續執行。
 第六幕聚焦兩個相等判斷。success 與 error 都只有在 requestGeneration 仍等於 latestRequestGeneration 時才能寫回。舊 request 可以 resolve 或 reject，但不能重新進入 commit 區段改動 snapshot。
