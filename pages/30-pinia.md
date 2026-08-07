@@ -29,7 +29,7 @@ layout: default
   </div>
 
   <div class="rounded-2xl border border-amber-300 p-4 dark:border-amber-700">
-    <div class="text-sm font-semibold text-amber-600 dark:text-amber-300">多個 consumer 共用</div>
+    <div class="text-sm font-semibold text-amber-600 dark:text-amber-300">多個元件共用</div>
     <div class="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center text-sm">
       <div class="rounded-lg bg-amber-50 p-2 dark:bg-amber-950">搜尋頁面</div>
       <div class="opacity-45">↘</div>
@@ -54,21 +54,21 @@ layout: default
     <div class="mt-1 opacity-65">action 表達 application workflow</div>
   </div>
   <div class="rounded-xl bg-gray-100 p-3 dark:bg-gray-800">
-    <div class="font-semibold">跨 consumer lifetime</div>
+    <div class="font-semibold">跨元件 lifetime</div>
     <div class="mt-1 opacity-65">store 可活得比單一元件久</div>
   </div>
 </div>
 
 <div class="mt-3 rounded-xl bg-amber-50 p-2 text-center text-base font-semibold dark:bg-amber-950">
-  Pinia 的價值不是搬動 ref，而是建立 shared state 與 workflow boundary。
+  Pinia 的價值是建立共享 state 與 workflow 邊界。
 </div>
 
 <!--
 Core: 當 snapshot、操作入口與 lifetime 需要跨越單一 consumer，Pinia 能建立清楚的 shared state 與 workflow boundary。
 Time: 55 秒。
 Talk track:
-Pure Vue 對單一功能已經完整；所以進入 Pinia 不是因為前一種寫法錯了，而是問題範圍改變了。
-當搜尋頁面、使用者詳情、狀態面板或其他 consumer 都需要同一份 snapshot，狀態若仍綁在某個 page，就很難說誰是共享入口。
+進入 Pinia 是因為是問題範圍變大了。
+當搜尋頁面、使用者詳情、狀態面板或其他元件都需要同一份 snapshot，狀態若仍綁在某個 page，就很難說誰是共享入口。
 Pinia store 讓 shared state 有穩定位置，也讓 actions 成為多個 consumer 共用的 application workflow API。
 第三個變化是 lifetime。Store 通常可以活得比單一 component consumer 更久，這讓跨頁共享變得自然，也帶來稍後要處理的生命週期問題。
 所以 Pinia 不該被簡化成「少寫 watch」或「把 ref 搬進 store」。這一章真正關心的是 shared boundary。
@@ -311,7 +311,7 @@ Talk track:
 但集中不等於自動。是這份 action 決定 reload list 和 detail；換一個 feature，目標完全可能不同。Error transition 也仍由 implementation 維持。
 第二幕看 currentness。fetchUsers action 仍使用 generation guard，只有最新 request 能寫回 store snapshot。Pinia 提供 reactivity，沒有替這個 Users API 預先定義 stale-result policy。
 再看 stream。Store 提供 subscribeActivity 和 unsubscribeActivity actions，但 Demo 讓 page 的 watch 接上 userId，並在 onUnmounted 呼叫 cleanup。這表示 subscription state 在 store，consumer lifetime 卻仍需要 Vue page integration。
-這四個 policy 現在比較集中、比較容易找到，但都仍是 application code 的選擇。其他 Pinia architecture 可以使用 plugins、獨立 services 或不同 disposal policy；這裡不宣稱 Pinia 只能這樣寫。
+這四個 policy 現在比較集中、比較容易找到，但都仍是 application code 的選擇。其他 Pinia 可以使用 plugins、獨立 services 或不同 disposal policy；這裡不宣稱 Pinia 只能這樣寫。
 Transition: 最後把 store、actions、Vue page 與 application glue 放回同一張責任分布圖。
 Cut: 第一幕只講 mutation → reload；第二幕只指出 generation guard 與 onUnmounted。
 -->
