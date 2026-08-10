@@ -349,19 +349,19 @@ Notes: 六欄改成觀眾可以直接回答的問題：問題範圍、規則由�
 
 Audience outcome：
 
-> 觀眾理解 Pinia 改變 shared state 與 workflow boundary，但 server-state lifecycle semantics 仍由 application-defined actions 維持。
+> 觀眾理解 Composable 已能共享；Pinia 的主要 ownership delta 是具名 Store、shared snapshot 與 workflow entry，而 async correctness rules 大多仍由 application-defined actions 維持。
 
 實作範圍：
 
-- Slide 15：為什麼自然會想到 Pinia。
-- Slide 16：Store boundary 改變什麼。
-- Slide 17：Action 集中 policy，但仍由 application 編排。
-- Slide 18：Pinia responsibility map 與 takeaway。
+- Slide 15：先承認 Composable 也能共享，再說明具名 Store boundary 的價值。
+- Slide 16：逐項對照 Composable／Pinia，指出 async correctness 的重複與 ownership delta。
+- Slide 17：只 walkthrough update → reload action，不重播 generation guard 與 unmount cleanup。
+- Slide 18：以「移動／留下」收斂 Pinia Ownership Delta，保留六欄 teaching contract。
 
 Acceptance：
 
 - [x] Pinia 沒有被簡化成「把 ref 搬進 store」。
-- [x] Store lifetime 與 component lifetime 被明確區分。
+- [x] Store／component lifetime 差異被承認，但不被誇大成 async semantics 全面改變。
 - [x] Action 被描述成清楚的 shared workflow boundary。
 - [x] Race guard、status、reload target 與 stream cleanup 仍標示為 application policy。
 - [x] 沒有宣稱 Pinia 只能使用這一種 async architecture。
@@ -385,6 +385,15 @@ Red evidence: production `/16?clicks=0..3` 的四張 1280×720 screenshots 具�
 Green implementation: Slide 16 增加三個明確 v-click；初始只保留 boundary map，接著依序 reveal「Store 確實接走」、「不會自動獲得」，最後揭露 store/component lifetime 與結論。所有容器保留 layout space，click 時不重新排版。
 Verification: `pnpm run build` 成功（Slidev 52.18.0，658 modules transformed）；production `/16?clicks=0..3` 產生四個不同的 1280×720 screenshot SHA-256，依序只增加指定區塊，最終畫面與原始完整內容一致，且無裁切或 layout shift。
 Notes: Slide 16 時間由 70 秒調整為 85 秒，P1.5 notes time budget 合計由 300 秒調整為 315 秒。
+```
+
+彩排後的 delta-first 修訂：
+
+```text
+Problem: Pure Vue 已用 composable 完整示範 trigger、generation guard、manual reload 與 cleanup；Pinia 再 walkthrough 同一組 policy，會讓觀眾誤以為這章在重教另一套 async model，也稀釋真正的 Store ownership delta。
+Revision: Slide 15 主動承認 module-scoped composable 也能共享；Slide 16 改成 Composable／Pinia correctness 對照；Slide 17 只保留 update → reload action；Slide 18 以「移動到 Store／仍由應用程式維持」收斂。TanStack Query 轉場改問 server-state lifecycle 是否需要專用 owner。
+Time: Slide 15–18 從 295 秒縮短為 195 秒；全稿 notes budget 由 37:35 降為 35:55。
+Verification: `pnpm test:p1`、`pnpm test:p2` 與 production build 通過；P2 contract 從重複的 generation／unmount walkthrough 改為驗證真實 update action、reload targets 與 ownership delta。Production `/15`–`/18?clicks=0..2` 共 12 個 1280×720 狀態均完成視覺檢查。Slide 17 第一次驗收發現巢狀 Markdown 將兩個 v-click 顯示成 raw HTML；攤平 HTML 邊界後重新 build 與截圖，所有狀態均無 raw markup、裁切或水平捲軸。
 ```
 
 ### P1.6：建立 Act 4 — TanStack Query

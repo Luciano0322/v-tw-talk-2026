@@ -257,11 +257,11 @@ Application glue omitted:
 | 講者資訊與 async lifecycle 建模 | 7 | 5 分鐘 | 5 | 建立 implementation-neutral lifecycle 與 ownership 語言 |
 | 共同 Demo 情境 | 2 | 3 分鐘 | 8 | 固定需求、UI、API、selected outcomes 與比較基準 |
 | Pure Vue baseline | 5 | 5 分鐘 | 13 | 先看清 Vue scope responsibility 與 application async policy |
-| Pinia Action | 4 | 5 分鐘 | 18 | 展示 store-owned shared workflow 與 lifecycle mismatch |
-| TanStack Query | 5 | 7 分鐘 | 25 | 展示專門的 server-state lifecycle model 與有效的 stream boundary |
-| signal-kernel | 6 | 8 分鐘 | 33 | 先教必要 vocabulary，再展示 async state 成為 reactive graph node 的 ownership 與交換成本 |
-| 四版本對照、選擇原則與結論 | 5 | 5 分鐘 | 38 | 用同一套 teaching contract 收斂 clarity 主張、限制與選擇條件 |
-| 現場節奏緩衝 | — | 2 分鐘 | 40 | 保留換頁、停頓與 Demo 切換空間，不作為 Q&A |
+| Pinia Action | 4 | 3.5 分鐘 | 16.5 | 只講 Composable → Pinia 的 sharing-boundary delta，不重教 async correctness |
+| TanStack Query | 5 | 7 分鐘 | 23.5 | 展示專門的 server-state lifecycle model 與有效的 stream boundary |
+| signal-kernel | 6 | 8 分鐘 | 31.5 | 先教必要 vocabulary，再展示 async state 成為 reactive graph node 的 ownership 與交換成本 |
+| 四版本對照、選擇原則與結論 | 5 | 5 分鐘 | 36.5 | 用同一套 teaching contract 收斂 clarity 主張、限制與選擇條件 |
+| 現場節奏緩衝 | — | 3.5 分鐘 | 40 | 保留換頁、停頓與 Demo 切換空間，不作為 Q&A |
 
 規劃共 35 張，其中 Slide 35 的 Q&A／QR code 在正式內容結束後顯示。張數增加的目的不是增加論點，而是讓每張只處理一個認知任務；平均時間不能用張數均分，章節頁、diagram reveal 與 takeaway 可以在 20–40 秒內完成。
 
@@ -686,125 +686,84 @@ Vue 仍然負責：路由轉接、互動、衍生資料、渲染
 
 不要把 Pure Vue 描述成錯誤解法或未完成階段。它是完整且合理的 local boundary，也是四個 model 共用的比較基準。
 
-### Act 3：Pinia Action — store 擁有共用 workflow boundary
+### Act 3：Pinia Action — 只講 Composable → Store 的 ownership delta
 
-#### Slide 15 — 為什麼自然會想到 Pinia？
+這一章不把 Pinia 當成另一套需要重新教一次的 async model。Pure Vue 已經用 composable 建立 trigger、status、generation guard、manual reload 與 cleanup；Pinia 章節要利用觀眾感受到的重複，直接說明：「非同步正確性規則大致不變，改變的是共享邊界。」
 
-以「問題範圍擴大」做左右對照：
+精確主張：
 
-- 單一功能內可以由 component / composable 維持 snapshot、互動入口與 consumer lifetime。
-- 多個 consumer 共用同一份狀態時，Pinia store 提供 shared snapshot 與 actions。
-- Store 通常可以活得比單一元件久，形成跨 consumer 的 shared workflow boundary。
+> 從 Composable 到 Pinia，shared snapshot、workflow entry point 與 store identity 移進具名 Store；request、mutation、stream 的 correctness rules 大多仍由 application code 維持。
+
+不能把這句簡化成「async lifecycle 完全沒變」。Store 可以活得比 component 久，consumer lifetime boundary 確實改變；這裡說的是 async semantics 與 correctness policy 沒有因為使用 Pinia 就自動換 owner。
+
+#### Slide 15 — Composable 已經能共享，為什麼還需要 Pinia？
+
+- 主動承認 module-scoped composable 也能共享 state，避免把 Pinia 描述成能力解鎖。
+- Composable 提供 reusable feature logic；Pinia 提供具名 Store、穩定 identity、統一 action 入口與多 consumer 都理解的共享慣例。
+- 兩次 click 從「Composable 做得到」走到「Pinia 讓 application boundary 更明確」。
 
 結論：
 
-> Pinia 的價值不是搬動 ref，而是建立 shared state 與 workflow boundary。
+> Pinia 不是讓共享狀態變得可能，而是把共享狀態與流程變成明確的 application store boundary。
 
-轉場句：
+#### Slide 16 — 搬進 Store 後，非同步規則有變嗎？
 
-> 問題從單一功能變成 shared client workflow；我們先把責任集中到 store boundary。
+不再重畫 route → page → API → refs，而是直接對照：
 
-#### Slide 16 — Store 邊界改變了什麼？
-
-使用三次 click 累積內容，所有區塊預留原本位置，避免 reveal 時版面跳動：
-
-1. 初始畫面只看 route → page → actions/API → shared refs → consumers。
-2. Click 1 顯示 Store 確實接走的 shared snapshot、actions 與跨 consumer 狀態。
-3. Click 2 顯示不會自動獲得的取消／新舊判斷、失效／重載與 stream cleanup semantics。
-4. Click 3 顯示 store／component lifetime 對照與結論。
-
-建議 Mermaid：
-
-```mermaid
-flowchart LR
-  Route[路由 query] --> Page[Vue page]
-  Page --> Actions[Pinia actions]
-  Actions --> API[Users API]
-  API --> Actions
-  Actions --> Store[Pinia shared refs]
-  Store --> A[使用端 A]
-  Store --> B[使用端 B]
-  Store --> C[使用端 C]
+```text
+Composable                    Pinia
+feature refs                  store refs
+composable function           named action
+generation guard              generation guard
+手動重新載入                  手動重新載入
+明確 cleanup                  page／store 明確清理
 ```
 
-畫面明確區分：
+- Click 1 聚焦重複部分：競態、重載與清理仍由 application code 維持。
+- Click 2 聚焦 delta：shared snapshot、workflow entry、store identity 移動；race、reload relationship、stream cleanup 沒有自動移動。
 
-- Store lifetime 通常比單一 component consumer 長。
-- Page 仍擁有 route adaptation 與 interaction。
-- 將資料放進 Pinia 不會自動獲得 cancellation、stale、invalidation 或 stream semantics。
+結論：
 
-> Store 生命週期 ≠ 元件生命週期；共享狀態不等於自動擁有每一段 async lifecycle。
+> Sharing boundary 改變；async correctness rules 大致不變。
 
-#### Slide 17 — Action 集中 policy，但仍由 application 編排
+#### Slide 17 — 只看一個 Action：update → reload
 
-這張使用一次 click，先建立 shared workflow，再揭露仍需手動維持的 lifecycle policy。
-
-**Click 0 — update → reload 有明確入口**
+只保留唯一需要 walkthrough 的 Pinia code：
 
 ```ts
 async function updateUser(userId, patch) {
-  updateStatus.value = 'pending'
-
   await api.updateUser({ userId, patch })
 
   await Promise.all([
     fetchUsers(currentKeyword),
     fetchUserDetail(userId),
   ])
-
-  updateStatus.value = 'success'
 }
 ```
 
-Action 讓 mutation、reload targets 與 status transition 集中，但這些規則仍由 application 宣告。
+- `updateUser` 是 application 共用的 workflow entry point。
+- `users list + selected detail` 的 reload relationship 仍由 action 明確列出。
+- Pinia 不會自行推導 server-state identity 或 invalidation relationship；這不是缺陷，而是 problem scope 不同。
+- Generation guard、status transition、stream cleanup 只在角落列為仍由 application 維持，不重新 live walkthrough。
 
-**Click 1 — policy 集中了，但沒有自動化**
+#### Slide 18 — Pinia 的 Ownership Delta
 
-左右並列 Demo 的兩段真實 integration：
-
-- `latestUsersRequestGeneration` 仍在 fetch action 維持 currentness。
-- `onUnmounted(() => store.unsubscribeActivity())` 仍由 Vue page 接回 consumer lifetime。
-
-口說重點：
-
-- Action 讓 update → reload 的 domain intent 集中。
-- Store 可以成為清楚的 application-level workflow owner。
-- Race guard、status transition、reload target 與 stream cleanup 仍由這份 implementation 宣告。
-- Component unmount 不等於 store dispose；若 stream lifetime 跟 consumer 綁定，必須明確保留 page cleanup 或建立 store-level disposal policy。
-- 這是其中一種 Pinia architecture，不代表 Pinia 只能這樣組織 async work。
-
-#### Slide 18 — Pinia 的責任分布圖與 takeaway
-
-```mermaid
-flowchart LR
-  Route[路由 query] --> Page[Vue 頁面]
-  Page --> Actions[Pinia actions]
-  Actions --> API[Users API]
-  API --> Actions
-  Actions --> Store[共用 refs]
-  Store --> UI[Vue 使用端]
-  Page --> Cleanup[consumer 清理]
-  Cleanup --> Actions
-```
-
-固定 footer：
+保留六欄 teaching contract，但主要畫面只強調兩組：
 
 ```text
-問題範圍：共享的 client state 與 workflow
-規則由誰宣告：store actions + 頁面整合
-生命週期由誰維持：Pinia / Vue 響應機制 + 應用程式 actions
-Vue 仍然負責：路由轉接、互動、衍生資料、渲染
-應用程式還要補上：競態保護、重載順序、狀態、串流生命週期
-代價 / 非目標：手動編排；不預設 server state 語意
+移動到 Store                    仍由 application 維持
+共用狀態快照                    競態與狀態轉換
+共用 workflow / action 入口     更新後的重載關係
+跨 consumer store identity      串流來源與清理時機
 ```
 
-大字：
+固定收尾：
 
-> 集中，讓 policy 更清楚；不代表 policy 自動成立。
+> Composable → Pinia：sharing boundary 改變；async model 大致不變。
 
-建議中文口說：
+TanStack Query 轉場：
 
-> Store 已經擁有 shared workflow；Pinia 不會替 application 預先決定 server-state lifecycle semantics。
+> 如果下一個問題不再只是共享 workflow，而是資料開始具有 identity、freshness、cache 與 invalidation 語意，那才需要問：非同步 lifecycle 本身能不能換一個 owner？
 
 ### Act 4：TanStack Query — server state 有了專門 owner
 

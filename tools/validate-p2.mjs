@@ -29,11 +29,7 @@ const codeSources = [
     sources: [
       {
         path: 'src/examples/pinia-action/userDemo.store.ts',
-        anchors: ['fetchUsers(currentKeyword)', 'requestGeneration === latestUsersRequestGeneration'],
-      },
-      {
-        path: 'src/examples/pinia-action/PiniaActionPage.vue',
-        anchors: ['store.subscribeActivity(currentUserId)', 'onUnmounted(() => store.unsubscribeActivity())'],
+        anchors: ['api.updateUser({ userId, patch })', 'fetchUsers(currentKeyword)', 'fetchUserDetail(userId)'],
       },
     ],
   },
@@ -91,21 +87,12 @@ const codeResponsibilityContracts = [
     ],
   },
   {
-    model: 'Pinia update',
+    model: 'Pinia ownership delta',
     page: 'pages/30-pinia.md',
     statements: [
-      '規則宣告：update → reload targets',
-      '維持機制：Pinia action',
-      '省略的銜接：route adaptation／API error mapping',
-    ],
-  },
-  {
-    model: 'Pinia currentness',
-    page: 'pages/30-pinia.md',
-    statements: [
-      '規則宣告：currentness／stream cleanup',
-      '維持機制：generation guard＋Vue onUnmounted',
-      '省略的銜接：store setup／component rendering',
+      '共享：workflow entry point',
+      '同步哪些資料？',
+      '仍由應用程式維持',
     ],
   },
   {
@@ -172,5 +159,5 @@ if (failures.length > 0) {
   process.exitCode = 1
 }
 else {
-  console.log('P2 acceptance passed: 4 maps, 5 canonical source files, 6 code contracts, 1 comparison.')
+  console.log('P2 acceptance passed: 4 maps, 4 canonical source files, 5 code contracts, 1 comparison.')
 }
