@@ -781,32 +781,34 @@ TanStack Query 轉場：
 
 ```mermaid
 flowchart LR
-  Route[route query] --> Sources[keyword / userId]
-  Sources --> Keys[query keys]
+  Route[Vue route source] --> ReadPolicy[Application: queryKey + queryFn]
+  ReadPolicy --> Records[Query runtime: records by key + cache mechanics]
+  Records <--> API[Users API]
+  Records --> Adapter[Vue Query adapter: observer snapshot]
+  Adapter --> Vue[Vue projection / render]
 
-  subgraph QueryOwner[TanStack Query owns server state lifecycle]
-    Keys --> Query[query lifecycle]
-    Query <--> Cache[query cache]
-    Query <--> API[Users API]
-    Mutation[update mutation] --> API
-    Mutation --> Invalidate[invalidate queries]
-    Invalidate --> Cache
-  end
+  Interaction[update interaction] --> WritePolicy[Application: mutationFn + affected keys]
+  WritePolicy --> MutationRuntime[Query runtime: mutation status + matching + stale + refetch]
+  MutationRuntime <--> API
+  MutationRuntime --> Records
 
-  Query --> Vue[Vue projection / render]
-  Sources --> Stream[separate stream composable]
+  Route --> Stream[Application: separate stream composable]
   Stream --> Vue
 ```
 
-圖上的 ownership boundary 刻意包含 query、cache、mutation 與 invalidation，但不把 callback-style Activity stream 畫進 `QueryOwner`。
+移除包住 `query lifecycle` 的「伺服器資料生命週期」大框。這個畫法容易暗示 TanStack Query 建立一個統一的大 lifecycle，再由單一 query 掛在其中。改圖後直接區分三種責任：
+
+- Application 宣告 `queryKey`、`queryFn`、`mutationFn` 與 affected keys 的 domain meaning。
+- Query runtime 依 key 維持多個 query records、mutation status，以及 cancellation、stale、matching、refetch、cache 等 mechanics。
+- Vue Query adapter 把 observer snapshot 接回 Vue reactivity；callback-style Activity stream 仍由 application composable 擁有。
 
 講解順序：
 
 1. Route 仍提供 source；TanStack Query 不取代 Vue Router。
-2. Source 被投影成 query keys。
-3. Query runtime 維持 request status、cancellation、stale result 與 cache interaction。
-4. Vue 消費 query result，不自行維護 users/detail lifecycle。
-5. Activity stream 由獨立 Vue composable 擁有；這是有效的 architecture boundary。
+2. Application 將 source 投影成 queryKey，並用 queryFn 宣告 work。
+3. Query runtime 維持對應 query record 的 request status、cancellation、freshness 與 cache interaction。
+4. Mutation 同樣分成 application 宣告的 work／affected keys，以及 runtime 維持的 mutation status／matching／stale／refetch mechanics。
+5. Vue 經由 adapter 消費 observer snapshot；Activity stream 由獨立 Vue composable 擁有，這仍是有效的 architecture boundary。
 
 #### Slide 21 — Query key 成為 server-state identity
 

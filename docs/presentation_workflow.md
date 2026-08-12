@@ -454,6 +454,14 @@ Verification: `pnpm run build` 成功（Slidev 52.18.0，701 modules transformed
 Notes: Slide 23 維持 100 秒。技術界線固定為「Vue Query adapter 已讓 response snapshot 可被 Vue 追蹤」；computed/watch 是 adaptation/composition，不是 TanStack Query 缺少 reactive update 的補救。
 ```
 
+Slide 20 query-record 語意修正：
+
+```text
+Problem: 原圖以「TanStack Query · 伺服器資料生命週期」大框包住單一「query 生命週期」、cache、API、mutation 與 invalidation，容易誤解成 runtime 建立一個統一的大 lifecycle，也模糊了 application declaration、external work 與 runtime mechanics 的邊界。
+Revision: 移除 ownership 大框與單一 query-lifecycle 節點。讀取路徑改成 route source → application 的 queryKey/queryFn → runtime 維持的 keyed query records → Vue Query adapter → Vue；寫入路徑分開呈現 mutationFn/affected keys 與 runtime 的 mutation status、matching、stale、refetch；callback stream 保留為 application composable 支線。
+Verification: `pnpm test:p1`、`pnpm test:p2` 與 production build 通過；production `/20` 以 1280×720 驗證 Mermaid、三色責任圖例與底部結論均無裁切。
+```
+
 ### P1.7：建立 Act 5 — signal-kernel
 
 投影片：

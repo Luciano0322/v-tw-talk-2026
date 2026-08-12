@@ -63,6 +63,7 @@ Composable 在能力上已經能共享狀態；把 ref 放到 module scope，或
 Click 1：Pinia 的價值是把這件事變成具名的 application store boundary。我們得到穩定的 store identity、統一的 action 入口，以及多個 consumer 都能辨識的共享慣例。
 Click 2：所以 async lifecycle 是一樣的。真正移動的是 shared snapshot 與 workflow ownership，再確認 request、mutation、stream 的正確性規則到底有沒有跟著移動。
 Transition: 把 Composable 和 Pinia 的實作逐項放在一起，重複的地方正是這一章最重要的證據。
+Cut: 只保留「Composable 也能共享；Pinia 讓共享邊界更明確」。
 -->
 
 ---
