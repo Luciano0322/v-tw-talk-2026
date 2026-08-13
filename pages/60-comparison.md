@@ -32,13 +32,13 @@ clicks: 3
   </div>
   <div class="min-h-60 rounded-2xl bg-amber-50 p-4 dark:bg-amber-950">
     <div class="text-xs font-semibold text-amber-600 dark:text-amber-300">移動／留下</div>
-    <div class="mt-4 text-lg font-semibold">伺服器資料生命週期 → Query</div>
-    <div class="mt-4 opacity-75">路由輸入、投影、渲染與 Query 外的串流仍留在 Vue 和應用程式。</div>
+    <div class="mt-4 text-lg font-semibold">伺服器資料生命週期 → Query runtime</div>
+    <div class="mt-4 opacity-75">路由來源、query options、投影、渲染與 Query 外的串流仍留在 Vue 和應用程式。</div>
   </div>
   <div class="min-h-60 rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-950">
     <div class="text-xs font-semibold text-emerald-600 dark:text-emerald-300">移動／留下</div>
-    <div class="mt-4 text-lg font-semibold">資源關係 → Graph</div>
-    <div class="mt-4 opacity-75">路由、UI 消費端、Graph 生命週期與外部橋接仍留在 Vue 和應用程式。</div>
+    <div class="mt-4 text-lg font-semibold">資源內部響應關係＋生命週期 → Graph runtime</div>
+    <div class="mt-4 opacity-75">路由來源、領域規則、Graph lifetime 與 UI 仍留在 Vue 和應用程式。</div>
   </div>
 </div>
 
@@ -63,9 +63,9 @@ clicks: 3
   </div>
   <div class="min-h-60 rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-950">
     <div class="font-semibold text-emerald-600 dark:text-emerald-300">規則宣告</div>
-    <div class="mt-2">Graph factory 與整合轉接層</div>
+    <div class="mt-2">Graph factory／resource 宣告</div>
     <div class="mt-5 font-semibold text-emerald-600 dark:text-emerald-300">誰維持生命週期</div>
-    <div class="mt-2">resource 執行層與應用程式的串流橋接層</div>
+    <div class="mt-2">Graph runtime；實例與外部橋接由 Graph owner 負責</div>
   </div>
 </div>
 
@@ -84,13 +84,13 @@ clicks: 3
   </div>
   <div class="min-h-60 rounded-2xl bg-amber-50 p-4 dark:bg-amber-950">
     <div class="font-semibold text-amber-600 dark:text-amber-300">Vue 的角色</div>
-    <div class="mt-2">query 與串流的消費端</div>
+    <div class="mt-2">route → query options，並消費 query／stream 結果</div>
     <div class="mt-5 font-semibold text-amber-600 dark:text-amber-300">串流邊界</div>
     <div class="mt-2">獨立 Vue composable；這是合理但不同的邊界</div>
   </div>
   <div class="min-h-60 rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-950">
     <div class="font-semibold text-emerald-600 dark:text-emerald-300">Vue 的角色</div>
-    <div class="mt-2">route 到 Graph 的轉接與狀態快照消費</div>
+    <div class="mt-2">route → Graph source，並消費 Graph snapshot</div>
     <div class="mt-5 font-semibold text-emerald-600 dark:text-emerald-300">串流邊界</div>
     <div class="mt-2">串流 resource 加上應用程式取消訂閱轉接層</div>
   </div>
@@ -124,8 +124,8 @@ clicks: 3
 Core: 四種實作改變的是 Async responsibilities 在 Vue、application code、store、Query runtime 與 Graph runtime 之間的配置，不是成熟度階梯。
 Time: 100 秒。
 Talk track:
-初始畫面先用同一個句型結算 responsibility movement。Pure Vue 是 baseline：Vue reactivity 傳播狀態、component lifecycle 定義 consumer scope、application code 維持 async correctness。Pinia 把 shared workflow 移到 store；TanStack Query 把 server-state lifecycle 移到 Query runtime；signal-kernel 把 resource relationships 與 lifecycle 移到 Graph。每一欄同時寫出仍留在 Vue 或 application 的責任。
-第一個 click 再比較規則在哪裡宣告、誰真的維持生命週期；state location 和 lifecycle ownership 不一定是同一件事。第二個 click 比較 Vue 的角色與 stream 邊界，特別提醒 TanStack Query 範例的 stream composable 是有效架構，只是它不在 query cache 的 problem scope。第三個 click 公開成本：graph 並不是免費的清晰度，它帶來第二套 reactive runtime、詞彙、adapter、除錯與 teardown 整合。這裡沒有贏家，只有不同的 responsibility-to-owner mapping。
+初始畫面先用同一個句型結算 responsibility movement。Pure Vue 是 baseline：Vue reactivity 傳播狀態、component lifecycle 定義 consumer scope、application code 維持 async correctness。Pinia 把 shared workflow 移到 store。TanStack Query 把 server-state lifecycle 移到 Query runtime，但 route sources、query option derivation 與 UI 仍在 Vue。signal-kernel 再把 Resource 內部的 reactive dependency propagation 與 async lifecycle 集中到 Graph runtime，但 route source、domain policy、Graph lifetime 與 UI 仍在 Vue 和 Application。
+第一個 click 比較規則在哪裡宣告、誰真的維持生命週期。兩個 runtime 都需要 Application 宣告更新影響範圍；差異不在有沒有 invalidation，而在它進入 query records 或 Graph revisions。第二個 click 比較 Vue 的角色：TanStack 版本由 Vue 把 route 轉成 query options；signal-kernel 版本由 Vue 把 route 寫入 Graph source。第三個 click 公開成本：Graph 帶來第二套 reactive runtime、詞彙、adapter、除錯與 teardown 整合。這裡沒有便利性的勝負，只有不同的 responsibility-to-owner mapping。
 Transition: 既然四份實作的責任配置不同，接著先界定「40 次通過」究竟能證明什麼。
 Cut: 時間不足時保留 problem scope 與 cost 兩個畫面，口頭略過中間兩個 click。
 -->
@@ -322,7 +322,7 @@ Time: 40 秒。
 Talk track:
 結尾原樣回收開場定義：Async Ownership 是一段非同步工作跨時間運行時，各項責任在系統邊界之間如何被配置與承擔。它不是 state location，也不是 API caller。
 第一個 click 給三個檢查方向：哪些責任移動、哪些仍留在原 boundary，以及真正由誰、透過什麼 mechanism 維持 correctness。好的配置不要求全部集中，但每項責任都必須讀得出 owner 與 lifetime。
-signal-kernel 是我把部分 resource lifecycle 與 dependency relationships 移進 Graph 的 runnable experiment，不是所有 Vue 專案的標準答案。它用額外 runtime、vocabulary 與 integration cost，換取一張我認為更容易閱讀的 responsibility map。最後把問題交還給觀眾：你的 async responsibilities 現在分布在哪裡？這張配置圖仍容易理解、測試與維持嗎？
+signal-kernel 是我把 Resource 內部的 reactive dependency propagation 與 async lifecycle 移進 Graph runtime 的 runnable experiment，不是所有 Vue 專案的標準答案。它沒有消除 Application 的 domain policy，也沒有接手 route source、Graph lifetime 或 UI；它用額外 runtime、vocabulary 與 integration cost，換取一張我認為更容易閱讀的 responsibility map。最後把問題交還給觀眾：你的 async responsibilities 現在分布在哪裡？這張配置圖仍容易理解、測試與維持嗎？
 Transition: 正式內容到這裡，接著開放提問；Demo repo 會放在最後一頁。
 Cut: 保留主結論與最後問題，中間三個 ownership 問題可略過。
 -->

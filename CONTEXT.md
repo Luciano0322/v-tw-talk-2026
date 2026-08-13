@@ -47,3 +47,7 @@ _Avoid_: Lifecycle, state
 **Revision（失效版本節點）**:
 Graph 中代表某個領域資料關係需要重新驗證的響應式版本節點；它不是資料、快取或 Mutation 結果。
 _Avoid_: Cached value, mutation result, manual refetch counter
+
+**Graph-internal ownership（Graph 內部權責）**:
+由框架外的 Graph 邊界持續維持 resource 依賴傳播與非同步生命週期；不包含外部輸入來源、領域規則、Graph 實例生命週期或 UI 呈現。
+_Avoid_: Total ownership, application ownership

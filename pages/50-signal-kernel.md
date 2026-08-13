@@ -5,7 +5,7 @@ clicks: 1
 
 # 讓非同步狀態成為響應式圖的節點
 
-## 把 Ownership 邊界從 Query 轉接層移到框架之外
+## 不只接手生命週期，也接手 Resource 內部的響應式關係
 
 <ChapterHeader
   :index="6"
@@ -37,7 +37,7 @@ clicks: 1
 
 ```mermaid
 flowchart LR
-  VueInput["Vue 路由<br/>轉接層"] --> Source["Graph source"]
+  VueInput["Vue 路由<br/>轉接層"] --> Source["Graph source<br/>keyword · userId"]
   Revision["revision"] --> Resource
   Source --> Resource["非同步 resource<br/>生命週期＋狀態快照"]
   Resource --> Derived["Graph 衍生狀態"]
@@ -49,11 +49,11 @@ flowchart LR
   </div>
 </div>
 
-<div v-if="$clicks === 0" class="mt-2 rounded-xl bg-gray-100 p-3 text-center text-lg font-semibold dark:bg-gray-800">
-  TanStack Query：非同步生命週期在 Query 執行層，Vue 接收 QueryObserver 狀態快照。
+<div v-if="$clicks === 0" class="mt-2 rounded-xl bg-gray-100 p-3 text-center text-base font-semibold dark:bg-gray-800">
+  TanStack Query：Query runtime 接手伺服器資料生命週期；keyword／userId 與 UI 銜接仍由 Vue 維持。
 </div>
-<div v-else class="mt-2 rounded-xl bg-emerald-50 p-3 text-center text-lg font-semibold dark:bg-emerald-950">
-  signal-kernel：非同步狀態先進入響應式圖，再透過轉接層交給 Vue 消費。
+<div v-else class="mt-2 rounded-xl bg-emerald-50 p-3 text-center text-base font-semibold dark:bg-emerald-950">
+  signal-kernel：Graph runtime 同時接手 Resource 內部的響應式依賴與非同步生命週期。
 </div>
 
 <style>
@@ -71,12 +71,12 @@ flowchart LR
 </style>
 
 <!--
-Core: 這一章的切入點不是 TanStack Query 缺少響應式整合，而是重新配置 ownership：TanStack Query 讓伺服器狀態生命週期留在 Query 執行層，再透過 Vue Query 轉接層發布狀態快照；signal-kernel 則讓 source、非同步 resource、revision 與衍生狀態先形成框架中立的響應式圖，最後再交給 Vue 消費端。
+Core: 這一章的切入點不是 TanStack Query 缺少響應式整合，也不是 signal-kernel 省略 invalidation；差異是 TanStack Query 接手伺服器資料生命週期，signal-kernel 則把 Resource 內部的響應式依賴與非同步生命週期一起放進框架中立的 Graph runtime。
 Time: 70 秒。
 Talk track:
-上一張先把 TanStack Query 的設計說清楚。左邊是 Vue route 狀態與 computed 查詢選項；中間 Query 執行層維持伺服器狀態生命週期、快取和 QueryObserver；右邊 Vue Query 轉接層把狀態快照暴露成可追蹤的 refs。Vue 可以自然重新渲染，但非同步生命週期並沒有因此變成 Vue 生命週期。
-第一個 click 才換模型。Route 狀態仍要經過輸入轉接層寫入 graph source；source 和 revision 直接成為非同步 resource 的響應式依賴，resource 的生命週期與狀態快照也成為 graph 節點。Graph 衍生狀態完成後，Vue 轉接層才把結果交給元件消費端。
-所以不是「TanStack 不具響應性、signal-kernel 才有」。差異是非同步狀態的依賴模型放在哪裡：Query／快取模型後面接 Vue 轉接層，或是在進入框架前先建立響應式圖。
+上一張先把 TanStack Query 的設計說清楚。Keyword、userId 與 computed query options 仍在 Vue 響應式系統；Query runtime 維持伺服器資料生命週期、快取與 QueryObserver；Vue Query 轉接層再把結果暴露成 refs。它已經是完整而成熟的 server-state boundary。
+第一個 click 才換 ownership 配置。Route 仍是 Vue 的 source of truth，也仍要經輸入轉接層寫入 graph source；但進入 Graph 後，keyword、userId、revision、resource、stream 與 derived state 都由同一套 kernel reactivity 連接，Resource runtime 同時維持非同步生命週期。
+兩邊的 Application 都要宣告 mutation 影響哪些資料。差異不是省掉 invalidation，而是 TanStack Query 把關係交給 query／cache model，signal-kernel 把它接進通用的 reactive graph，再讓 Vue 成為輸入邊界與 UI consumer。
 Transition: 下一張先定義這張 graph 最少需要哪些必要語彙。
 Cut: 若時間不足，初始圖只說 Query 執行層與 Vue 轉接層分工，click 後只保留 source → resource → 轉接層 → 消費端。
 -->
@@ -102,7 +102,7 @@ clicks: 2
 </div>
 
 <div v-if="$clicks === 0" class="mt-4 rounded-xl bg-gray-100 p-3 text-center text-base font-semibold dark:bg-gray-800">
-  關鍵不是 Graph 長得多大；是非同步狀態本身能被響應式依賴模型描述。
+  關鍵是非同步狀態本身能被響應式依賴模型描述。
 </div>
 <div v-else-if="$clicks === 1" class="mt-4 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-3 text-center text-sm">
   <div class="rounded-xl border border-emerald-300 p-3 dark:border-emerald-700">source／revision<br><b>發生變化</b></div>
@@ -216,9 +216,9 @@ layout: default
 clicks: 3
 ---
 
-# 讀取與更新，透過 revision 接成同一張 Graph
+# 讀取與更新，透過 Revision 接成同一張 Graph
 
-## Resource 觀察失效節點；Mutation 宣告影響範圍
+## 兩者都要宣告失效；差異是關係進入哪一套依賴模型
 
 <div class="mt-1 text-[10px] font-semibold opacity-55">來源 · <code>src/examples/signal-kernel/usersGraph.ts</code></div>
 
@@ -285,8 +285,8 @@ const updateUser = createResource({
     </div>
     <div v-else-if="$clicks === 2" class="rounded-2xl border border-amber-300 p-5 dark:border-amber-700">
       <div class="font-semibold text-amber-600 dark:text-amber-300">寫入端 · INVALIDATES</div>
-      <div class="mt-4 text-lg font-semibold">Application 宣告影響範圍；執行層在更新成功後推進版本</div>
-      <div class="mt-4 text-sm opacity-70">失效不是 Vue 的 callback 編排，而是 Mutation 與 Revision 之間的 Graph 關係。</div>
+      <div class="mt-4 text-lg font-semibold">Application 仍要宣告影響範圍</div>
+      <div class="mt-4 text-sm opacity-70">Runtime 在成功後推進 Revision；差異不是少寫 invalidation，而是失效關係成為 Graph 依賴。</div>
     </div>
     <div v-else class="grid gap-3 text-sm">
       <div class="rounded-xl border border-violet-300 p-3 dark:border-violet-700">
@@ -352,7 +352,7 @@ Time: 85 秒。
 Talk track:
 初始畫面先讀右邊循環：Mutation 成功後，invalidates 告訴執行層要推進哪些 revision；Resource 早已用 observe 讀取這些 revision，所以版本變化會沿 Graph 依賴使它重新執行。這張不是只教 query，而是完整的讀寫循環。
 第一個 click 聚焦 observe。Revision 是「這份非同步狀態需要重新驗證」的響應式版本節點；它不是資料本身、快取，也不是 Mutation 的回傳結果。Users Resource 讀取 usersRevision，就建立了 revision 到 resource 的依賴。
-第二個 click 聚焦 invalidates。Application 知道 updateUser 成功後會影響列表與該使用者明細，所以在 Mutation 宣告這兩個 revision target；執行層負責只在成功時推進它們。這和 TanStack Query 的 mutation invalidation 都能表達影響範圍，差異是這裡的失效關係成為 Graph 依賴。
+第二個 click 聚焦 invalidates。Application 知道 updateUser 成功後會影響列表與該使用者明細，所以仍要在 Mutation 宣告這兩個 revision target。這和 TanStack Query 的 mutation invalidation 一樣，都不能省略領域關係；差異是 TanStack Query 對 query records 宣告失效，而這裡讓 Revision 成為 Graph 節點，由 Resource runtime 在成功後推進。
 第三個 click 區分作用範圍。usersRevision 使列表 Resource 需要重新驗證；userRevision.target(input.userId) 只對應被更新的使用者明細。Application 擁有「更新影響誰」的領域語意，執行層擁有成功時機與 revision 推進，Graph 追蹤依賴並重跑 Resource，Vue 只消費最後的快照。
 這張最後可以收成一句：Application 宣告更新影響誰，runtime 推進 revision，Graph 決定哪些 Resource 重新執行。
 Transition: 既然回應不需要 Vue watch，下一張就精確看 Vue 還留下哪兩個轉接邊界。
@@ -463,16 +463,16 @@ clicks: 1
 
 # 響應式 Graph 的清晰度不是免費的
 
-## Ownership 更集中，不代表只剩一個執行層
+## 集中的是 Graph 內部權責，不是整個 Application
 
 <div class="mt-3 grid grid-cols-2 gap-5 text-sm">
   <div class="rounded-2xl border border-emerald-300 p-4 dark:border-emerald-700">
     <div class="text-lg font-semibold text-emerald-600 dark:text-emerald-300">採用 GRAPH 得到</div>
     <div class="mt-3 grid grid-cols-2 gap-3">
-      <div class="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950">非同步狀態是 graph 節點</div>
-      <div class="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950">source / revision 是依賴</div>
-      <div class="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950">衍生狀態先於 Vue</div>
-      <div class="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950">Vue 更接近 UI 消費端</div>
+      <div class="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950">Resource lifecycle 由 runtime 維持</div>
+      <div class="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950">source／revision 進入 Graph reactivity</div>
+      <div class="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950">Query／Mutation／Stream 共用依賴模型</div>
+      <div class="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950">Vue 聚焦輸入轉接與 UI 消費</div>
     </div>
   </div>
   <div class="rounded-2xl border border-amber-300 p-4 dark:border-amber-700">
@@ -488,27 +488,28 @@ clicks: 1
 </div>
 
 <div class="mt-3 grid grid-cols-3 gap-2 text-[10px] leading-4">
-  <div class="rounded-lg border px-3 py-2"><b>問題範圍</b><br>非同步狀態成為響應式 Graph</div>
+  <div class="rounded-lg border px-3 py-2"><b>問題範圍</b><br>資源內部響應關係＋生命週期</div>
   <div class="rounded-lg border px-3 py-2"><b>規則宣告</b><br>Graph factory＋resource 宣告</div>
-  <div class="rounded-lg border px-3 py-2"><b>生命週期維持</b><br>resource 執行層＋Graph 擁有者</div>
-  <div class="rounded-lg border px-3 py-2"><b>Vue 的責任</b><br>路由轉接＋互動＋渲染</div>
-  <div class="rounded-lg border px-3 py-2"><b>應用程式銜接</b><br>API＋轉接層＋訂閱橋接</div>
+  <div class="rounded-lg border px-3 py-2"><b>生命週期維持</b><br>Graph runtime＋Graph 擁有者</div>
+  <div class="rounded-lg border px-3 py-2"><b>Vue 的責任</b><br>路由來源＋轉接＋互動＋渲染</div>
+  <div class="rounded-lg border px-3 py-2"><b>應用程式銜接</b><br>領域規則＋Graph lifetime＋外部橋接</div>
   <div class="rounded-lg border px-3 py-2"><b>成本／非目標</b><br>不是通用的伺服器狀態替代品</div>
 </div>
 
 <div v-click class="mt-2 rounded-xl bg-emerald-50 p-2 text-center text-sm font-semibold leading-5 dark:bg-emerald-950">
-  移動：資源生命週期／依賴關係 → Graph　｜　留下：路由／消費端／Graph 生命週期／橋接 → Vue＋應用程式<br>
+  移動：Resource 內部的響應式依賴／非同步生命週期 → Graph runtime<br>
+  留下：路由來源／領域語意／Graph lifetime／UI → Vue＋Application<br>
   只有需要「非同步依賴本身」先於框架被表達時，這個成本才值得。
 </div>
 
 <!--
-Core: signal-kernel 把 resource lifecycle 與 dependency relationships 移到 Graph；route adaptation、UI consumer、Graph instance lifetime 與外部 subscription bridge 仍由 Vue 和 application 承擔。
+Core: signal-kernel 集中的是 Graph-internal ownership：Resource 內部的 reactive dependency propagation 與 async lifecycle；route source、domain policy、Graph instance lifetime、external bridge 與 UI rendering 仍分布在 Vue 和 Application。
 Time: 80 秒。
 Talk track:
-這一章最後結算真正得到的東西。非同步狀態是 graph 節點；source 和 revision 是它的依賴；衍生狀態在 Vue 掛載前就能形成；Vue 因此更接近輸入邊界和 UI 消費端，不必擁有回應生命週期。
+這一章最後結算真正得到的東西。不是 mutation 少寫一次 invalidation，而是 Query-like Resource、Mutation、Stream、source、revision 與 derived state 共享同一套 Graph reactivity；Resource runtime 同時維持它們的非同步生命週期。Vue 因此更接近輸入邊界和 UI 消費端，不必擁有回應生命週期。
 但不要把「一張 graph」講成「只剩一個響應式執行層」。Kernel graph 和 Vue 響應式系統仍是兩套執行層，兩邊需要輸入與輸出轉接層。還要支付新語彙、除錯模型、實驗階段成熟度，以及明確宣告 Graph 擁有者和外部清理規則的成本。
-下方六個欄位把 ownership 契約說完整。問題範圍是讓非同步狀態成為響應式 Graph；規則在 graph factory 和 resource 宣告；resource 執行層維持每次非同步工作，Graph 擁有者決定實例生命週期；Vue 和應用銜接都還在，只是責任變窄。
-第一個 click 先用固定句型結算：resource lifecycle 和 dependency relationships 移到 Graph；route adaptation、UI consumer、Graph lifetime 和 external subscription bridge 仍留在 Vue 與 application。接著才給決策規則：只有當非同步依賴需要先於框架被響應式 Graph 表達，而且清晰度收益高於維護成本，才值得採用。這不是 TanStack Query 的下一級。
+下方六個欄位把 ownership 契約說完整。Graph runtime 維持 Resource 內部的依賴傳播與非同步工作；Graph 擁有者決定實例生命週期。Route source、領域失效語意、Graph lifetime、外部橋接與 UI projection 都沒有消失，只是與 Graph-internal ownership 分開。
+第一個 click 先用固定句型結算：Resource 內部的 reactivity 和 async lifecycle 移到 Graph runtime；route source、domain policy、Graph lifetime 和 UI 仍留在 Vue 與 Application。只有當這份集中讓依賴圖更容易理解，而且清晰度收益高於維護成本，才值得採用。這不是 TanStack Query 的下一級。
 Transition: 下一章把四張 Async Ownership map 並排，只比較 responsibilities 移到哪裡、留下什麼與付出哪些成本，不排工具名次。
 Cut: 若時間不足，左右各講兩點，最後只保留「仍是兩套執行層」與選擇規則。
 -->

@@ -608,6 +608,15 @@ Verification: 四個 map 的六個欄位各出現 4 次；舊的 `VUE OWNS / APP
 Notes: 這輪採中文概念＋英文識別字，不追求逐字全譯。P1.9 已在 production slideshow／presenter 與 1280×720 viewport 驗證所有 35 張及 85 個 click states，沒有偵測到較長中文、程式碼或 SVG 超出投影片畫布。
 ```
 
+signal-kernel Graph 內部權責對齊：
+
+```text
+Issue: Signal-kernel 與 TanStack Query 都需要在 Mutation 宣告失效範圍；若只把 revision 描述成更方便的 invalidation API，無法支持演講的 Async Ownership 主張，也容易誤導成 Graph 接手了整個 Application。
+Direction: 固定 `Graph-internal ownership` 語彙。TanStack Query 接手 server-state lifecycle；signal-kernel 同時將 Resource 內部的 reactive dependency propagation 與 async lifecycle 放進 Graph runtime。兩者都保留 Application 的 domain policy；Vue 在兩者中都保留 route source 與 UI consumer responsibility。
+Slides: Slide 24 以 keyword／userId 的 handoff 對照兩套 runtime；Slide 27 明說兩者都需要 invalidation declaration；Slide 29 與 Slide 30 將「移動／留下」改成 Resource-internal reactivity/lifecycle 與 route/domain/Graph-lifetime/UI 的精確分界。
+Non-claim: 不宣稱 signal-kernel 消除 invalidation、程式碼更少、只有一套 reactive runtime，或所有 Ownership 都集中到 Graph。
+```
+
 ### P1.9：完成 P1 全體驗收
 
 Audience outcome：

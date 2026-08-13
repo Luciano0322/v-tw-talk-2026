@@ -921,7 +921,9 @@ Vue route adapter
 
 限制句：
 
-> 不是「TanStack 不具響應性、signal-kernel 才有」；差異是非同步依賴模型在 Query／快取邊界後透過轉接層進入 Vue，或先在框架之外成為響應式圖。
+> 不是「TanStack 不具響應性、signal-kernel 才有」，也不是 signal-kernel 省略 invalidation；TanStack Query 接手 server-state lifecycle，signal-kernel 則把 Resource 內部的 reactive dependencies 與 async lifecycle 一起放進框架外的 Graph runtime。
+
+兩者的 route source of truth 都仍在 Vue。TanStack 版本由 Vue 將 keyword／userId 轉成 query options；signal-kernel 版本由 Vue 將它們轉接成 Graph sources，之後的 Resource 依賴傳播才由 kernel reactivity 維持。
 
 #### Slide 25 — signal-kernel 是什麼？
 
@@ -988,6 +990,7 @@ const updateUser = createResource({
 - Revision 是代表「相關非同步狀態需要重新驗證」的響應式版本節點；不是資料、快取或 Mutation 結果。
 - Resource 用 `observe` 讀取 revision，建立 revision → resource 的 Graph 依賴。
 - Mutation 用 `invalidates` 宣告成功後影響的 revision targets；Application 擁有領域失效語意，執行層擁有成功時機與版本推進。
+- TanStack Query mutation 與 signal-kernel mutation 都需要 Application 宣告影響範圍；差異不在省略 invalidation，而在關係進入 query records 或 Graph revisions。
 - `usersRevision` 對應列表重新驗證；`userRevision.target(input.userId)` 只對應被更新的使用者明細。
 - Revision 推進後，Graph 依賴決定哪些 Resource 重新執行；Vue 只透過轉接層消費新快照。
 
@@ -1022,9 +1025,9 @@ Vue adapter tests 已證明兩個刻意並存的行為：Vue scope dispose 會�
 
 ```text
 採用 Graph 得到
-✓ 非同步狀態成為 graph 節點
-✓ source / revision 成為響應式依賴
-✓ 衍生狀態先於 Vue 消費端形成
+✓ Resource lifecycle 由 Graph runtime 維持
+✓ source / revision 進入 kernel reactivity
+✓ Query-like Resource / Mutation / Stream 共用依賴模型
 ✓ Vue 更接近輸入邊界與 UI 消費端
 
 採用 Graph 付出
@@ -1038,11 +1041,11 @@ Vue adapter tests 已證明兩個刻意並存的行為：Vue scope dispose 會�
 固定 footer：
 
 ```text
-問題範圍：非同步狀態成為響應式 Graph
+問題範圍：Resource 內部響應關係與非同步生命週期
 規則宣告：graph factory + resource 宣告
-生命週期擁有者：resource 執行層 + Graph 擁有者
-Vue 仍負責：route 轉接、互動、畫面投影、渲染
-應用銜接：API 操作、轉接層、外部訂閱橋接
+生命週期擁有者：Graph runtime + Graph 擁有者
+Vue 仍負責：route source、輸入轉接、互動、畫面投影、渲染
+應用銜接：領域規則、Graph instance lifetime、外部訂閱橋接
 成本／非目標：實驗性執行層；不是通用的伺服器狀態替代品
 ```
 
@@ -1059,10 +1062,10 @@ Vue 仍負責：route 轉接、互動、畫面投影、渲染
 | Concern | Pure Vue | Pinia Action | TanStack Query | signal-kernel |
 | --- | --- | --- | --- | --- |
 | Policy declared by | component/composable | store actions | query/mutation options + stream composable | graph factory + integration adapters |
-| Lifecycle maintained by | Vue scope + application policy | store/application policy | Query runtime + Vue stream composable | resource runtime + application stream bridge |
+| Lifecycle maintained by | Vue scope + application policy | store/application policy | Query runtime + Vue stream composable | Graph runtime + explicit Graph owner |
 | Trigger | Vue watch | page watch → action | query key | Vue watch → graph source → resource |
 | Stale protection | generation guard | store generation guard | query lifecycle | resource runtime |
-| Update refresh | manual reload | action orchestration | invalidation | revision relation |
+| Update refresh | manual reload | action orchestration | application-declared query invalidation | application-declared revision relation |
 | Stream | Vue composable cleanup | store action + page cleanup | separate Vue composable — valid boundary | stream resource + application unsubscribe adapter |
 | Vue role | presentation + local integration | presentation + workflow coordinator | presentation + query/stream consumer | presentation + route-to-graph adapter + snapshot consumer |
 | Scope demonstrated | local feature | shared client workflow | server state | async state as reactive graph |
@@ -1138,7 +1141,7 @@ Explicit graph  async state dependency model before framework consumption
 
 講者立場：
 
-> 在這份 case study 中，我認為把 async state 建成 reactive graph node，能讓 source、lifecycle、invalidation、snapshot 與 consumer ownership 更容易被看見；但 clarity 不是免費的，也不代表每個專案都值得支付它的成本。
+> 在這份 case study 中，我認為把 Resource 內部的 reactive dependencies 與 async lifecycle 放進 Graph runtime，能讓 source、invalidation、snapshot 與 consumer ownership 更容易被看見；它不消除 Application 的 domain policy，也不接手 route source、Graph lifetime 或 UI。這份 clarity 不是免費的，也不代表每個專案都值得支付它的成本。
 
 最後留給觀眾的問題：
 
