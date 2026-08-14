@@ -317,15 +317,18 @@ Creator of signal-kernel
 Reactivity · Async Lifecycle
 Framework-independent Data Flow
 
-Demo Repo · 演講中可同步參照
+Demo repository · 四種實作的延伸對照
+[Demo repository QR]
+四種實作，共用同一組 Dashboard 與測試契約
+可先掃描收藏，演講中不必跟著操作
 github.com/Luciano0322/vue-async-ownership
 ```
 
 建議口說：
 
-> 我的主要工作背景從 React 生態出發，但這幾年研究 reactivity、async resource 和跨框架資料流時，我開始把注意力從「framework 怎麼更新畫面」，移到「哪一層負責維持 lifecycle correctness」。今天不是 React 對 Vue 的評論，也不是一套 Vue 替代方案的發表；我用一個完整 Vue case study，比較四種 responsibility configuration。Demo repository 已公開，想同步對照可先開著，最後一頁也會再提供 QR code。
+> 我的主要工作背景從 React 生態出發，但這幾年研究 reactivity、async resource 和跨框架資料流時，我開始把注意力從「framework 怎麼更新畫面」，移到「哪一層負責維持 lifecycle correctness」。今天不是 React 對 Vue 的評論，也不是一套 Vue 替代方案的發表；我用一個完整 Vue case study，比較四種 responsibility configuration。Demo repository 已公開，四種實作共用同一組 Dashboard 與測試契約；可以先掃描收藏，但不需要在演講中跟著操作，Q&A 頁會再次顯示同一個入口。
 
-口說控制在 40–50 秒。signal-kernel 只揭露作者身份與研究背景，不在此頁解釋 graph、resource、revision 或 adapter。Slide 2 只放低視覺權重的 Demo repository 文字連結，不放第二個 QR code；照片若使用目前完整講者卡，需避免重複姓名與職稱，優先取得同張照片的原始人像。
+口說控制在 40–50 秒。signal-kernel 只揭露作者身份與研究背景，不在此頁解釋 graph、resource、revision 或 adapter。Slide 2 使用與 Q&A 頁相同的 Demo repository QR target，視覺權重低於姓名與講者身份；目的只是方便收藏，不在此頁導覽 repository。照片維持目前人像裁切，右側補充文字不再顯示 placeholder。
 
 #### Slide 3 — 從 Promise 三態，過渡到完整 async lifecycle
 
@@ -1164,7 +1167,7 @@ QR code 應指向公開且穩定的 Demo repository URL，QR 下方必須同時�
 
 Repository canonical URL 已確認為 `https://github.com/Luciano0322/vue-async-ownership`。靜態 SVG 已放入 `public/qr/demo-repository.svg`，並以獨立 decoder 讀回相同完整 URL。Slide 35 同時顯示可手動輸入的 `github.com/Luciano0322/vue-async-ownership`；活動前仍需以至少兩支手機及實際投影畫面完成最終掃描驗證。
 
-全場只保留這一個主要 QR code。個人網站、GitHub profile、signal-kernel package 與投影片網址不各自產生 QR；改由 Demo repository README 統一提供延伸連結。若未來確實需要同時發佈 repo、slides 與聯絡方式，再考慮讓唯一 QR 指向由講者長期維護的資源頁。
+全場只保留一個 QR target 與同一份靜態資產，分別在 Slide 2 與 Slide 35 顯示。個人網站、GitHub profile、signal-kernel package 與投影片網址不各自產生 QR；改由 Demo repository README 統一提供延伸連結。若未來確實需要同時發佈 repo、slides 與聯絡方式，再考慮讓這個入口指向由講者長期維護的資源頁。
 
 ## 10. Live Demo 規劃
 
@@ -1428,8 +1431,8 @@ Transition: What changes when the problem is specifically server state?
 
 - 使用活動定版標題：`從 Pinia Action 到 Async Resource：重新思考 Vue 應用中的非同步 Ownership`。
 - 使用已確認活動資訊：`v-taiwan Meetup #5 · Session 2 · 2026-08-15 · Red space 多元商務空間`。
-- Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並提前顯示 Demo repository 文字連結。
-- 確認講者照片使用原始人像，或決定如何處理目前已含舊活動文字的完整講者卡。
+- Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並提前顯示 Demo repository QR、用途說明與可讀短網址。
+- 以目前公開資產維持講者照片裁切，活動前再用實際投影確認亮度與辨識度。
 - 先建立 implementation-neutral async lifecycle model，再進入四個 model。
 - 使用已確認定位：signal-kernel 是可運行的 framework-agnostic architecture experiment，用來驗證 async state 作為 reactive graph primitive 是否讓 ownership 更明確；不是 Vue、Pinia 或 TanStack Query 的直接替代品。
 - 固定判斷條件：只有當 async state 與 framework reactivity 之間的 adaptation cost 高於 graph 與 adapter cost 時，才值得評估 graph-first。
@@ -1513,14 +1516,14 @@ Transition: What changes when the problem is specifically server state?
 - 演講本體為 40 分鐘，不含 Q&A。
 - 活動為 `v-taiwan Meetup #5`，場次為 `Session 2`，日期為 `2026-08-15`，場地為 `Red space 多元商務空間`。
 - 活動定版標題為 `從 Pinia Action 到 Async Resource：重新思考 Vue 應用中的非同步 Ownership`，不再修改；開場用 speaker notes 說明順序代表 problem scope 展開，不是工具升級。
-- Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`；畫面以 `Reactivity / Async Lifecycle / Framework-independent Data Flow` 為主，另以低視覺權重顯示 Demo repository 文字連結。React 背景只在口說中作為研究起點，不成為框架身份主標籤。
+- Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`；畫面以 `Reactivity / Async Lifecycle / Framework-independent Data Flow` 為主，另以低視覺權重顯示 Demo repository QR、用途說明與短網址。React 背景只在口說中作為研究起點，不成為框架身份主標籤。
 - 四個 model 前先建立 implementation-neutral async lifecycle model；`Async Resource` 不等於 signal-kernel package。
 - 演講採取明確但有條件的立場：當 async state 需要先於 framework 成為 reactive dependency model 時，explicit graph 能提高 ownership visibility；這項 clarity 必須與第二套 runtime、vocabulary、adapter、debugging、teardown 與 maturity cost 一起評估。
 - 四個 model 是不同 responsibility configuration，不是成熟度或抽象層級的升級路線。
 - signal-kernel 是講者將 explicit ownership 立場做成可運行系統的嘗試，不是演講要求觀眾採用的結論。
 - Demo 使用 `@signal-kernel/core 0.1.4`、`@signal-kernel/async-runtime 0.3.1`、`@signal-kernel/vue 0.2.1`；簡報標示 `experimental · pre-1.0 · author-maintained`。
-- Demo repository canonical URL 已確認；結尾已使用可解碼的靜態 QR SVG 與可讀 GitHub URL。
-- 全場只使用一個主要 QR code；其他外部資源由 Demo repository README 串接。
+- Demo repository canonical URL 已確認；Slide 2 與結尾均使用可解碼的靜態 QR SVG 與可讀 GitHub URL。
+- 全場只使用一個 QR target 與同一份 QR 資產，重複出現在 Slide 2 與 Slide 35；其他外部資源由 Demo repository README 串接。
 - 主要受眾使用繁體中文；程式碼、API 與 ownership vocabulary 可保留英文。
 
 ### 17.2 製作時待填
@@ -1529,4 +1532,4 @@ Transition: What changes when the problem is specifically server state?
 2. 活動前以至少兩支手機與實際投影畫面掃描 Demo repository QR。
 3. 若主辦提供 Session 2 的實際開始時間與正式 Logo assets，再決定是否加入封面或活動資訊頁。
 
-signal-kernel 的演講定位、版本標示、maturity disclaimer 與 Demo repository canonical URL 已確認，不再列為待決策項目。Slide 2 可先使用目前照片 placeholder；QR code 已產生並通過程式解碼，剩餘實際手機與投影掃描驗收。
+signal-kernel 的演講定位、版本標示、maturity disclaimer 與 Demo repository canonical URL 已確認，不再列為待決策項目。Slide 2 已使用目前公開講者照片與正式 QR 資產；剩餘實際手機掃描、投影亮度與人像辨識度驗收。

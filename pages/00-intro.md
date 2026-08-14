@@ -16,14 +16,27 @@ Framework-independent Data Flow
 
 </div>
 
-<div class="mt-8 rounded-xl border border-gray-300 px-4 py-3 dark:border-gray-700">
-  <div class="text-xs font-semibold opacity-55">Demo Repo · 演講中可同步參照</div>
+<div class="mt-6 grid grid-cols-[7rem_1fr] items-center gap-4 rounded-2xl border border-gray-300 p-3 dark:border-gray-700">
   <a
     href="https://github.com/Luciano0322/vue-async-ownership"
     target="_blank"
     rel="noreferrer"
-    class="mt-1 block font-mono text-xs text-cyan-700 no-underline dark:text-cyan-300"
-  >github.com/Luciano0322/vue-async-ownership</a>
+    aria-label="開啟 Vue Async Ownership Demo repository"
+    class="block rounded-xl bg-white p-1 shadow-sm"
+  >
+    <img src="/qr/demo-repository.svg" alt="Demo repository QR code" class="h-26 w-26" />
+  </a>
+  <div>
+    <div class="text-sm font-semibold text-cyan-700 dark:text-cyan-300">Demo repository</div>
+    <div class="mt-1 text-xs leading-5">四種實作，共用同一組 Dashboard 與測試契約。</div>
+    <div class="mt-1 text-[10px] opacity-55">可先掃描收藏，演講中不必跟著操作。</div>
+    <a
+      href="https://github.com/Luciano0322/vue-async-ownership"
+      target="_blank"
+      rel="noreferrer"
+      class="mt-2 block break-all font-mono text-[9px] text-cyan-700 no-underline dark:text-cyan-300"
+    >github.com/Luciano0322/vue-async-ownership</a>
+  </div>
 </div>
 
 ::right::
@@ -35,19 +48,19 @@ Framework-independent Data Flow
 />
 
 <div class="mt-2 text-center text-xs opacity-45">
-  P1 photo placeholder · raw portrait pending
+  Vue case study · Async Ownership
 </div>
 
 <!--
-Core: 交代研究 ownership 的背景，React 背景不是重點，點出 Demo repository 讓觀眾同步參照。
+Core: 交代研究 ownership 的背景，React 背景不是重點；Demo repository 是四種實作的延伸對照材料，不要求觀眾現場跟著操作。
 Time: 45 秒。
 Talk track:
 我是 Luciano，目前是一名前端工程師，也是 signal-kernel 的作者。
-我的背景從 React 生態出發，但這幾年在研究 reactivity、async resource 和跨框架資料流時，我慢慢把注意力從「framework 怎麼更新畫面」，移到「哪一層負責讓 async lifecycle 持續保持正確」。
-所以今天不是要把 React 的作法搬進 Vue，我做為一個 library 要更體諒不同框架開發者的視角。所以我做的是一個完整的 Vue case study，用相同 UI 與情境，觀察四種方案的責任轉移與治理。
-今天使用的 Demo 已經公開，連結先放在這裡；想同步對照原始碼可以先開著，最後一頁也會再提供 QR code。
+我的背景從 React 生態出發，但這幾年在研究 reactivity、async resource 和跨框架資料流時，我慢慢把注意力從framework 怎麼更新畫面，移到「哪一層負責讓非同步生命週期持續保持正確」。
+所以今天不是要把 React 的作法搬進 Vue，我做為一個框架中立 library 作者要更體諒不同框架開發者的視角。所以我做的是一個完整的 Vue case study，用相同 UI 與情境，觀察四種方案的責任轉移與治理。
+今天使用的 Demo 已經公開，四種做法共用同一組 Dashboard 和測試。QR code 先放在這裡，想看全部可以掃描，演講中會用到一些對應的實作段落；正式內容結束後，Q&A 頁也會再顯示同一個入口。
 Transition: 接下來先不談任何工具，先看一次非同步事件從開始到結束究竟經歷了什麼。
-Cut: React 背景可以縮成一句；Demo Repo 口頭提示也可略過，連結仍保留在畫面。
+Cut: React 背景可以縮成一句；Demo repository 只提示「可掃描收藏」，不展開 repo 導覽。
 -->
 
 ---

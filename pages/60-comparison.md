@@ -84,9 +84,9 @@ clicks: 3
   </div>
   <div class="min-h-60 rounded-2xl bg-amber-50 p-4 dark:bg-amber-950">
     <div class="font-semibold text-amber-600 dark:text-amber-300">Vue 的角色</div>
-    <div class="mt-2">route → query options，並消費 query／stream 結果</div>
+    <div class="mt-2">route → query options，並消費 query 結果</div>
     <div class="mt-5 font-semibold text-amber-600 dark:text-amber-300">串流邊界</div>
-    <div class="mt-2">獨立 Vue composable；這是合理但不同的邊界</div>
+    <div class="mt-2">獨立 Vue composable</div>
   </div>
   <div class="min-h-60 rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-950">
     <div class="font-semibold text-emerald-600 dark:text-emerald-300">Vue 的角色</div>
@@ -309,7 +309,7 @@ clicks: 2
 
 <div v-else class="mt-5 max-w-4xl">
   <div class="rounded-xl border border-amber-300 p-3 text-center text-sm dark:border-amber-700">
-    signal-kernel 不是這場的答案；它只是把這組想法做成可執行的實驗。
+    signal-kernel 不是這場的唯一解，它只是把這組想法做成可執行的實驗。
   </div>
   <div class="mt-3 rounded-xl bg-gray-100 p-3 text-center text-lg font-semibold dark:bg-gray-800">
     你的非同步責任分布在哪裡？<br>這張配置圖仍容易理解、測試與維持嗎？

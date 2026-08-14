@@ -202,7 +202,7 @@ Acceptance：
 
 - [x] Slide 1 使用活動定版標題、活動名稱、場次、講者與日期。
 - [x] 開場 notes 明確說明「從……到……」不是工具升級路線。
-- [x] Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並顯示 Demo repository 文字連結。
+- [x] Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並顯示 Demo repository QR、用途說明與短網址。
 - [x] 講者照片可以使用明確 placeholder，不阻擋 P1。
 - [x] 共同模型沒有使用 query key、revision、observe 或 graph 定義 async work。
 - [x] Request 與 Stream 沒有被描述成相同 state machine。
@@ -226,10 +226,10 @@ Notes: Slide 2 暫時使用 public/assets/speakers/avatar.png 完整講者卡，
 Slide 2 提前提供 Demo repository：
 
 ```text
-Red evidence: Slide 2 只顯示講者 GitHub profile，觀眾無法在演講開始時直接開啟 Demo 原始碼對照。
-Green implementation: 將左欄底部改為低視覺權重的 Demo Repo 卡片，顯示並連結到 github.com/Luciano0322/vue-async-ownership。Speaker notes 提醒觀眾可先開著對照，最後一頁仍會提供全場唯一 QR code。
-Verification: `pnpm run build` 成功（Slidev 52.18.0，722 modules transformed）；production `/2` 以 1280×720 截圖確認姓名、職稱、研究主題、Demo Repo 卡片與右側照片均無裁切。
-Notes: Slide 2 不新增 QR，避免開場就要求所有人拿手機掃描；連結是可選擇的同步參照入口。
+Red evidence: Slide 2 的純文字連結在投影情境中不方便開啟，也沒有說明 repository 對這場演講的用途。
+Green implementation: 左欄底部改為低視覺權重的 QR 卡片，重用 `public/qr/demo-repository.svg`，並保留可手動輸入的 GitHub URL。文案固定為「四種實作，共用同一組 Dashboard 與測試契約」以及「可先掃描收藏，演講中不必跟著操作」。
+Verification: QR 與 Slide 35 使用相同 canonical URL 和靜態資產；production `/2` 已用 1280×720 明暗模式驗證姓名、職稱、研究主題、QR 卡片與右側照片均無裁切，QR 保持白底與完整 quiet zone。
+Notes: Slide 2 與 Slide 35 重複顯示同一個 repository 入口，不新增第二個 destination；開場只提供收藏，不要求觀眾離開簡報跟著操作。
 ```
 
 Slide 6 過渡調整：
@@ -651,7 +651,7 @@ Notes coverage: 35/35 均有 Core / Time / Transition / Cut；四個 model 的�
 Build: `pnpm run build` 成功（Slidev 52.18.0，722 modules transformed）；`git diff --check` 通過。
 Presenter check: production `/presenter` 顯示全部四種 notes markers；production `/1–35` 共驗證 85 個 click states，在 1280×720 下沒有標題、文字、程式碼、圖片或 SVG overflow。
 Time-budget total: 2255 秒（37:35），低於 38:00 上限，並替 40 分鐘正式內容保留 2:25 緩衝。
-Open placeholder: `P1 photo placeholder`；共同 Demo 已改用固定 default 情境截圖，Demo repository QR 也已是正式資產並保留可手動輸入 URL。
+Open visual check: Slide 2 已使用公開講者照片與正式 Demo repository QR；活動前仍需確認實際投影亮度、人像辨識度與手機掃描結果。
 Non-blocking follow-up: CLI PDF export 目前需要額外安裝 `playwright-chromium`；PDF 與現場投影本來就不在 P1 範圍，留待 P2／交付前驗收。
 ```
 
