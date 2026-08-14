@@ -1,8 +1,8 @@
 # Vue Async Ownership 簡報製作 Workflow
 
-> 狀態：P1 已完成（P1.1–P1.9 全部通過；下一階段可規劃 P2）
+> 狀態：P1 已完成（P1.1–P1.9 全部通過）；P2 收尾另見 [`presentation_p2_workflow.md`](./presentation_p2_workflow.md)
 >
-> 本文件目前只追蹤 P1：內容骨架。P2–P4 等需求穩定後再補，不預先建立可能失效的 tasks。
+> 本文件封存 P1：內容骨架的決策與驗收紀錄；不在完成後混入 P2–P4 的實作歷史。
 >
 > 內容規格來源：[`vue-async-ownership-talk-proposal.md`](./vue-async-ownership-talk-proposal.md)
 
@@ -202,7 +202,7 @@ Acceptance：
 
 - [x] Slide 1 使用活動定版標題、活動名稱、場次、講者與日期。
 - [x] 開場 notes 明確說明「從……到……」不是工具升級路線。
-- [x] Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並顯示 Demo repository 文字連結。
+- [x] Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並顯示 Demo repository QR、用途說明與短網址。
 - [x] 講者照片可以使用明確 placeholder，不阻擋 P1。
 - [x] 共同模型沒有使用 query key、revision、observe 或 graph 定義 async work。
 - [x] Request 與 Stream 沒有被描述成相同 state machine。
@@ -226,10 +226,10 @@ Notes: Slide 2 暫時使用 public/assets/speakers/avatar.png 完整講者卡，
 Slide 2 提前提供 Demo repository：
 
 ```text
-Red evidence: Slide 2 只顯示講者 GitHub profile，觀眾無法在演講開始時直接開啟 Demo 原始碼對照。
-Green implementation: 將左欄底部改為低視覺權重的 Demo Repo 卡片，顯示並連結到 github.com/Luciano0322/vue-async-ownership。Speaker notes 提醒觀眾可先開著對照，最後一頁仍會提供全場唯一 QR code。
-Verification: `pnpm run build` 成功（Slidev 52.18.0，722 modules transformed）；production `/2` 以 1280×720 截圖確認姓名、職稱、研究主題、Demo Repo 卡片與右側照片均無裁切。
-Notes: Slide 2 不新增 QR，避免開場就要求所有人拿手機掃描；連結是可選擇的同步參照入口。
+Red evidence: Slide 2 的純文字連結在投影情境中不方便開啟，也沒有說明 repository 對這場演講的用途。
+Green implementation: 左欄底部改為低視覺權重的 QR 卡片，重用 `public/qr/demo-repository.svg`，並保留可手動輸入的 GitHub URL。文案固定為「四種實作，共用同一組 Dashboard 與測試契約」以及「可先掃描收藏，演講中不必跟著操作」。
+Verification: QR 與 Slide 35 使用相同 canonical URL 和靜態資產；production `/2` 已用 1280×720 明暗模式驗證姓名、職稱、研究主題、QR 卡片與右側照片均無裁切，QR 保持白底與完整 quiet zone。
+Notes: Slide 2 與 Slide 35 重複顯示同一個 repository 入口，不新增第二個 destination；開場只提供收藏，不要求觀眾離開簡報跟著操作。
 ```
 
 Slide 6 過渡調整：
@@ -349,19 +349,19 @@ Notes: 六欄改成觀眾可以直接回答的問題：問題範圍、規則由�
 
 Audience outcome：
 
-> 觀眾理解 Pinia 改變 shared state 與 workflow boundary，但 server-state lifecycle semantics 仍由 application-defined actions 維持。
+> 觀眾理解 Composable 已能共享；Pinia 的主要 ownership delta 是具名 Store、shared snapshot 與 workflow entry，而 async correctness rules 大多仍由 application-defined actions 維持。
 
 實作範圍：
 
-- Slide 15：為什麼自然會想到 Pinia。
-- Slide 16：Store boundary 改變什麼。
-- Slide 17：Action 集中 policy，但仍由 application 編排。
-- Slide 18：Pinia responsibility map 與 takeaway。
+- Slide 15：先承認 Composable 也能共享，再說明具名 Store boundary 的價值。
+- Slide 16：逐項對照 Composable／Pinia，指出 async correctness 的重複與 ownership delta。
+- Slide 17：只 walkthrough update → reload action，不重播 generation guard 與 unmount cleanup。
+- Slide 18：以「移動／留下」收斂 Pinia Ownership Delta，保留六欄 teaching contract。
 
 Acceptance：
 
 - [x] Pinia 沒有被簡化成「把 ref 搬進 store」。
-- [x] Store lifetime 與 component lifetime 被明確區分。
+- [x] Store／component lifetime 差異被承認，但不被誇大成 async semantics 全面改變。
 - [x] Action 被描述成清楚的 shared workflow boundary。
 - [x] Race guard、status、reload target 與 stream cleanup 仍標示為 application policy。
 - [x] 沒有宣稱 Pinia 只能使用這一種 async architecture。
@@ -385,6 +385,15 @@ Red evidence: production `/16?clicks=0..3` 的四張 1280×720 screenshots 具�
 Green implementation: Slide 16 增加三個明確 v-click；初始只保留 boundary map，接著依序 reveal「Store 確實接走」、「不會自動獲得」，最後揭露 store/component lifetime 與結論。所有容器保留 layout space，click 時不重新排版。
 Verification: `pnpm run build` 成功（Slidev 52.18.0，658 modules transformed）；production `/16?clicks=0..3` 產生四個不同的 1280×720 screenshot SHA-256，依序只增加指定區塊，最終畫面與原始完整內容一致，且無裁切或 layout shift。
 Notes: Slide 16 時間由 70 秒調整為 85 秒，P1.5 notes time budget 合計由 300 秒調整為 315 秒。
+```
+
+彩排後的 delta-first 修訂：
+
+```text
+Problem: Pure Vue 已用 composable 完整示範 trigger、generation guard、manual reload 與 cleanup；Pinia 再 walkthrough 同一組 policy，會讓觀眾誤以為這章在重教另一套 async model，也稀釋真正的 Store ownership delta。
+Revision: Slide 15 主動承認 module-scoped composable 也能共享；Slide 16 改成 Composable／Pinia correctness 對照；Slide 17 只保留 update → reload action；Slide 18 以「移動到 Store／仍由應用程式維持」收斂。TanStack Query 轉場改問 server-state lifecycle 是否需要專用 owner。
+Time: Slide 15–18 從 295 秒縮短為 195 秒；全稿 notes budget 由 37:35 降為 35:55。
+Verification: `pnpm test:p1`、`pnpm test:p2` 與 production build 通過；P2 contract 從重複的 generation／unmount walkthrough 改為驗證真實 update action、reload targets 與 ownership delta。Production `/15`–`/18?clicks=0..2` 共 12 個 1280×720 狀態均完成視覺檢查。Slide 17 第一次驗收發現巢狀 Markdown 將兩個 v-click 顯示成 raw HTML；攤平 HTML 邊界後重新 build 與截圖，所有狀態均無 raw markup、裁切或水平捲軸。
 ```
 
 ### P1.6：建立 Act 4 — TanStack Query
@@ -443,6 +452,14 @@ Red evidence: 現有 `/23` 仍以 cross-resource tracing 作為下一章切入�
 Green implementation: Slide 23 保留兩個 clicks。初始並列 Query runtime 與 Vue reactivity；第一個 click 說明 computed query options、reactive query result refs、computed view projection 與 Query 外 stream watch；第二個 click 固定 async lifecycle、UI reactivity、adapter/composition glue 三個 boundary，最後提問 async state 能否先成為 graph node。
 Verification: `pnpm run build` 成功（Slidev 52.18.0，701 modules transformed）；`/23` 的三個 click branches 均通過 Vue template compilation，預期主句可由 public deck source 搜尋到。
 Notes: Slide 23 維持 100 秒。技術界線固定為「Vue Query adapter 已讓 response snapshot 可被 Vue 追蹤」；computed/watch 是 adaptation/composition，不是 TanStack Query 缺少 reactive update 的補救。
+```
+
+Slide 20 query-record 語意修正：
+
+```text
+Problem: 原圖以「TanStack Query · 伺服器資料生命週期」大框包住單一「query 生命週期」、cache、API、mutation 與 invalidation，容易誤解成 runtime 建立一個統一的大 lifecycle，也模糊了 application declaration、external work 與 runtime mechanics 的邊界。
+Revision: 移除 ownership 大框與單一 query-lifecycle 節點。讀取路徑改成 route source → application 的 queryKey/queryFn → runtime 維持的 keyed query records → Vue Query adapter → Vue；寫入路徑分開呈現 mutationFn/affected keys 與 runtime 的 mutation status、matching、stale、refetch；callback stream 保留為 application composable 支線。
+Verification: `pnpm test:p1`、`pnpm test:p2` 與 production build 通過；production `/20` 以 1280×720 驗證 Mermaid、三色責任圖例與底部結論均無裁切。
 ```
 
 ### P1.7：建立 Act 5 — signal-kernel
@@ -591,6 +608,15 @@ Verification: 四個 map 的六個欄位各出現 4 次；舊的 `VUE OWNS / APP
 Notes: 這輪採中文概念＋英文識別字，不追求逐字全譯。P1.9 已在 production slideshow／presenter 與 1280×720 viewport 驗證所有 35 張及 85 個 click states，沒有偵測到較長中文、程式碼或 SVG 超出投影片畫布。
 ```
 
+signal-kernel Graph 內部權責對齊：
+
+```text
+Issue: Signal-kernel 與 TanStack Query 都需要在 Mutation 宣告失效範圍；若只把 revision 描述成更方便的 invalidation API，無法支持演講的 Async Ownership 主張，也容易誤導成 Graph 接手了整個 Application。
+Direction: 固定 `Graph-internal ownership` 語彙。TanStack Query 接手 server-state lifecycle；signal-kernel 同時將 Resource 內部的 reactive dependency propagation 與 async lifecycle 放進 Graph runtime。兩者都保留 Application 的 domain policy；Vue 在兩者中都保留 route source 與 UI consumer responsibility。
+Slides: Slide 24 以 keyword／userId 的 handoff 對照兩套 runtime；Slide 27 明說兩者都需要 invalidation declaration；Slide 29 與 Slide 30 將「移動／留下」改成 Resource-internal reactivity/lifecycle 與 route/domain/Graph-lifetime/UI 的精確分界。
+Non-claim: 不宣稱 signal-kernel 消除 invalidation、程式碼更少、只有一套 reactive runtime，或所有 Ownership 都集中到 Graph。
+```
+
 ### P1.9：完成 P1 全體驗收
 
 Audience outcome：
@@ -625,7 +651,7 @@ Notes coverage: 35/35 均有 Core / Time / Transition / Cut；四個 model 的�
 Build: `pnpm run build` 成功（Slidev 52.18.0，722 modules transformed）；`git diff --check` 通過。
 Presenter check: production `/presenter` 顯示全部四種 notes markers；production `/1–35` 共驗證 85 個 click states，在 1280×720 下沒有標題、文字、程式碼、圖片或 SVG overflow。
 Time-budget total: 2255 秒（37:35），低於 38:00 上限，並替 40 分鐘正式內容保留 2:25 緩衝。
-Open placeholders: `P1 photo placeholder` 與 `Live Demo placeholder`；Demo repository QR 已是正式資產並保留可手動輸入 URL。
+Open visual check: Slide 2 已使用公開講者照片與正式 Demo repository QR；活動前仍需確認實際投影亮度、人像辨識度與手機掃描結果。
 Non-blocking follow-up: CLI PDF export 目前需要額外安裝 `playwright-chromium`；PDF 與現場投影本來就不在 P1 範圍，留待 P2／交付前驗收。
 ```
 

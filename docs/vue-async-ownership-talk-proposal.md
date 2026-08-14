@@ -257,11 +257,11 @@ Application glue omitted:
 | 講者資訊與 async lifecycle 建模 | 7 | 5 分鐘 | 5 | 建立 implementation-neutral lifecycle 與 ownership 語言 |
 | 共同 Demo 情境 | 2 | 3 分鐘 | 8 | 固定需求、UI、API、selected outcomes 與比較基準 |
 | Pure Vue baseline | 5 | 5 分鐘 | 13 | 先看清 Vue scope responsibility 與 application async policy |
-| Pinia Action | 4 | 5 分鐘 | 18 | 展示 store-owned shared workflow 與 lifecycle mismatch |
-| TanStack Query | 5 | 7 分鐘 | 25 | 展示專門的 server-state lifecycle model 與有效的 stream boundary |
-| signal-kernel | 6 | 8 分鐘 | 33 | 先教必要 vocabulary，再展示 async state 成為 reactive graph node 的 ownership 與交換成本 |
-| 四版本對照、選擇原則與結論 | 5 | 5 分鐘 | 38 | 用同一套 teaching contract 收斂 clarity 主張、限制與選擇條件 |
-| 現場節奏緩衝 | — | 2 分鐘 | 40 | 保留換頁、停頓與 Demo 切換空間，不作為 Q&A |
+| Pinia Action | 4 | 3.5 分鐘 | 16.5 | 只講 Composable → Pinia 的 sharing-boundary delta，不重教 async correctness |
+| TanStack Query | 5 | 7 分鐘 | 23.5 | 展示專門的 server-state lifecycle model 與有效的 stream boundary |
+| signal-kernel | 6 | 8 分鐘 | 31.5 | 先教必要 vocabulary，再展示 async state 成為 reactive graph node 的 ownership 與交換成本 |
+| 四版本對照、選擇原則與結論 | 5 | 5 分鐘 | 36.5 | 用同一套 teaching contract 收斂 clarity 主張、限制與選擇條件 |
+| 現場節奏緩衝 | — | 3.5 分鐘 | 40 | 保留換頁、停頓與 Demo 切換空間，不作為 Q&A |
 
 規劃共 35 張，其中 Slide 35 的 Q&A／QR code 在正式內容結束後顯示。張數增加的目的不是增加論點，而是讓每張只處理一個認知任務；平均時間不能用張數均分，章節頁、diagram reveal 與 takeaway 可以在 20–40 秒內完成。
 
@@ -317,15 +317,18 @@ Creator of signal-kernel
 Reactivity · Async Lifecycle
 Framework-independent Data Flow
 
-Demo Repo · 演講中可同步參照
+Demo repository · 四種實作的延伸對照
+[Demo repository QR]
+四種實作，共用同一組 Dashboard 與測試契約
+可先掃描收藏，演講中不必跟著操作
 github.com/Luciano0322/vue-async-ownership
 ```
 
 建議口說：
 
-> 我的主要工作背景從 React 生態出發，但這幾年研究 reactivity、async resource 和跨框架資料流時，我開始把注意力從「framework 怎麼更新畫面」，移到「哪一層負責維持 lifecycle correctness」。今天不是 React 對 Vue 的評論，也不是一套 Vue 替代方案的發表；我用一個完整 Vue case study，比較四種 responsibility configuration。Demo repository 已公開，想同步對照可先開著，最後一頁也會再提供 QR code。
+> 我的主要工作背景從 React 生態出發，但這幾年研究 reactivity、async resource 和跨框架資料流時，我開始把注意力從「framework 怎麼更新畫面」，移到「哪一層負責維持 lifecycle correctness」。今天不是 React 對 Vue 的評論，也不是一套 Vue 替代方案的發表；我用一個完整 Vue case study，比較四種 responsibility configuration。Demo repository 已公開，四種實作共用同一組 Dashboard 與測試契約；可以先掃描收藏，但不需要在演講中跟著操作，Q&A 頁會再次顯示同一個入口。
 
-口說控制在 40–50 秒。signal-kernel 只揭露作者身份與研究背景，不在此頁解釋 graph、resource、revision 或 adapter。Slide 2 只放低視覺權重的 Demo repository 文字連結，不放第二個 QR code；照片若使用目前完整講者卡，需避免重複姓名與職稱，優先取得同張照片的原始人像。
+口說控制在 40–50 秒。signal-kernel 只揭露作者身份與研究背景，不在此頁解釋 graph、resource、revision 或 adapter。Slide 2 使用與 Q&A 頁相同的 Demo repository QR target，視覺權重低於姓名與講者身份；目的只是方便收藏，不在此頁導覽 repository。照片維持目前人像裁切，右側補充文字不再顯示 placeholder。
 
 #### Slide 3 — 從 Promise 三態，過渡到完整 async lifecycle
 
@@ -499,7 +502,7 @@ User activity     → stream-like resource
 
 Route 提供 `keyword` 與 `userId`。共同 UI 必須能觀察 pending、refreshing、success、error、stale-result protection、update 與 stream source switch。
 
-#### Slide 9 — 四條 route，控制 selected outcomes
+#### Slide 9 — 四條路由，控制選定結果
 
 ```text
 /examples/vue
@@ -508,7 +511,7 @@ Route 提供 `keyword` 與 `userId`。共同 UI 必須能觀察 pending、refres
 /examples/signal-kernel
 ```
 
-建議現場只先操作一次共同 happy path，再在收斂章節展示一條 race 或 stream-switch trace。這份 Demo 控制 user-visible scenario 與 selected outcomes，不控制 abstraction level、runtime maturity、ecosystem 或 application glue。
+建議現場只先操作一次共同正常流程，再在收斂章節展示一條競態或串流切換軌跡。這份 Demo 控制觀眾可見情境與選定結果，不控制抽象層次、執行層成熟度、生態系或應用程式銜接。
 
 ### Act 2：Pure Vue — 先看清 framework 與 application 的邊界
 
@@ -686,125 +689,84 @@ Vue 仍然負責：路由轉接、互動、衍生資料、渲染
 
 不要把 Pure Vue 描述成錯誤解法或未完成階段。它是完整且合理的 local boundary，也是四個 model 共用的比較基準。
 
-### Act 3：Pinia Action — store 擁有共用 workflow boundary
+### Act 3：Pinia Action — 只講 Composable → Store 的 ownership delta
 
-#### Slide 15 — 為什麼自然會想到 Pinia？
+這一章不把 Pinia 當成另一套需要重新教一次的 async model。Pure Vue 已經用 composable 建立 trigger、status、generation guard、manual reload 與 cleanup；Pinia 章節要利用觀眾感受到的重複，直接說明：「非同步正確性規則大致不變，改變的是共享邊界。」
 
-以「問題範圍擴大」做左右對照：
+精確主張：
 
-- 單一功能內可以由 component / composable 維持 snapshot、互動入口與 consumer lifetime。
-- 多個 consumer 共用同一份狀態時，Pinia store 提供 shared snapshot 與 actions。
-- Store 通常可以活得比單一元件久，形成跨 consumer 的 shared workflow boundary。
+> 從 Composable 到 Pinia，shared snapshot、workflow entry point 與 store identity 移進具名 Store；request、mutation、stream 的 correctness rules 大多仍由 application code 維持。
+
+不能把這句簡化成「async lifecycle 完全沒變」。Store 可以活得比 component 久，consumer lifetime boundary 確實改變；這裡說的是 async semantics 與 correctness policy 沒有因為使用 Pinia 就自動換 owner。
+
+#### Slide 15 — Composable 已經能共享，為什麼還需要 Pinia？
+
+- 主動承認 module-scoped composable 也能共享 state，避免把 Pinia 描述成能力解鎖。
+- Composable 提供 reusable feature logic；Pinia 提供具名 Store、穩定 identity、統一 action 入口與多 consumer 都理解的共享慣例。
+- 兩次 click 從「Composable 做得到」走到「Pinia 讓 application boundary 更明確」。
 
 結論：
 
-> Pinia 的價值不是搬動 ref，而是建立 shared state 與 workflow boundary。
+> Pinia 不是讓共享狀態變得可能，而是把共享狀態與流程變成明確的 application store boundary。
 
-轉場句：
+#### Slide 16 — 搬進 Store 後，非同步規則有變嗎？
 
-> 問題從單一功能變成 shared client workflow；我們先把責任集中到 store boundary。
+不再重畫 route → page → API → refs，而是直接對照：
 
-#### Slide 16 — Store 邊界改變了什麼？
-
-使用三次 click 累積內容，所有區塊預留原本位置，避免 reveal 時版面跳動：
-
-1. 初始畫面只看 route → page → actions/API → shared refs → consumers。
-2. Click 1 顯示 Store 確實接走的 shared snapshot、actions 與跨 consumer 狀態。
-3. Click 2 顯示不會自動獲得的取消／新舊判斷、失效／重載與 stream cleanup semantics。
-4. Click 3 顯示 store／component lifetime 對照與結論。
-
-建議 Mermaid：
-
-```mermaid
-flowchart LR
-  Route[路由 query] --> Page[Vue page]
-  Page --> Actions[Pinia actions]
-  Actions --> API[Users API]
-  API --> Actions
-  Actions --> Store[Pinia shared refs]
-  Store --> A[使用端 A]
-  Store --> B[使用端 B]
-  Store --> C[使用端 C]
+```text
+Composable                    Pinia
+feature refs                  store refs
+composable function           named action
+generation guard              generation guard
+手動重新載入                  手動重新載入
+明確 cleanup                  page／store 明確清理
 ```
 
-畫面明確區分：
+- Click 1 聚焦重複部分：競態、重載與清理仍由 application code 維持。
+- Click 2 聚焦 delta：shared snapshot、workflow entry、store identity 移動；race、reload relationship、stream cleanup 沒有自動移動。
 
-- Store lifetime 通常比單一 component consumer 長。
-- Page 仍擁有 route adaptation 與 interaction。
-- 將資料放進 Pinia 不會自動獲得 cancellation、stale、invalidation 或 stream semantics。
+結論：
 
-> Store 生命週期 ≠ 元件生命週期；共享狀態不等於自動擁有每一段 async lifecycle。
+> Sharing boundary 改變；async correctness rules 大致不變。
 
-#### Slide 17 — Action 集中 policy，但仍由 application 編排
+#### Slide 17 — 只看一個 Action：update → reload
 
-這張使用一次 click，先建立 shared workflow，再揭露仍需手動維持的 lifecycle policy。
-
-**Click 0 — update → reload 有明確入口**
+只保留唯一需要 walkthrough 的 Pinia code：
 
 ```ts
 async function updateUser(userId, patch) {
-  updateStatus.value = 'pending'
-
   await api.updateUser({ userId, patch })
 
   await Promise.all([
     fetchUsers(currentKeyword),
     fetchUserDetail(userId),
   ])
-
-  updateStatus.value = 'success'
 }
 ```
 
-Action 讓 mutation、reload targets 與 status transition 集中，但這些規則仍由 application 宣告。
+- `updateUser` 是 application 共用的 workflow entry point。
+- `users list + selected detail` 的 reload relationship 仍由 action 明確列出。
+- Pinia 不會自行推導 server-state identity 或 invalidation relationship；這不是缺陷，而是 problem scope 不同。
+- Generation guard、status transition、stream cleanup 只在角落列為仍由 application 維持，不重新 live walkthrough。
 
-**Click 1 — policy 集中了，但沒有自動化**
+#### Slide 18 — Pinia 的 Ownership Delta
 
-左右並列 Demo 的兩段真實 integration：
-
-- `latestUsersRequestGeneration` 仍在 fetch action 維持 currentness。
-- `onUnmounted(() => store.unsubscribeActivity())` 仍由 Vue page 接回 consumer lifetime。
-
-口說重點：
-
-- Action 讓 update → reload 的 domain intent 集中。
-- Store 可以成為清楚的 application-level workflow owner。
-- Race guard、status transition、reload target 與 stream cleanup 仍由這份 implementation 宣告。
-- Component unmount 不等於 store dispose；若 stream lifetime 跟 consumer 綁定，必須明確保留 page cleanup 或建立 store-level disposal policy。
-- 這是其中一種 Pinia architecture，不代表 Pinia 只能這樣組織 async work。
-
-#### Slide 18 — Pinia 的責任分布圖與 takeaway
-
-```mermaid
-flowchart LR
-  Route[路由 query] --> Page[Vue 頁面]
-  Page --> Actions[Pinia actions]
-  Actions --> API[Users API]
-  API --> Actions
-  Actions --> Store[共用 refs]
-  Store --> UI[Vue 使用端]
-  Page --> Cleanup[consumer 清理]
-  Cleanup --> Actions
-```
-
-固定 footer：
+保留六欄 teaching contract，但主要畫面只強調兩組：
 
 ```text
-問題範圍：共享的 client state 與 workflow
-規則由誰宣告：store actions + 頁面整合
-生命週期由誰維持：Pinia / Vue 響應機制 + 應用程式 actions
-Vue 仍然負責：路由轉接、互動、衍生資料、渲染
-應用程式還要補上：競態保護、重載順序、狀態、串流生命週期
-代價 / 非目標：手動編排；不預設 server state 語意
+移動到 Store                    仍由 application 維持
+共用狀態快照                    競態與狀態轉換
+共用 workflow / action 入口     更新後的重載關係
+跨 consumer store identity      串流來源與清理時機
 ```
 
-大字：
+固定收尾：
 
-> 集中，讓 policy 更清楚；不代表 policy 自動成立。
+> Composable → Pinia：sharing boundary 改變；async model 大致不變。
 
-建議中文口說：
+TanStack Query 轉場：
 
-> Store 已經擁有 shared workflow；Pinia 不會替 application 預先決定 server-state lifecycle semantics。
+> 如果下一個問題不再只是共享 workflow，而是資料開始具有 identity、freshness、cache 與 invalidation 語意，那才需要問：非同步 lifecycle 本身能不能換一個 owner？
 
 ### Act 4：TanStack Query — server state 有了專門 owner
 
@@ -822,32 +784,34 @@ Vue 仍然負責：路由轉接、互動、衍生資料、渲染
 
 ```mermaid
 flowchart LR
-  Route[route query] --> Sources[keyword / userId]
-  Sources --> Keys[query keys]
+  Route[Vue route source] --> ReadPolicy[Application: queryKey + queryFn]
+  ReadPolicy --> Records[Query runtime: records by key + cache mechanics]
+  Records <--> API[Users API]
+  Records --> Adapter[Vue Query adapter: observer snapshot]
+  Adapter --> Vue[Vue projection / render]
 
-  subgraph QueryOwner[TanStack Query owns server state lifecycle]
-    Keys --> Query[query lifecycle]
-    Query <--> Cache[query cache]
-    Query <--> API[Users API]
-    Mutation[update mutation] --> API
-    Mutation --> Invalidate[invalidate queries]
-    Invalidate --> Cache
-  end
+  Interaction[update interaction] --> WritePolicy[Application: mutationFn + affected keys]
+  WritePolicy --> MutationRuntime[Query runtime: mutation status + matching + stale + refetch]
+  MutationRuntime <--> API
+  MutationRuntime --> Records
 
-  Query --> Vue[Vue projection / render]
-  Sources --> Stream[separate stream composable]
+  Route --> Stream[Application: separate stream composable]
   Stream --> Vue
 ```
 
-圖上的 ownership boundary 刻意包含 query、cache、mutation 與 invalidation，但不把 callback-style Activity stream 畫進 `QueryOwner`。
+移除包住 `query lifecycle` 的「伺服器資料生命週期」大框。這個畫法容易暗示 TanStack Query 建立一個統一的大 lifecycle，再由單一 query 掛在其中。改圖後直接區分三種責任：
+
+- Application 宣告 `queryKey`、`queryFn`、`mutationFn` 與 affected keys 的 domain meaning。
+- Query runtime 依 key 維持多個 query records、mutation status，以及 cancellation、stale、matching、refetch、cache 等 mechanics。
+- Vue Query adapter 把 observer snapshot 接回 Vue reactivity；callback-style Activity stream 仍由 application composable 擁有。
 
 講解順序：
 
 1. Route 仍提供 source；TanStack Query 不取代 Vue Router。
-2. Source 被投影成 query keys。
-3. Query runtime 維持 request status、cancellation、stale result 與 cache interaction。
-4. Vue 消費 query result，不自行維護 users/detail lifecycle。
-5. Activity stream 由獨立 Vue composable 擁有；這是有效的 architecture boundary。
+2. Application 將 source 投影成 queryKey，並用 queryFn 宣告 work。
+3. Query runtime 維持對應 query record 的 request status、cancellation、freshness 與 cache interaction。
+4. Mutation 同樣分成 application 宣告的 work／affected keys，以及 runtime 維持的 mutation status／matching／stale／refetch mechanics。
+5. Vue 經由 adapter 消費 observer snapshot；Activity stream 由獨立 Vue composable 擁有，這仍是有效的 architecture boundary。
 
 #### Slide 21 — Query key 成為 server-state identity
 
@@ -960,7 +924,9 @@ Vue route adapter
 
 限制句：
 
-> 不是「TanStack 不具響應性、signal-kernel 才有」；差異是非同步依賴模型在 Query／快取邊界後透過轉接層進入 Vue，或先在框架之外成為響應式圖。
+> 不是「TanStack 不具響應性、signal-kernel 才有」，也不是 signal-kernel 省略 invalidation；TanStack Query 接手 server-state lifecycle，signal-kernel 則把 Resource 內部的 reactive dependencies 與 async lifecycle 一起放進框架外的 Graph runtime。
+
+兩者的 route source of truth 都仍在 Vue。TanStack 版本由 Vue 將 keyword／userId 轉成 query options；signal-kernel 版本由 Vue 將它們轉接成 Graph sources，之後的 Resource 依賴傳播才由 kernel reactivity 維持。
 
 #### Slide 25 — signal-kernel 是什麼？
 
@@ -1027,6 +993,7 @@ const updateUser = createResource({
 - Revision 是代表「相關非同步狀態需要重新驗證」的響應式版本節點；不是資料、快取或 Mutation 結果。
 - Resource 用 `observe` 讀取 revision，建立 revision → resource 的 Graph 依賴。
 - Mutation 用 `invalidates` 宣告成功後影響的 revision targets；Application 擁有領域失效語意，執行層擁有成功時機與版本推進。
+- TanStack Query mutation 與 signal-kernel mutation 都需要 Application 宣告影響範圍；差異不在省略 invalidation，而在關係進入 query records 或 Graph revisions。
 - `usersRevision` 對應列表重新驗證；`userRevision.target(input.userId)` 只對應被更新的使用者明細。
 - Revision 推進後，Graph 依賴決定哪些 Resource 重新執行；Vue 只透過轉接層消費新快照。
 
@@ -1061,9 +1028,9 @@ Vue adapter tests 已證明兩個刻意並存的行為：Vue scope dispose 會�
 
 ```text
 採用 Graph 得到
-✓ 非同步狀態成為 graph 節點
-✓ source / revision 成為響應式依賴
-✓ 衍生狀態先於 Vue 消費端形成
+✓ Resource lifecycle 由 Graph runtime 維持
+✓ source / revision 進入 kernel reactivity
+✓ Query-like Resource / Mutation / Stream 共用依賴模型
 ✓ Vue 更接近輸入邊界與 UI 消費端
 
 採用 Graph 付出
@@ -1077,11 +1044,11 @@ Vue adapter tests 已證明兩個刻意並存的行為：Vue scope dispose 會�
 固定 footer：
 
 ```text
-問題範圍：非同步狀態成為響應式 Graph
+問題範圍：Resource 內部響應關係與非同步生命週期
 規則宣告：graph factory + resource 宣告
-生命週期擁有者：resource 執行層 + Graph 擁有者
-Vue 仍負責：route 轉接、互動、畫面投影、渲染
-應用銜接：API 操作、轉接層、外部訂閱橋接
+生命週期擁有者：Graph runtime + Graph 擁有者
+Vue 仍負責：route source、輸入轉接、互動、畫面投影、渲染
+應用銜接：領域規則、Graph instance lifetime、外部訂閱橋接
 成本／非目標：實驗性執行層；不是通用的伺服器狀態替代品
 ```
 
@@ -1098,10 +1065,10 @@ Vue 仍負責：route 轉接、互動、畫面投影、渲染
 | Concern | Pure Vue | Pinia Action | TanStack Query | signal-kernel |
 | --- | --- | --- | --- | --- |
 | Policy declared by | component/composable | store actions | query/mutation options + stream composable | graph factory + integration adapters |
-| Lifecycle maintained by | Vue scope + application policy | store/application policy | Query runtime + Vue stream composable | resource runtime + application stream bridge |
+| Lifecycle maintained by | Vue scope + application policy | store/application policy | Query runtime + Vue stream composable | Graph runtime + explicit Graph owner |
 | Trigger | Vue watch | page watch → action | query key | Vue watch → graph source → resource |
 | Stale protection | generation guard | store generation guard | query lifecycle | resource runtime |
-| Update refresh | manual reload | action orchestration | invalidation | revision relation |
+| Update refresh | manual reload | action orchestration | application-declared query invalidation | application-declared revision relation |
 | Stream | Vue composable cleanup | store action + page cleanup | separate Vue composable — valid boundary | stream resource + application unsubscribe adapter |
 | Vue role | presentation + local integration | presentation + workflow coordinator | presentation + query/stream consumer | presentation + route-to-graph adapter + snapshot consumer |
 | Scope demonstrated | local feature | shared client workflow | server state | async state as reactive graph |
@@ -1177,7 +1144,7 @@ Explicit graph  async state dependency model before framework consumption
 
 講者立場：
 
-> 在這份 case study 中，我認為把 async state 建成 reactive graph node，能讓 source、lifecycle、invalidation、snapshot 與 consumer ownership 更容易被看見；但 clarity 不是免費的，也不代表每個專案都值得支付它的成本。
+> 在這份 case study 中，我認為把 Resource 內部的 reactive dependencies 與 async lifecycle 放進 Graph runtime，能讓 source、invalidation、snapshot 與 consumer ownership 更容易被看見；它不消除 Application 的 domain policy，也不接手 route source、Graph lifetime 或 UI。這份 clarity 不是免費的，也不代表每個專案都值得支付它的成本。
 
 最後留給觀眾的問題：
 
@@ -1200,7 +1167,7 @@ QR code 應指向公開且穩定的 Demo repository URL，QR 下方必須同時�
 
 Repository canonical URL 已確認為 `https://github.com/Luciano0322/vue-async-ownership`。靜態 SVG 已放入 `public/qr/demo-repository.svg`，並以獨立 decoder 讀回相同完整 URL。Slide 35 同時顯示可手動輸入的 `github.com/Luciano0322/vue-async-ownership`；活動前仍需以至少兩支手機及實際投影畫面完成最終掃描驗證。
 
-全場只保留這一個主要 QR code。個人網站、GitHub profile、signal-kernel package 與投影片網址不各自產生 QR；改由 Demo repository README 統一提供延伸連結。若未來確實需要同時發佈 repo、slides 與聯絡方式，再考慮讓唯一 QR 指向由講者長期維護的資源頁。
+全場只保留一個 QR target 與同一份靜態資產，分別在 Slide 2 與 Slide 35 顯示。個人網站、GitHub profile、signal-kernel package 與投影片網址不各自產生 QR；改由 Demo repository README 統一提供延伸連結。若未來確實需要同時發佈 repo、slides 與聯絡方式，再考慮讓這個入口指向由講者長期維護的資源頁。
 
 ## 10. Live Demo 規劃
 
@@ -1464,8 +1431,8 @@ Transition: What changes when the problem is specifically server state?
 
 - 使用活動定版標題：`從 Pinia Action 到 Async Resource：重新思考 Vue 應用中的非同步 Ownership`。
 - 使用已確認活動資訊：`v-taiwan Meetup #5 · Session 2 · 2026-08-15 · Red space 多元商務空間`。
-- Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並提前顯示 Demo repository 文字連結。
-- 確認講者照片使用原始人像，或決定如何處理目前已含舊活動文字的完整講者卡。
+- Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`，並提前顯示 Demo repository QR、用途說明與可讀短網址。
+- 以目前公開資產維持講者照片裁切，活動前再用實際投影確認亮度與辨識度。
 - 先建立 implementation-neutral async lifecycle model，再進入四個 model。
 - 使用已確認定位：signal-kernel 是可運行的 framework-agnostic architecture experiment，用來驗證 async state 作為 reactive graph primitive 是否讓 ownership 更明確；不是 Vue、Pinia 或 TanStack Query 的直接替代品。
 - 固定判斷條件：只有當 async state 與 framework reactivity 之間的 adaptation cost 高於 graph 與 adapter cost 時，才值得評估 graph-first。
@@ -1479,18 +1446,20 @@ Transition: What changes when the problem is specifically server state?
 - 35 張都先標示唯一 audience outcome、預計秒數、transition 與可刪內容。
 - 不處理動畫與精緻 CSS。
 
-### P2：Code 與圖
+### P2：Code 與圖（已完成）
 
-- 從 Demo 擷取 curated snippets。
-- 建立四張平行 responsibility maps，不使用升級箭頭。
-- 完成四種 responsibility configuration comparison table。
-- 每章最多保留一個主要 code example。
-- 每段 code 標示 policy、enforcement mechanism 與 omitted glue。
+- [x] 從 Demo 擷取 curated snippets，並顯示可追溯的 canonical source path。
+- [x] 建立四張平行 responsibility maps，不使用升級箭頭。
+- [x] 完成四種 responsibility configuration comparison table。
+- [x] 每章保留一條主要 code walkthrough；TanStack Query 與 signal-kernel 在同一條讀寫敘事中分別呈現 read／write halves。
+- [x] 每段 code 以可見標示或講稿交代 `規則宣告 / 維持機制 / 省略的銜接`；Slide 27 為避免版面溢出，改由講稿收斂 Application、runtime 與 Graph 的 ownership 分工。
+
+詳細 Red／Green evidence 與驗收紀錄見 [`presentation_p2_workflow.md`](./presentation_p2_workflow.md)。
 
 ### P3：Demo 與備援
 
 - 活動前確認 Demo repository 的 canonical URL、README 與公開狀態。
-- 產生 `default` scenario 的真正 16:9 screenshots。
+- [x] 產生 `default` scenario 的 16:9 主畫面截圖，以及 mutation 成功後的備援截圖；主線在 Slide 8 以三段 click 聚焦 request、mutation 與 stream。
 - 以最終公開 URL 建立 QR code 與可讀短連結。
 - 以手機、Slidev 與 PDF 驗證 QR code。
 - 確認無網路時仍能完成演講。
@@ -1529,8 +1498,8 @@ Transition: What changes when the problem is specifically server state?
 - [ ] Slide 7 明確標示 case study 不是 benchmark、控制實驗或完整工具選型。
 - [ ] Slide 31 將 40 cases 說明為 8 個 async behaviors＋1 個 surface check＋1 個 explanation check，再乘以四個 model。
 - [ ] Contract 只用來控制 selected outcomes，不用來證明 ownership、clarity 或 architecture superiority。
-- [ ] 主線只有一條穩定 live demo flow。
-- [ ] 主線不使用 `stream-disconnect` 當作四模型預設畫面。
+- [x] 主線只使用一組固定 `default` 截圖解說流程；若臨場需要操作，則沿用同一組 route 情境。
+- [x] 主線不使用 `stream-disconnect` 當作四模型預設畫面。
 - [ ] 每段 code 可在 20 秒內看完。
 - [ ] Slide 2 的講者介紹可在 45 秒內完成。
 - [ ] Slide 34 的正式內容彩排不超過 38 分鐘，完整場次不超過 40 分鐘。
@@ -1547,14 +1516,14 @@ Transition: What changes when the problem is specifically server state?
 - 演講本體為 40 分鐘，不含 Q&A。
 - 活動為 `v-taiwan Meetup #5`，場次為 `Session 2`，日期為 `2026-08-15`，場地為 `Red space 多元商務空間`。
 - 活動定版標題為 `從 Pinia Action 到 Async Resource：重新思考 Vue 應用中的非同步 Ownership`，不再修改；開場用 speaker notes 說明順序代表 problem scope 展開，不是工具升級。
-- Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`；畫面以 `Reactivity / Async Lifecycle / Framework-independent Data Flow` 為主，另以低視覺權重顯示 Demo repository 文字連結。React 背景只在口說中作為研究起點，不成為框架身份主標籤。
+- Slide 2 使用 `Luciano Lee / Senior Frontend Engineer / Creator of signal-kernel`；畫面以 `Reactivity / Async Lifecycle / Framework-independent Data Flow` 為主，另以低視覺權重顯示 Demo repository QR、用途說明與短網址。React 背景只在口說中作為研究起點，不成為框架身份主標籤。
 - 四個 model 前先建立 implementation-neutral async lifecycle model；`Async Resource` 不等於 signal-kernel package。
 - 演講採取明確但有條件的立場：當 async state 需要先於 framework 成為 reactive dependency model 時，explicit graph 能提高 ownership visibility；這項 clarity 必須與第二套 runtime、vocabulary、adapter、debugging、teardown 與 maturity cost 一起評估。
 - 四個 model 是不同 responsibility configuration，不是成熟度或抽象層級的升級路線。
 - signal-kernel 是講者將 explicit ownership 立場做成可運行系統的嘗試，不是演講要求觀眾採用的結論。
 - Demo 使用 `@signal-kernel/core 0.1.4`、`@signal-kernel/async-runtime 0.3.1`、`@signal-kernel/vue 0.2.1`；簡報標示 `experimental · pre-1.0 · author-maintained`。
-- Demo repository canonical URL 已確認；結尾已使用可解碼的靜態 QR SVG 與可讀 GitHub URL。
-- 全場只使用一個主要 QR code；其他外部資源由 Demo repository README 串接。
+- Demo repository canonical URL 已確認；Slide 2 與結尾均使用可解碼的靜態 QR SVG 與可讀 GitHub URL。
+- 全場只使用一個 QR target 與同一份 QR 資產，重複出現在 Slide 2 與 Slide 35；其他外部資源由 Demo repository README 串接。
 - 主要受眾使用繁體中文；程式碼、API 與 ownership vocabulary 可保留英文。
 
 ### 17.2 製作時待填
@@ -1563,4 +1532,4 @@ Transition: What changes when the problem is specifically server state?
 2. 活動前以至少兩支手機與實際投影畫面掃描 Demo repository QR。
 3. 若主辦提供 Session 2 的實際開始時間與正式 Logo assets，再決定是否加入封面或活動資訊頁。
 
-signal-kernel 的演講定位、版本標示、maturity disclaimer 與 Demo repository canonical URL 已確認，不再列為待決策項目。Slide 2 可先使用目前照片 placeholder；QR code 已產生並通過程式解碼，剩餘實際手機與投影掃描驗收。
+signal-kernel 的演講定位、版本標示、maturity disclaimer 與 Demo repository canonical URL 已確認，不再列為待決策項目。Slide 2 已使用目前公開講者照片與正式 QR 資產；剩餘實際手機掃描、投影亮度與人像辨識度驗收。

@@ -83,14 +83,18 @@ const ownershipDefinitionPrefix = 'Async Ownership 是一段非同步工作跨�
 const definitionCount = deckSource.split(ownershipDefinitionPrefix).length - 1
 check(definitionCount >= 2, 'Slide 5 與 Slide 34 沒有使用同一套 Async Ownership 定義語彙')
 
-const expectedPlaceholders = ['P1 photo placeholder', 'Live Demo placeholder']
-for (const placeholder of expectedPlaceholders)
-  check(visibleDeckSource.includes(placeholder), `缺少已登記的公開 placeholder：${placeholder}`)
 check(!/\{\{[^}]+\}\}/.test(visibleDeckSource), '公開投影片仍有未替換的 {{template placeholder}}')
+
+const introSource = sectionSources.get('pages/00-intro.md')
+const speakerPhotoAsset = 'public/assets/speakers/avatar.png'
+check(existsSync(resolve(repoRoot, speakerPhotoAsset)), `缺少正式講者照片：${speakerPhotoAsset}`)
+check(introSource.includes('/assets/speakers/avatar.png'), 'Slide 2 沒有引用正式講者照片')
+check(!visibleDeckSource.includes('P1 photo placeholder'), 'Slide 2 仍顯示過期的講者照片 placeholder')
 
 const qrAsset = 'public/qr/demo-repository.svg'
 check(existsSync(resolve(repoRoot, qrAsset)), `缺少正式 QR 資產：${qrAsset}`)
-check(deckSource.includes('/qr/demo-repository.svg'), '投影片沒有引用正式 QR 資產')
+const qrReferenceCount = visibleDeckSource.split('/qr/demo-repository.svg').length - 1
+check(qrReferenceCount >= 2, 'Slide 2 與 Slide 35 沒有同時引用正式 QR 資產')
 check(deckSource.includes('https://github.com/Luciano0322/vue-async-ownership'), '投影片缺少 Demo repo 的可讀 URL')
 
 const timeValues = [...deckSource.matchAll(/^Time:\s+(\d+) 秒/gm)].map(match => Number(match[1]))

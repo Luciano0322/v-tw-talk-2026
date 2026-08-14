@@ -16,14 +16,27 @@ Framework-independent Data Flow
 
 </div>
 
-<div class="mt-8 rounded-xl border border-gray-300 px-4 py-3 dark:border-gray-700">
-  <div class="text-xs font-semibold opacity-55">Demo Repo · 演講中可同步參照</div>
+<div class="mt-6 grid grid-cols-[7rem_1fr] items-center gap-4 rounded-2xl border border-gray-300 p-3 dark:border-gray-700">
   <a
     href="https://github.com/Luciano0322/vue-async-ownership"
     target="_blank"
     rel="noreferrer"
-    class="mt-1 block font-mono text-xs text-cyan-700 no-underline dark:text-cyan-300"
-  >github.com/Luciano0322/vue-async-ownership</a>
+    aria-label="開啟 Vue Async Ownership Demo repository"
+    class="block rounded-xl bg-white p-1 shadow-sm"
+  >
+    <img src="/qr/demo-repository.svg" alt="Demo repository QR code" class="h-26 w-26" />
+  </a>
+  <div>
+    <div class="text-sm font-semibold text-cyan-700 dark:text-cyan-300">Demo repository</div>
+    <div class="mt-1 text-xs leading-5">四種實作，共用同一組 Dashboard 與測試契約。</div>
+    <div class="mt-1 text-[10px] opacity-55">可先掃描收藏，演講中不必跟著操作。</div>
+    <a
+      href="https://github.com/Luciano0322/vue-async-ownership"
+      target="_blank"
+      rel="noreferrer"
+      class="mt-2 block break-all font-mono text-[9px] text-cyan-700 no-underline dark:text-cyan-300"
+    >github.com/Luciano0322/vue-async-ownership</a>
+  </div>
 </div>
 
 ::right::
@@ -35,19 +48,19 @@ Framework-independent Data Flow
 />
 
 <div class="mt-2 text-center text-xs opacity-45">
-  P1 photo placeholder · raw portrait pending
+  Vue case study · Async Ownership
 </div>
 
 <!--
-Core: 交代研究 ownership 的背景，不把這場演講變成 React 對 Vue 的評論；同時提前給出 Demo repository 讓觀眾同步參照。
+Core: 交代研究 ownership 的背景，React 背景不是重點；Demo repository 是四種實作的延伸對照材料，不要求觀眾現場跟著操作。
 Time: 45 秒。
 Talk track:
 我是 Luciano，目前是一名前端工程師，也是 signal-kernel 的作者。
-我的主要工作背景從 React 生態出發，但這幾年在研究 reactivity、async resource 和跨框架資料流時，我慢慢把注意力從「framework 怎麼更新畫面」，移到「哪一層負責讓 async lifecycle 持續保持正確」。
-所以今天不是要把 React 的作法搬進 Vue，也不是一套 Vue 替代方案的發表。我做的是一個完整的 Vue case study，用相同 UI 與 selected outcomes，觀察四種 responsibility configuration。
-今天使用的 Demo 已經公開，連結先放在這裡；想同步對照原始碼可以先開著，最後一頁也會再提供 QR code。
-Transition: 接下來先不談任何工具，先看一次 async work 從開始到結束究竟經歷了什麼。
-Cut: React 背景可以縮成一句；Demo Repo 口頭提示也可略過，連結仍保留在畫面。
+我的背景從 React 生態出發，但這幾年在研究 reactivity、async resource 和跨框架資料流時，我慢慢把注意力從framework 怎麼更新畫面，移到「哪一層負責讓非同步生命週期持續保持正確」。
+所以今天不是要把 React 的作法搬進 Vue，我做為一個框架中立 library 作者要更體諒不同框架開發者的視角。所以我做的是一個完整的 Vue case study，用相同 UI 與情境，觀察四種方案的責任轉移與治理。
+今天使用的 Demo 已經公開，四種做法共用同一組 Dashboard 和測試。QR code 先放在這裡，想看全部可以掃描，演講中會用到一些對應的實作段落；正式內容結束後，Q&A 頁也會再顯示同一個入口。
+Transition: 接下來先不談任何工具，先看一次非同步事件從開始到結束究竟經歷了什麼。
+Cut: React 背景可以縮成一句；Demo repository 只提示「可掃描收藏」，不展開 repo 導覽。
 -->
 
 ---
@@ -59,41 +72,47 @@ clicks: 3
 
 ## pending → fulfilled / rejected
 
-<div class="relative mt-4 h-[360px]">
+<ChapterHeader
+  :index="1"
+  title="共同模型"
+  question="一次 Promise settled 之後，誰繼續維持非同步生命週期？"
+/>
+
+<div class="relative mt-3 h-[315px]">
 <div v-click.hide="2" class="absolute inset-0 flex flex-col items-center justify-center">
 <div class="text-sm font-semibold opacity-60">Promise 建立後</div>
-<div class="mt-2 min-w-48 rounded-xl border px-8 py-4 text-center font-mono text-2xl">
+<div class="mt-2 min-w-48 rounded-xl border px-8 py-3 text-center font-mono text-2xl">
 pending
 </div>
 
-<div v-click="1" class="mt-3 text-4xl">↙　　　　　↘</div>
+<div v-click="1" class="mt-2 text-3xl">↙　　　　　↘</div>
 
-<div v-click="1" class="mt-1 grid grid-cols-2 gap-16 text-center">
+<div v-click="1" class="mt-1 grid grid-cols-2 gap-12 text-center">
 <div>
 <div class="text-sm opacity-60">成功完成</div>
-<div class="mt-1 min-w-48 rounded-xl border px-6 py-4 font-mono text-xl">
+<div class="mt-1 min-w-48 rounded-xl border px-5 py-3 font-mono text-xl">
 fulfilled
 </div>
 </div>
 <div>
 <div class="text-sm opacity-60">失敗完成</div>
-<div class="mt-1 min-w-48 rounded-xl border px-6 py-4 font-mono text-xl">
+<div class="mt-1 min-w-48 rounded-xl border px-5 py-3 font-mono text-xl">
 rejected
 </div>
 </div>
 </div>
 
-<div v-click="1" class="mt-5 text-lg font-semibold">
+<div v-click="1" class="mt-3 text-base font-semibold">
 兩者都代表 settled：結果已固定，不會回到 pending。
 </div>
 </div>
 
-<div v-click="2" class="absolute inset-0">
+<div v-click="2" class="promise-lifecycle-graph absolute inset-0">
 <div class="relative mb-2 h-7 text-center font-semibold">
-<div v-click.hide="3" class="absolute inset-0 text-lg">
+<div v-click.hide="3" class="absolute backdrop-blur inset-0 text-lg">
 但 UI correctness 不只問「這次成功或失敗」
 </div>
-<div v-click="3" class="absolute inset-0 text-xl">
+<div v-click="3" class="absolute backdrop-blur inset-0 text-xl">
 Promise settled 了；非同步責任還沒結束。
 </div>
 </div>
@@ -108,14 +127,28 @@ flowchart TB
 </div>
 </div>
 
+<style>
+.promise-lifecycle-graph .mermaid {
+  display: flex;
+  height: 280px;
+  align-items: center;
+  justify-content: center;
+}
+
+.promise-lifecycle-graph .mermaid svg {
+  width: 100%;
+  max-height: 280px;
+}
+</style>
+
 <!--
-Core: Promise 三態只描述一次工作的結果；UI correctness 還需要處理 identity、refresh、switch 與 disposal。
+Core: Promise 三態只描述一次工作的結果，框架中 UI 正確性還需要處理 identity、refresh、switch 與 disposal。
 Time: 55 秒。
 Talk track:
 Promise 建立後先進入 pending；工作成功會進入 fulfilled，失敗則進入 rejected。後面兩個狀態都叫 settled，而且結果固定後不會回到 pending。
-這套模型很適合描述一次 Promise 最後成功或失敗，但 UI correctness 還會繼續問：這個結果是否仍屬於目前的 source、何時 refresh、source 切換時舊工作怎麼處理，以及 consumer 離開後誰 cleanup。
-所以這場演講說的 async work，會從一次 Promise 的 outcome，向外擴到 source identity、active snapshot、refresh、source switch 和 dispose 的完整 lifecycle。
-Transition: 不過 request 和 stream 的形狀不同，我不想為了統一術語，假裝它們共享完全相同的 state machine。
+這套模型很適合描述一次 Promise 最後成功或失敗，但套在框架的視角，UI 正確性還會繼續問：這個結果是否仍屬於目前的 source、何時 refresh、source 切換時舊工作怎麼處理，以及 consumer 離開後誰 cleanup。
+所以這場演講說的 async work，會從一次 Promise 的結果，向外擴到 source identity、active snapshot、refresh、source switch 和 dispose 的完整生命週期。
+Transition: 不過 request 和 stream 的形狀不同，我不想為了統一術語，假裝它們共享完全相同的狀態機制。
 Cut: Promise 三態只說 pending 與 settled，不解釋 resolution procedure；直接進入完整 lifecycle。
 -->
 
@@ -257,11 +290,11 @@ flowchart LR
 </style>
 
 <!--
-Core: Framework、external work 與 UI projection 會在 control flow 上接力，但 request 與 stream 的 lifecycle responsibilities 不同，ownership 也不會因呼叫跨層就自動轉移。
+Core: Framework、external work 與 UI projection 會在 control flow 上接力，但 request 與 stream 的 lifecycle 責任不同，ownership 也不會因呼叫跨層就自動轉移。
 Time: 60 秒。
 Talk track:
-放進 framework 後，control flow 通常從 Vue 的 source 與 component scope 出發，交給外部 async work，再回到 Vue projection。但呼叫跨過一層，不代表 lifecycle ownership 自動跟著轉移。
-Request-like work 通常等待一次 settled result。除了 pending 與 success / error，application 還要回答 source 改變時誰拒絕 stale response，以及 mutation 後誰 refresh。
+放進 framework 後，控制流程通常從 Vue 的 source 與 component scope 出發，交給外部非同步工作，再回到 Vue 畫面投影。但呼叫跨過一層，不代表 lifecycle ownership 自動跟著轉移。
+Request-like work 通常等待一次 settled result。除了 pending 與 success / error，app 還要回答 source 改變時誰拒絕過期回應，以及 mutation 後誰宣告失效或 refetch。
 Stream-like work 會保持 active、持續產生 emission。它更直接依賴 source switch、unmount、unsubscribe 和 error policy。
 因此 request 與 stream 不需要硬塞進同一個 state machine。真正共通的是：誰開始它、誰維持 current snapshot，以及最後誰停止它。
 Transition: 當這些問題放回 Vue application，責任通常不會全部待在同一個檔案或同一套 runtime。
@@ -393,7 +426,7 @@ Talk track:
 第二步把兩條 lifecycle 分開。Vue lifecycle 描述 component consumer 何時 mount、update、unmount；async lifecycle 描述 request 或 stream 何時 trigger、active、settle、refresh、dispose。
 兩條線會在 unmount 時交會，例如 cancel request、unsubscribe stream 或 detach consumer，但 Vue lifecycle 本身不等於 async lifecycle。
 第三步把這些差異放回 Async Ownership。假設把 users snapshot 從 component ref 搬進 Pinia store，可以確定的是讀取位置改變了，也可能建立 shared workflow boundary。
-但 stale response 怎麼判斷、refresh 何時發生、consumer 離開後誰 cleanup，不會因為換了容器就自動得到答案。
+但過期回應怎麼判斷、refresh 何時發生、consumer 離開後誰 cleanup，不會因為換了容器就自動得到答案。
 因此後面會分開看三件事：snapshot 放在哪裡、async policy 在哪裡宣告，以及誰持續維持各項 async responsibility。整體的 responsibility-to-owner mapping，才是這場說的 Async Ownership。
 Transition: 為了讓每一章都能畫出同一種責任配置圖，接下來固定六個分析問題。
 Cut: 快速點到最後一幕，只保留「location、policy、owner 是三件事」。
@@ -447,7 +480,7 @@ Core: 六個問題不是 Async Ownership 的定義，而是用來讀出 responsi
 Time: 35 秒。
 Talk track:
 Async Ownership 已經定義成 async responsibilities 在系統邊界之間的配置。接著每一章都用 trigger、status、stale、invalidate、dispose 和 render 六個問題，把這張配置圖讀出來。
-這六個責任不要求同一個 owner。每看完一種 model，都要能回答兩句話：哪些責任移動到新的 boundary，哪些仍留在 Vue 或 application code。
+這六個責任不要求同一個 owner。每看完一種解決方案，都要能回答兩句話：哪些責任移動到新的 boundary，哪些仍留在 Vue 或 application code。
 這仍然是 architecture case study，不是 benchmark，也不能直接證明哪套工具全面更好。
 Transition: 分析方法固定後，下一段建立共同 Dashboard，讓四個 model 面對完全相同的 request、mutation 與 stream responsibilities。
 Cut: 只保留六個問題，以及「移動了什麼、留下了什麼」。
