@@ -5,7 +5,7 @@ clicks: 1
 
 # 讓非同步狀態成為響應式圖的節點
 
-## 不只接手生命週期，也接手 Resource 內部的響應式關係
+## 框架中立的響應式執行層，把非同步 Resource 也放進依賴圖
 
 <ChapterHeader
   :index="6"
@@ -14,23 +14,25 @@ clicks: 1
 />
 
 <div class="mt-3 min-h-[265px]">
-  <div v-if="$clicks === 0" class="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-3 pt-10 text-center text-sm">
-    <div class="rounded-2xl border border-blue-300 p-4 dark:border-blue-700">
-      <div class="font-semibold text-blue-600 dark:text-blue-300">VUE 響應式系統</div>
-      <div class="mt-2">路由狀態<br>computed 查詢選項</div>
+  <div v-if="$clicks === 0" class="pt-5">
+    <div class="text-center text-xl font-semibold">
+      signal-kernel 讓非同步狀態本身成為<span class="text-emerald-600 dark:text-emerald-300">可追蹤的 Graph 節點</span>
     </div>
-    <div class="text-3xl opacity-35">→</div>
-    <div class="rounded-2xl border border-cyan-300 p-4 dark:border-cyan-700">
-      <div class="font-semibold text-cyan-600 dark:text-cyan-300">QUERY 執行層</div>
-      <div class="mt-2">伺服器狀態生命週期<br>快取 / QueryObserver</div>
-    </div>
-    <div class="text-3xl opacity-35">→</div>
-    <div class="rounded-2xl border border-violet-300 p-4 dark:border-violet-700">
-      <div class="font-semibold text-violet-600 dark:text-violet-300">VUE QUERY 轉接層</div>
-      <div class="mt-2">可追蹤的結果 refs<br>Vue 消費端</div>
-    </div>
-    <div class="col-span-5 mt-6 rounded-xl bg-cyan-50 p-3 text-lg font-semibold dark:bg-cyan-950">
-      伺服器狀態與 Vue 響應式系統分開；轉接層傳遞可追蹤的狀態快照。
+    <div class="mt-7 grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-3 text-center text-sm">
+      <div class="rounded-2xl border border-emerald-300 p-4 dark:border-emerald-700">
+        <div class="font-semibold text-emerald-600 dark:text-emerald-300">響應式輸入</div>
+        <div class="mt-2"><code>source</code> · <code>revision</code><br>描述資料來源與失效訊號</div>
+      </div>
+      <div class="text-3xl opacity-35">→</div>
+      <div class="rounded-2xl border border-cyan-300 p-4 dark:border-cyan-700">
+        <div class="font-semibold text-cyan-600 dark:text-cyan-300">非同步 RESOURCE</div>
+        <div class="mt-2">執行工作<br>維持狀態與生命週期</div>
+      </div>
+      <div class="text-3xl opacity-35">→</div>
+      <div class="rounded-2xl border border-violet-300 p-4 dark:border-violet-700">
+        <div class="font-semibold text-violet-600 dark:text-violet-300">依賴的 GRAPH 節點</div>
+        <div class="mt-2">讀取狀態快照<br>自動收到變化通知</div>
+      </div>
     </div>
   </div>
   <div v-else class="signal-reactive-map">
@@ -50,7 +52,7 @@ flowchart LR
 </div>
 
 <div v-if="$clicks === 0" class="mt-2 rounded-xl bg-gray-100 p-3 text-center text-base font-semibold dark:bg-gray-800">
-  TanStack Query：Query runtime 接手伺服器資料生命週期；keyword／userId 與 UI 銜接仍由 Vue 維持。
+  輸入改變 → Resource 重跑 → 狀態快照更新 → 依賴它的節點重新計算。
 </div>
 <div v-else class="mt-2 rounded-xl bg-emerald-50 p-3 text-center text-base font-semibold dark:bg-emerald-950">
   signal-kernel：Graph runtime 同時接手 Resource 內部的響應式依賴與非同步生命週期。
@@ -74,11 +76,11 @@ flowchart LR
 Core: 這一章的切入點不是 TanStack Query 缺少響應式整合，也不是 signal-kernel 省略 invalidation；差異是 TanStack Query 接手伺服器資料生命週期，signal-kernel 則把 Resource 內部的響應式依賴與非同步生命週期一起放進框架中立的 Graph runtime。
 Time: 70 秒。
 Talk track:
-上一張先把 TanStack Query 的設計說清楚。Keyword、userId 與 computed query options 仍在 Vue 響應式系統；Query runtime 維持伺服器資料生命週期、快取與 QueryObserver；Vue Query 轉接層再把結果暴露成 refs。它已經是完整而成熟的 server-state boundary。
-第一個 click 才換 ownership 配置。Route 仍是 Vue 的 source of truth，也仍要經輸入轉接層寫入 graph source；但進入 Graph 後，keyword、userId、revision、resource、stream 與 derived state 都由同一套 kernel reactivity 連接，Resource runtime 同時維持非同步生命週期。
+signal-kernel 是一個框架中立的響應式執行層。它和一般 signal graph 不同的地方，是把非同步 Resource 也做成 Graph 節點：source 或 revision 是輸入，Resource 執行工作並維持 pending、success、error 等狀態快照，讀取這份快照的節點則成為它的依賴者。輸入改變時，Graph 會讓 Resource 重跑；快照更新後，再通知下游重新計算。這套基本機制在接上 Vue 以前就能成立。
+第一個 click 再把概念放回這份 Demo。Route 仍是 Vue 的 source of truth，也仍要經輸入轉接層寫入 graph source；但進入 Graph 後，keyword、userId、revision、resource、stream 與 derived state 都由同一套 kernel reactivity 連接，Resource runtime 同時維持非同步生命週期。
 兩邊的 Application 都要宣告 mutation 影響哪些資料。差異不是省掉 invalidation，而是 TanStack Query 把關係交給 query／cache model，signal-kernel 把它接進通用的 reactive graph，再讓 Vue 成為輸入邊界與 UI consumer。
 Transition: 下一張先定義這張 graph 最少需要哪些必要語彙。
-Cut: 若時間不足，初始圖只說 Query 執行層與 Vue 轉接層分工，click 後只保留 source → resource → 轉接層 → 消費端。
+Cut: 若時間不足，初始圖只說「輸入改變、Resource 重跑、快照通知依賴者」，click 後只保留 source → resource → 轉接層 → 消費端。
 -->
 
 ---
@@ -477,12 +479,11 @@ clicks: 1
   </div>
   <div class="rounded-2xl border border-amber-300 p-4 dark:border-amber-700">
     <div class="text-lg font-semibold text-amber-600 dark:text-amber-300">採用 GRAPH 付出</div>
-    <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+    <div class="mt-3 grid grid-cols-2 gap-3 text-lg">
       <div class="rounded-lg bg-amber-50 p-3 dark:bg-amber-950">兩套響應式執行層</div>
       <div class="rounded-lg bg-amber-50 p-3 dark:bg-amber-950">輸入＋輸出轉接層</div>
       <div class="rounded-lg bg-amber-50 p-3 dark:bg-amber-950">新語彙＋除錯模型</div>
-      <div class="rounded-lg bg-amber-50 p-3 dark:bg-amber-950">實驗階段成熟度</div>
-      <div class="col-span-2 rounded-lg bg-amber-50 p-3 text-center dark:bg-amber-950">明確的 Graph 擁有者／外部清理策略</div>
+      <div class="rounded-lg bg-amber-50 p-3 dark:bg-amber-950">明確的 Graph 擁有者／外部清理策略</div>
     </div>
   </div>
 </div>

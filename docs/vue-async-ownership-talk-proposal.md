@@ -902,16 +902,17 @@ const updateMutation = useMutation({
 
 #### Slide 24 — 讓非同步狀態成為響應式圖的節點
 
-初始畫面先延續 TanStack Query：
+初始畫面直接介紹 signal-kernel 的概念與基本機制：
 
 ```text
-Vue route refs / computed options
-  → Query runtime / cache / observer
-  → Vue Query adapter
-  → reactive result refs / Vue consumer
+source / revision 改變
+  → async resource 執行並維持狀態快照
+  → 依賴這份快照的 graph 節點重新計算
 ```
 
-第一個 click 才切到 signal-kernel：
+先說明 signal-kernel 是框架中立的響應式執行層；非同步 resource 不只是 Promise 結果，也是能被其他節點追蹤的 graph node。這套輸入、執行、快照傳播機制不需要先接上 Vue。
+
+第一個 click 再把基本機制展開成 Demo 的完整邊界：
 
 ```text
 Vue route adapter

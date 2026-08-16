@@ -2,7 +2,7 @@
 theme: default
 title: 從 Pinia Action 到 Async Resource：重新思考 Vue 應用中的非同步 Ownership
 info: |
-  v-taiwan Meetup #5 · Session 2
+  V-Taiwan Meetup #5 · Session 2
 
   Luciano Lee
 lang: zh-TW
